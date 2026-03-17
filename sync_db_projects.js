@@ -1,14 +1,14 @@
 const pool = require('./backend/db');
 
 async function syncProjects() {
-    try {
-        console.log("Checking for image_url column...");
-        await pool.query('ALTER TABLE projects ADD COLUMN IF NOT EXISTS image_url TEXT');
+  try {
+    console.log('Checking for image_url column...');
+    await pool.query('ALTER TABLE projects ADD COLUMN IF NOT EXISTS image_url TEXT');
 
-        console.log("Updating project records...");
-        
-        // id 1 -> High Rise Building
-        await pool.query(`
+    console.log('Updating project records...');
+
+    // id 1 -> High Rise Building
+    await pool.query(`
             UPDATE projects 
             SET name = 'High Rise Building', 
                 location = '123 Main St', 
@@ -18,8 +18,8 @@ async function syncProjects() {
             WHERE id = 1
         `);
 
-        // id 2 -> DMCI Homes
-        await pool.query(`
+    // id 2 -> DMCI Homes
+    await pool.query(`
             UPDATE projects 
             SET name = 'DMCI Homes', 
                 location = '456 Market St', 
@@ -29,8 +29,8 @@ async function syncProjects() {
             WHERE id = 2
         `);
 
-        // id 3 -> Sunset Apartments
-        await pool.query(`
+    // id 3 -> Sunset Apartments
+    await pool.query(`
             UPDATE projects 
             SET name = 'Sunset Apartments', 
                 location = '789 Ocean Blvd', 
@@ -40,12 +40,12 @@ async function syncProjects() {
             WHERE id = 3
         `);
 
-        console.log("✅ Database sync complete!");
-        process.exit(0);
-    } catch (err) {
-        console.error("❌ Sync failed:", err);
-        process.exit(1);
-    }
+    console.log('✅ Database sync complete!');
+    process.exit(0);
+  } catch (err) {
+    console.error('❌ Sync failed:', err);
+    process.exit(1);
+  }
 }
 
 syncProjects();

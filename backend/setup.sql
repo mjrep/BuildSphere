@@ -19,6 +19,11 @@ CREATE TABLE IF NOT EXISTS projects (
   location TEXT NOT NULL,
   color TEXT NOT NULL DEFAULT '#FFD6F3',
   status TEXT NOT NULL DEFAULT 'ongoing',
+  engineer TEXT,
+  start_date TEXT,
+  end_date TEXT,
+  budget NUMERIC,
+  progress INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

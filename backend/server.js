@@ -1,3 +1,4 @@
+/* global __dirname */
 const express = require('express');
 const cors = require('cors');
 
@@ -29,5 +30,5 @@ app.get('/', (req, res) => res.send('BuildSphere API is running ✅'));
 
 const PORT = 3001;
 app.listen(PORT, () => {
-    console.log(`✅ BuildSphere API running at http://localhost:${PORT}`);
+  console.log(`✅ BuildSphere API running at http://localhost:${PORT}`);
 });
