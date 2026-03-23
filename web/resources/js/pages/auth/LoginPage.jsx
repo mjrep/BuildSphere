@@ -24,12 +24,12 @@ export default function LoginPage() {
             await api.post('/login', form);
             navigate('/dashboard');
         } catch (err) {
+            console.error('Login failed:', err);
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors || {});
-            } else if (err.response?.status === 401) {
-                setErrors({ email: ['Invalid email or password.'] });
             } else {
-                setErrors({ email: ['Something went wrong. Please try again.'] });
+                const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+                setErrors({ email: [message] });
             }
         } finally {
             setLoading(false);

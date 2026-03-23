@@ -4,6 +4,13 @@ import LoginPage from '../pages/auth/LoginPage';
 import SignupPage from '../pages/auth/SignupPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProjectsPage from '../pages/ProjectsPage';
+import NewProjectPage from '../pages/NewProjectPage';
+import ProjectSuccessPage from '../pages/ProjectSuccessPage';
+import ProjectDetailsPage from '../pages/ProjectDetailsPage';
+import EngineerMilestoneInputPage from '../pages/EngineerMilestoneInputPage';
+import EngineerMilestoneReviewPage from '../pages/EngineerMilestoneReviewPage';
+import EngineerMilestoneSuccessPage from '../pages/EngineerMilestoneSuccessPage';
+import ProjectApprovalPage from '../pages/ProjectApprovalPage';
 import TasksPage from '../pages/TasksPage';
 import ReportsPage from '../pages/ReportsPage';
 import ProfilePage from '../pages/ProfilePage';
@@ -42,11 +49,18 @@ export default function AppRoutes() {
                         </ProtectedRoute>
                     }
                 />
-                <Route path="/projects"  element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
-                <Route path="/tasks"     element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
-                <Route path="/reports"   element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
-                <Route path="/profile"   element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+                <Route path="/projects"              element={<ProtectedRoute><ProjectsPage /></ProtectedRoute>} />
+                <Route path="/projects/new"           element={<ProtectedRoute><NewProjectPage /></ProtectedRoute>} />
+                <Route path="/projects/success"       element={<ProtectedRoute><ProjectSuccessPage /></ProtectedRoute>} />
+                <Route path="/projects/:id"           element={<ProtectedRoute><ProjectDetailsPage /></ProtectedRoute>} />
+                <Route path="/projects/:id/milestone-input"   element={<ProtectedRoute><EngineerMilestoneInputPage /></ProtectedRoute>} />
+                <Route path="/projects/:id/milestone-review"  element={<ProtectedRoute><EngineerMilestoneReviewPage /></ProtectedRoute>} />
+                <Route path="/projects/:id/milestone-success" element={<ProtectedRoute><EngineerMilestoneSuccessPage /></ProtectedRoute>} />
+                <Route path="/projects/:id/approval"  element={<ProtectedRoute><ProjectApprovalPage /></ProtectedRoute>} />
+                <Route path="/tasks"                  element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
+                <Route path="/reports"                element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                <Route path="/profile"                element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             </Routes>
         </BrowserRouter>
     );
-}
+}

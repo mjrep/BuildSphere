@@ -31,10 +31,12 @@ export default function SignupPage() {
             await api.post('/register', form);
             navigate('/login');
         } catch (err) {
+            console.error('Registration failed:', err);
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors || {});
             } else {
-                setErrors({ email: ['Something went wrong. Please try again.'] });
+                const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+                setErrors({ email: [message] });
             }
         } finally {
             setLoading(false);
@@ -123,6 +125,7 @@ export default function SignupPage() {
                                 <option value="COO">COO</option>
                                 <option value="Project Engineer">Project Engineer</option>
                                 <option value="Project Coordinator">Project Coordinator</option>
+                                <option value="Foreman">Foreman</option>
                                 <option value="Sales">Sales</option>
                                 <option value="Accounting">Accounting</option>
                                 <option value="HR">HR</option>

@@ -1,14 +1,13 @@
 import axios from 'axios';
 
-// Read CSRF token from the meta tag injected by Laravel's Blade template
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+// Configure axios defaults for Laravel session/CSRF handling
+axios.defaults.withCredentials = true;
+axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
+// Axios automatically reads the XSRF-TOKEN cookie and sends it as X-XSRF-TOKEN header
 const api = axios.create({
-    headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'X-CSRF-TOKEN': csrfToken,
-    },
-    withCredentials: true,
+    baseURL: '/',
 });
 
 export default api;
+

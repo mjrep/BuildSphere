@@ -53,10 +53,12 @@ export default function ProfilePage() {
             setSuccess(true);
             setForm(f => ({ ...f, password: '', password_confirmation: '' }));
         } catch (err) {
+            console.error('Profile update failed:', err);
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors || {});
             } else {
-                setErrors({ email: ['Something went wrong. Please try again.'] });
+                const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+                setErrors({ email: [message] });
             }
         } finally {
             setSaving(false);
