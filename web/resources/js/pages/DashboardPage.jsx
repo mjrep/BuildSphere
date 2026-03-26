@@ -4,13 +4,8 @@ import StatCard from '../components/dashboard/StatCard';
 import ProjectTeamCard from '../components/dashboard/ProjectTeamCard';
 import OngoingProjectRow from '../components/dashboard/OngoingProjectRow';
 import ProjectUpdateCard from '../components/dashboard/ProjectUpdateCard';
-
-// ── Mock Data ──────────────────────────────────────────────────────────────
-const stats = [
-    { label: 'Ongoing Projects',   value: 0,  color: 'text-orange-400' },
-    { label: 'Proposed Projects',  value: 0,  color: 'text-red-500' },
-    { label: 'Completed Projects', value: 0,  color: 'text-green-500' },
-];
+import { getDashboardStats } from '../services/dashboardApi';
+import { useState, useEffect } from 'react';
 
 const avatarColors = ['#706BFF', '#F59E0B', '#10B981', '#EF4444'];
 const mockMembers = [
@@ -34,9 +29,25 @@ const ongoingProjects = [
 ];
 
 const projectUpdates = [0, 0, 0, 0];
-// ──────────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
+    const [statsData, setStatsData] = useState({
+        ongoing_projects_count: 0,
+        proposed_projects_count: 0,
+        completed_projects_count: 0,
+    });
+
+    useEffect(() => {
+        getDashboardStats()
+            .then(setStatsData)
+            .catch(err => console.error('Failed to fetch dashboard stats:', err));
+    }, []);
+
+    const stats = [
+        { label: 'Ongoing Projects',   value: statsData.ongoing_projects_count,  color: 'text-orange-400' },
+        { label: 'Proposed Projects',  value: statsData.proposed_projects_count, color: 'text-red-500' },
+        { label: 'Completed Projects', value: statsData.completed_projects_count, color: 'text-green-500' },
+    ];
     return (
         <DashboardLayout pageTitle="Dashboard">
             <div className="space-y-5">
@@ -82,3 +93,5 @@ export default function DashboardPage() {
         </DashboardLayout>
     );
 }
+
+

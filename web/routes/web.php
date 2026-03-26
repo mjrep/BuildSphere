@@ -44,7 +44,8 @@ Route::middleware('auth')->group(function () {
 
     // Users list (for project-in-charge dropdown)
     Route::get('/users', function () {
-        return \App\Models\User::select('id', 'first_name', 'last_name', 'role')
+        return \App\Models\User::where('role', 'Project Engineer')
+            ->select('id', 'first_name', 'last_name', 'role')
             ->orderBy('first_name')
             ->get()
             ->map(fn ($u) => [
@@ -53,6 +54,7 @@ Route::middleware('auth')->group(function () {
                 'role' => $u->role,
             ]);
     });
+
 });
 
 // Catch-all: serve React app (MUST be last)
