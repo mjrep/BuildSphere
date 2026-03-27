@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { Ionicons } from '@expo/vector-icons';
 import { API_URL } from '../../lib/api';
 
@@ -242,13 +242,7 @@ export default function InventoryScreen({ projectId, onBack }: Props) {
 
       {/* ... rest of the content ... */}
 
-      <LinearGradient
-        colors={['rgba(115,112,255,0.45)', 'transparent']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        className="absolute left-0 right-0 top-0 h-[350px]"
-        pointerEvents="none"
-      />
+
       {/* Add Button */}
       <TouchableOpacity
         onPress={() => setShowAdd(true)}

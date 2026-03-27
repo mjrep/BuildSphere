@@ -8,7 +8,7 @@ import {
   Modal,
   Alert,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useRef } from 'react';
@@ -61,6 +61,36 @@ export default function DashboardScreen({
   const [inventoryProjectId, setInventoryProjectId] = useState<number | null>(null);
   const fabAnim = useRef(new Animated.Value(0)).current;
   const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [projectActionModal, setProjectActionModal] = useState<Project | null>(null);
+
+  const handleProjectAction = (project: Project) => {
+    setProjectActionModal(project);
+  };
+
+  const deleteProject = async (projectId: number) => {
+    Alert.alert(
+      'Delete Project',
+      'Are you sure you want to delete this project? This action cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { 
+          text: 'Delete', 
+          style: 'destructive',
+          onPress: async () => {
+             try {
+               const res = await fetch(`${API_URL}/projects/${projectId}`, { method: 'DELETE' });
+               if (res.ok) {
+                 setProjects(prev => prev.filter(p => p.id !== projectId));
+                 setProjectActionModal(null);
+               }
+             } catch (err) {
+               Alert.alert('Error', 'Failed to delete project.');
+             }
+          }
+        }
+      ]
+    );
+  };
 
   // Sync local user state if prop changes (e.g. from App.tsx persistence)
   useEffect(() => {
@@ -131,6 +161,7 @@ export default function DashboardScreen({
                         location={p.location}
                         color={`bg-[${p.color}]`}
                         image={p.image}
+                        onAction={() => handleProjectAction(p)}
                       />
                     </TouchableOpacity>
                   ))
@@ -319,14 +350,54 @@ export default function DashboardScreen({
         </Modal>
       )}
 
-      {/* MASTER GRADIENT Overlay */}
-      <LinearGradient
-        colors={['rgba(115,112,255,0.45)', 'transparent']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        className="absolute left-0 right-0 top-0 h-[320px]"
-        pointerEvents="none"
-      />
+
+      {/* Project Action Modal (ActionSheet) */}
+      <Modal
+        visible={!!projectActionModal}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setProjectActionModal(null)}>
+        <TouchableOpacity 
+          activeOpacity={1} 
+          onPress={() => setProjectActionModal(null)} 
+          className="flex-1 justify-end bg-black/40">
+          <View className="rounded-t-[30px] bg-white p-6 pb-12">
+            <View className="mb-6 h-1 w-10 self-center rounded-full bg-gray-300" />
+            <Text className="mb-4 text-center text-lg font-bold text-[#1E1E1E]">
+              {projectActionModal?.name}
+            </Text>
+            
+            <TouchableOpacity 
+              onPress={() => setProjectActionModal(null)}
+              className="flex-row items-center py-4 border-b border-gray-50">
+              <Ionicons name="create-outline" size={22} color="#7370FF" />
+              <Text className="ml-4 text-[16px] text-[#2D2D2D]">Edit Project</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={() => setProjectActionModal(null)}
+              className="flex-row items-center py-4 border-b border-gray-50">
+              <Ionicons name="text-outline" size={22} color="#7370FF" />
+              <Text className="ml-4 text-[16px] text-[#2D2D2D]">Change Name</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={() => setProjectActionModal(null)}
+              className="flex-row items-center py-4 border-b border-gray-50">
+              <Ionicons name="image-outline" size={22} color="#7370FF" />
+              <Text className="ml-4 text-[16px] text-[#2D2D2D]">Change Cover</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              onPress={() => deleteProject(projectActionModal!.id)}
+              className="flex-row items-center py-4">
+              <Ionicons name="trash-outline" size={22} color="#FF6B6B" />
+              <Text className="ml-4 text-[16px] text-[#FF6B6B] font-semibold">Delete Project</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+
     </View>
   );
 }

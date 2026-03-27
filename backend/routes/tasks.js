@@ -6,11 +6,22 @@ const pool = require('../db');
 router.get('/', async (req, res) => {
   const { userId } = req.query;
   try {
+    // In the screenshot, tasks has 'project' (text) and 'user_id' directly.
     const result = await pool.query(
-      'SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC',
+      `SELECT * FROM "public"."tasks" 
+       WHERE user_id = $1 
+       ORDER BY created_at DESC`,
       [userId]
     );
-    res.json(result.rows);
+
+    // Normalize data for frontend (e.g., status mapping)
+    const normalized = result.rows.map(row => ({
+      ...row,
+      status: (row.status || '').replace('_', '-'), // in_progress -> in-progress
+      due_date: row.due_date ? new Date(row.due_date).toLocaleDateString() : row.due_date
+    }));
+
+    res.json(normalized);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch tasks.' });
@@ -58,12 +69,11 @@ router.post('/', async (req, res) => {
 
     // Create notification
     await pool.query(
-      'INSERT INTO notifications (type, title, message, time, user_id) VALUES ($1, $2, $3, $4, $5)',
+      'INSERT INTO "public"."notifications" (type, title, message, user_id) VALUES ($1, $2, $3, $4)',
       [
         'update',
         'Task Assignment',
         `New task assigned: '${title}' due ${due_date}.`,
-        'Just now',
         user_id,
       ]
     );

@@ -7,6 +7,7 @@ interface ProjectCardProps {
   color: string;
   progress?: number;
   image?: ImageSourcePropType;
+  onAction?: () => void;
 }
 
 export default function ProjectCard({
@@ -15,6 +16,7 @@ export default function ProjectCard({
   color,
   progress = 60,
   image,
+  onAction,
 }: ProjectCardProps) {
   // Extract hex from bg-[#XXX] or use a default
   const bgMap: Record<string, string> = {
@@ -45,7 +47,10 @@ export default function ProjectCard({
           />
         )}
         {/* 3-dot menu */}
-        <TouchableOpacity className="absolute right-3 top-3 p-1">
+        <TouchableOpacity 
+          className="absolute right-3 top-3 p-1 rounded-full bg-black/10" 
+          onPress={onAction}
+        >
           <Ionicons name="ellipsis-vertical" size={18} color={image ? 'white' : '#888'} />
         </TouchableOpacity>
       </View>

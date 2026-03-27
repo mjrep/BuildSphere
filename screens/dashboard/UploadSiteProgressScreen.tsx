@@ -12,17 +12,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { API_URL } from '../../lib/api';
 import { UserInfo } from '../../App';
-import {
-  getBuildsphereAI,
-  analyzeBuildsphereImage,
-  countGlassPanels,
-} from '../../lib/generative-ai';
+import { hybridGlassAudit } from '../../lib/generative-ai';
 import * as FileSystem from 'expo-file-system/legacy';
-import { supabase } from '../../lib/supabase';
-import { decode } from 'base64-arraybuffer';
 
 interface Props {
   visible: boolean;
@@ -74,7 +68,7 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.8,
     });
@@ -103,7 +97,7 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
   };
 
   const handleCountGlass = async () => {
-    console.log('DEBUG: handleCountGlass triggered');
+    console.log('DEBUG: handleCountGlass triggered (Hybrid Mode)');
     if (!photoUri) {
       console.log('DEBUG: photoUri is null, returning');
       return;
@@ -120,32 +114,28 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
       const ext = (filename.split('.').pop() || 'jpeg').toLowerCase();
       const mimeType = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
 
-      console.log(`DEBUG: Analyzing image. Mime: ${mimeType}, URI: ${photoUri}`);
-      console.log(`DEBUG: Base64 length: ${base64.length}, Start: ${base64.substring(0, 30)}...`);
+      console.log(`DEBUG: Hybrid Analysis starting. Mime: ${mimeType}`);
 
-      const prompt =
-        "Count all the glass panels or windows visible in this construction site photo. Be precise. Return only the number and a very brief description, e.g., '12 glass panels identified'.";
-
-      const resultData = await countGlassPanels(base64, mimeType);
-      const count = resultData.count || 0;
-      const explanation = resultData.explanation || '';
-
+      // NEW HYBRID FLOW: Roboflow (Count) + Gemini (Summary)
+      const { count, summary } = await hybridGlassAudit(base64, mimeType);
+      
+      console.log(`DEBUG: Hybrid Success! Count: ${count}`);
+      
       setGlassCount(count);
 
       // Append result to notes
       const newNotes = notes
-        ? `${notes}\n\nAI Analysis: ${explanation}`
-        : `AI Analysis: ${explanation}`;
+        ? `${notes}\n\nSite Audit Summary: ${summary}`
+        : `Site Audit Summary: ${summary}`;
       setNotes(newNotes);
 
-      Alert.alert('AI Analysis Complete', `Counted ${count} glass panels.\n\n${explanation}`);
+      Alert.alert('Analysis Complete', `Precision Count: ${count} panels.\n\nSummary: ${summary}`);
       setStep(3); // Go to form to see notes
     } catch (error: any) {
-      console.error('ANALYSIS_ERROR:', error);
-      // Show more detail in the alert for debugging
+      console.error('HYBRID_ANALYSIS_ERROR:', error);
       Alert.alert(
         'AI Error',
-        `Failed to analyze image.\n\nDetail: ${error.message || 'Unknown error'}\n\nCheck your terminal for more info.`
+        `Failed to perform hybrid audit.\n\nDetail: ${error.message || 'Unknown error'}`
       );
     } finally {
       setAnalyzing(false);
@@ -159,45 +149,33 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
     }
     setSaving(true);
     try {
-      let finalPhotoUrl = null;
+      const formData = new FormData();
+      formData.append('projectName', projectName);
+      formData.append('partner', partner);
+      formData.append('milestone', milestone);
+      formData.append('location', location);
+      formData.append('notes', notes);
+      formData.append('userId', user.id.toString());
+      formData.append('glassCount', glassCount.toString());
 
       if (photoUri) {
-        const filename = `site_${Date.now()}.jpg`;
-        const base64 = await FileSystem.readAsStringAsync(photoUri, { encoding: 'base64' });
+        const filename = photoUri.split('/').pop() || 'photo.jpg';
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image`;
 
-        const { data, error: uploadError } = await supabase.storage
-          .from('site-progress')
-          .upload(`uploads/${filename}`, decode(base64), {
-            contentType: 'image/jpeg',
-          });
-
-        if (uploadError) {
-          console.error('Supabase Upload Error:', uploadError);
-          Alert.alert('Upload Error', 'Failed to upload image to Supabase.');
-          setSaving(false);
-          return;
-        }
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('site-progress').getPublicUrl(data.path);
-
-        finalPhotoUrl = publicUrl;
+        formData.append('photo', {
+          uri: photoUri,
+          name: filename,
+          type,
+        } as any);
       }
 
       const response = await fetch(`${API_URL}/site-progress`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectName,
-          partner,
-          milestone,
-          location,
-          notes,
-          userId: user.id,
-          glassCount,
-          photoUrl: finalPhotoUrl,
-        }),
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
       });
 
       if (!response.ok) {
@@ -237,10 +215,7 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
         {/* ── STEP 1: Upload photo + quick info ── */}
         {step === 1 && (
           <>
-            <LinearGradient
-              colors={['rgba(115,112,255,0.1)', 'rgba(255,255,255,0)']}
-              className="absolute left-0 right-0 top-0 h-[180px]"
-            />
+
             {/* Header */}
             <View className="flex-row items-center justify-between border-b border-[#F0F0F0] px-5 pb-4 pt-10">
               <TouchableOpacity onPress={handleClose}>
@@ -368,7 +343,7 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
                   <ActivityIndicator color={PRIMARY} />
                 ) : (
                   <>
-                    <Ionicons name="sparkles" size={20} color={PRIMARY} className="mr-2" />
+                    <Ionicons name="sparkles" size={20} color={PRIMARY} />
                     <Text className="ml-2 text-[16px] font-bold text-[#7370FF]">
                       Count Glass Panels (AI)
                     </Text>
@@ -430,18 +405,34 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
               />
 
               {/* Glass Count Display */}
-              <View className="mb-6 flex-row items-center justify-between rounded-2xl border border-[#D3D0FF] bg-[#F8F7FF] p-4">
-                <View className="flex-row items-center">
-                  <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#EAE8FF]">
-                    <Ionicons name="apps" size={20} color={PRIMARY} />
+              <View className="mb-6 rounded-2xl border border-[#D3D0FF] bg-[#F8F7FF] p-4">
+                <View className="flex-row items-center justify-between mb-4">
+                  <View className="flex-row items-center">
+                    <View className="mr-3 h-10 w-10 items-center justify-center rounded-full bg-[#EAE8FF]">
+                      <Ionicons name="apps" size={20} color={PRIMARY} />
+                    </View>
+                    <Text className="text-[14px] font-semibold text-[#1E1E1E]">
+                      Glass Panels Count
+                    </Text>
                   </View>
-                  <Text className="text-[14px] font-semibold text-[#1E1E1E]">
-                    Glass Panels Count
-                  </Text>
                 </View>
-                <View className="rounded-xl border border-[#E0E0E0] bg-white px-4 py-2">
-                  <Text className="text-[18px] font-bold text-[#7370FF]">{glassCount}</Text>
+                
+                <View className="flex-row items-center justify-between bg-white rounded-xl border border-[#E0E0E0] p-3">
+                  <TouchableOpacity 
+                    onPress={() => setGlassCount(Math.max(0, glassCount - 1))}
+                    className="h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+                      <Ionicons name="remove" size={24} color={PRIMARY} />
+                  </TouchableOpacity>
+                  
+                  <Text className="text-[24px] font-bold text-[#7370FF]">{glassCount}</Text>
+                  
+                  <TouchableOpacity 
+                    onPress={() => setGlassCount(glassCount + 1)}
+                    className="h-10 w-10 items-center justify-center rounded-full bg-[#7370FF]">
+                      <Ionicons name="add" size={24} color="white" />
+                  </TouchableOpacity>
                 </View>
+                <Text className="mt-2 text-center text-[10px] text-gray-400">Verfiy and adjust the AI suggestion above</Text>
               </View>
             </ScrollView>
 
@@ -464,10 +455,7 @@ export default function UploadSiteProgressScreen({ visible, user, onClose, proje
         {/* ── STEP 4: Success ── */}
         {step === 4 && (
           <View className="flex-1 items-center justify-center px-8">
-            <LinearGradient
-              colors={['rgba(115,112,255,0.12)', 'rgba(255,255,255,0)']}
-              className="absolute left-0 right-0 top-0 h-[300px]"
-            />
+
 
             <View
               className="mb-6 h-24 w-24 items-center justify-center rounded-full bg-[#7370FF]"

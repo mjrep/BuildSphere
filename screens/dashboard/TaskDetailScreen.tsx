@@ -1,18 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   ScrollView,
   Modal,
-  Platform,
   Image,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-
-const { width } = Dimensions.get('window');
 
 interface TaskDetailScreenProps {
   visible: boolean;
@@ -32,8 +27,6 @@ interface Comment {
 const PRIMARY = '#7370FF';
 
 export default function TaskDetailScreen({ visible, task, onClose }: TaskDetailScreenProps) {
-  const [activeSection, setActiveSection] = useState<'detail' | 'comments'>('detail');
-
   if (!task) return null;
 
   const getStatusStyle = (status: string) => {

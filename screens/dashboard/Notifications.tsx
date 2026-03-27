@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '../../lib/api';
 
 interface Notification {
@@ -26,7 +25,13 @@ export default function Notifications({ userId }: NotificationsProps) {
     fetch(`${API_URL}/notifications?userId=${userId}`)
       .then((res) => res.json())
       .then((data) => {
-        setNotifications(data);
+        // Defensive check: Ensure we got an array
+        if (Array.isArray(data)) {
+          setNotifications(data);
+        } else {
+          console.error('Expected array from notifications API, got:', data);
+          setNotifications([]);
+        }
         setLoading(false);
       })
       .catch(() => setLoading(false));

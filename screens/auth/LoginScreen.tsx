@@ -17,7 +17,6 @@ import { UserInfo } from '../../App';
 
 interface LoginScreenProps {
   onLogin: (user: UserInfo, token: string) => void;
-  onSwitchToSignup: () => void;
   onForgotPassword?: () => void;
 }
 
@@ -25,7 +24,6 @@ const PRIMARY = '#7370FF';
 
 export default function LoginScreen({
   onLogin,
-  onSwitchToSignup,
   onForgotPassword,
 }: LoginScreenProps) {
   const [email, setEmail] = useState('');
@@ -100,12 +98,6 @@ export default function LoginScreen({
               resizeMode="contain"
             />
             <Text className="mt-5 text-[22px] font-bold text-[#1E1E1E]">Log In to BuildSphere</Text>
-            <View className="mt-2 flex-row items-center">
-              <Text className="text-[12.5px] text-[#A3A3A3]">Don&apos;t have an account? </Text>
-              <TouchableOpacity onPress={onSwitchToSignup}>
-                <Text className="text-[12.5px] font-semibold text-[#7370FF]">Sign Up</Text>
-              </TouchableOpacity>
-            </View>
 
             <View className="mt-10 w-full">
               <Text className="mb-2 text-[12px] font-semibold text-[#2D2D2D]">Email</Text>

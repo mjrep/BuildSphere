@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { API_URL } from '../../lib/api';
 import InventoryScreen from './InventoryScreen';
 import SiteUpdatesScreen from './SiteUpdatesScreen';
@@ -217,14 +217,7 @@ export default function ProjectDetailScreen({ projectId, onBack }: Props) {
         </View>
       </ScrollView>
 
-      {/* TOP LAYER GRADIENT Overlay */}
-      <LinearGradient
-        colors={['rgba(115,112,255,0.45)', 'transparent']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        className="absolute left-0 right-0 top-0 h-[350px]"
-        pointerEvents="none"
-      />
+
 
       {/* Bottom space to avoid overlap with Dashboard nav if needed, or just let ScrollView handle it */}
       <View style={{ height: 100 }} />

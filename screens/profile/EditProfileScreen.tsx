@@ -10,13 +10,11 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import * as ImagePicker from 'expo-image-picker';
 import { API_URL } from '../../lib/api';
 import { UserInfo } from '../../App';
-import { supabase } from '../../lib/supabase';
 import * as FileSystem from 'expo-file-system/legacy';
-import { decode } from 'base64-arraybuffer';
 
 interface EditProfileScreenProps {
   user: UserInfo;
@@ -51,7 +49,7 @@ export default function EditProfileScreen({ user, onBack, onSaved }: EditProfile
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
@@ -65,27 +63,33 @@ export default function EditProfileScreen({ user, onBack, onSaved }: EditProfile
     if (!localImageUri) return user.profilePictureUrl || null;
     setUploading(true);
     try {
-      const filename = `profile_${user.id}_${Date.now()}.jpg`;
-      const base64 = await FileSystem.readAsStringAsync(localImageUri, { encoding: 'base64' });
+      const formData = new FormData();
+      const filename = localImageUri.split('/').pop() || 'photo.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : `image`;
 
-      const { data, error: uploadError } = await supabase.storage
-        .from('profiles')
-        .upload(`avatars/${filename}`, decode(base64), {
-          contentType: 'image/jpeg',
-          upsert: true,
-        });
+      formData.append('photo', {
+        uri: localImageUri,
+        name: filename,
+        type,
+      } as any);
 
-      if (uploadError) {
-        console.error('Supabase Profile Upload Error:', uploadError);
-        Alert.alert('Upload Error', 'Failed to upload profile photo to Supabase.');
+      const res = await fetch(`${API_URL}/upload/${user.id}/photo`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        Alert.alert('Upload Error', errorData.error || 'Failed to upload photo.');
         return null;
       }
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('profiles').getPublicUrl(data.path);
-
-      return publicUrl;
+      const data = await res.json();
+      return data.imageUrl; // Backend returns relative path e.g. /uploads/user_1_...jpg
     } catch (err) {
       console.error('UPLOAD_PHOTO_ERROR:', err);
       Alert.alert('Upload Error', 'Could not upload photo.');
@@ -149,12 +153,7 @@ export default function EditProfileScreen({ user, onBack, onSaved }: EditProfile
 
   return (
     <View className="flex-1 bg-white">
-      <LinearGradient
-        colors={['rgba(115,112,255,0.12)', 'rgba(255,255,255,0)']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        className="absolute left-0 right-0 top-0 h-[250px]"
-      />
+
 
       {/* Header */}
       <View className="flex-row items-center justify-between px-5 pb-4 pt-14">

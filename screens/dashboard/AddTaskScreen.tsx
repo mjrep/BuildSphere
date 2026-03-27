@@ -8,15 +8,12 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
-  Platform,
-  Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '../../lib/api';
 import { Picker } from '@react-native-picker/picker';
 
-const { width } = Dimensions.get('window');
+
 
 interface AddTaskScreenProps {
   visible: boolean;

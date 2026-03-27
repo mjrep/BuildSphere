@@ -8,7 +8,6 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '../../lib/api';
 
 interface Task {
@@ -102,10 +101,13 @@ export default function MyWork({ userId, onTaskSelect }: MyWorkProps) {
   }, [userId]);
 
   const getTabCount = (tab: Tab) => {
+    if (!Array.isArray(tasks)) return 0;
     return tasks.filter((t) => t.status === STATUS_MAP[tab]).length;
   };
 
-  const filteredTasks = tasks.filter((t) => t.status === STATUS_MAP[activeTab]);
+  const filteredTasks = Array.isArray(tasks)
+    ? tasks.filter((t) => t.status === STATUS_MAP[activeTab])
+    : [];
 
   const getPriorityColor = (priority: string) => {
     switch (priority?.toLowerCase()) {

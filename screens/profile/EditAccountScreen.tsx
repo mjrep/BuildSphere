@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+
 import { API_URL } from '../../lib/api';
 import { UserInfo } from '../../App';
 
@@ -80,12 +80,7 @@ export default function EditAccountScreen({ user, onBack, onSaved }: EditAccount
 
   return (
     <View className="flex-1 bg-white">
-      <LinearGradient
-        colors={['rgba(115,112,255,0.12)', 'rgba(255,255,255,0)']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        className="absolute left-0 right-0 top-0 h-[250px]"
-      />
+
 
       {/* Header */}
       <View className="flex-row items-center justify-between px-5 pb-4 pt-14">

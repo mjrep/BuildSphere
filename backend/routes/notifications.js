@@ -7,10 +7,15 @@ router.get('/', async (req, res) => {
   const { userId } = req.query;
   try {
     const result = await pool.query(
-      'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC',
+      'SELECT * FROM "public"."notifications" WHERE user_id = $1 ORDER BY created_at DESC',
       [userId]
     );
-    res.json(result.rows);
+    // Map 'date' column to 'time' for frontend if needed
+    const mapped = (result.rows || []).map(n => ({
+      ...n,
+      time: n.time || n.date || 'Just now'
+    }));
+    res.json(mapped);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch notifications.' });
@@ -20,7 +25,7 @@ router.get('/', async (req, res) => {
 // PATCH /notifications/:id/read
 router.patch('/:id/read', async (req, res) => {
   try {
-    await pool.query('UPDATE notifications SET is_read = true WHERE id = $1', [req.params.id]);
+    await pool.query('UPDATE "public"."notifications" SET is_read = true WHERE id = $1', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
     console.error(err);

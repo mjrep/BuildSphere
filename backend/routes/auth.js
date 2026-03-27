@@ -14,14 +14,14 @@ router.post('/signup', async (req, res) => {
   }
   try {
     // Check if user already exists
-    const existing = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+    const existing = await pool.query('SELECT id FROM "public"."users" WHERE email = $1', [email]);
     if (existing.rows.length > 0) {
       return res.status(409).json({ error: 'Email already registered.' });
     }
     const hashed = await bcrypt.hash(password, 10);
     const result = await pool.query(
-      'INSERT INTO users (first_name, last_name, email, password_hash) VALUES ($1, $2, $3, $4) RETURNING id, first_name, last_name, email',
-      [firstName, lastName, email, hashed]
+      'INSERT INTO "public"."users" (first_name, last_name, email, password, role) VALUES ($1, $2, $3, $4, $5) RETURNING id, first_name, last_name, email',
+      [firstName, lastName, email, hashed, 'user']
     );
     const user = result.rows[0];
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
@@ -47,15 +47,21 @@ router.post('/login', async (req, res) => {
     return res.status(400).json({ error: 'Email and password are required.' });
   }
   try {
-    const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+    console.log(`[DEBUG] Login attempt for: "${email}"`);
+    const result = await pool.query('SELECT * FROM "public"."users" WHERE email = $1', [email]);
+    console.log(`[DEBUG] DB Result size: ${result.rows.length}`);
+    
     if (result.rows.length === 0) {
+      console.log(`[DEBUG] NO ACCOUNT FOUND for: "${email}"`);
       return res.status(401).json({ error: 'No account found with that email.' });
     }
     const user = result.rows[0];
-    const valid = await bcrypt.compare(password, user.password_hash);
+    const valid = await bcrypt.compare(password, user.password);
     if (!valid) {
+      console.log(`[DEBUG] INCORRECT PASSWORD for: "${email}"`);
       return res.status(401).json({ error: 'Incorrect password.' });
     }
+    console.log(`[DEBUG] LOGIN SUCCESS for: "${email}"`);
     const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
     res.json({
       token,

@@ -2,7 +2,6 @@ import './global.css';
 import { useState, useEffect } from 'react';
 import DashboardScreen from './screens/dashboard/DashboardScreen';
 import LoginScreen from './screens/auth/LoginScreen';
-import SignupScreen from './screens/auth/SignupScreen';
 import ForgotPasswordScreen from './screens/auth/ForgotPasswordScreen';
 import { StatusBar } from 'expo-status-bar';
 import { View, ActivityIndicator } from 'react-native';
@@ -20,7 +19,7 @@ export interface UserInfo {
 export default function App() {
   const [user, setUser] = useState<UserInfo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [showSignup, setShowSignup] = useState(false);
+
   const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   // Restore session from storage
@@ -73,20 +72,6 @@ export default function App() {
     );
   }
 
-  if (showSignup) {
-    return (
-      <SafeAreaProvider>
-        <StatusBar style="dark" />
-        <SignupScreen
-          onSignupComplete={(u, t) => {
-            handleLogin(u, t);
-            setShowSignup(false);
-          }}
-          onSwitchToLogin={() => setShowSignup(false)}
-        />
-      </SafeAreaProvider>
-    );
-  }
 
   if (showForgotPassword) {
     return (
@@ -100,7 +85,7 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <LoginScreen onLogin={handleLogin} onSwitchToSignup={() => setShowSignup(true)} onForgotPassword={() => setShowForgotPassword(true)} />
+      <LoginScreen onLogin={handleLogin} onForgotPassword={() => setShowForgotPassword(true)} />
     </SafeAreaProvider>
   );
 }

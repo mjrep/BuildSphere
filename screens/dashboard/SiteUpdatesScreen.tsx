@@ -10,7 +10,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { API_URL } from '../../lib/api';
 
 const { width } = Dimensions.get('window');

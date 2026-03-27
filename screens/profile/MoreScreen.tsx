@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { UserInfo } from '../../App';
 import EditProfileScreen from './EditProfileScreen';
 import EditAccountScreen from './EditAccountScreen';
