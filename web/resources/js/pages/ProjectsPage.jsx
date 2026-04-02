@@ -8,12 +8,18 @@ import useAuth from '../hooks/useAuth';
 import { getProjects } from '../services/projectApi';
 
 const STATUS_TABS = [
-    { key: '',          label: 'All' },
-    { key: 'PROPOSED',  label: 'Proposed' },
-    { key: 'ONGOING',   label: 'Ongoing' },
-    { key: 'FOR_REVISION', label: 'For Revision' },
-    { key: 'PENDING_ACCOUNTING_APPROVAL', label: 'Pending Approval' },
-    { key: 'COMPLETED', label: 'Completed' },
+    { key: '',         label: 'All' },
+    { key: 'proposed', label: 'Proposed' },
+    { key: 'ongoing',  label: 'Ongoing' },
+    { key: 'completed', label: 'Completed' },
+];
+
+const SUB_STATUS_TABS = [
+    { key: '',                 label: 'All' },
+    { key: 'draft',            label: 'Draft' },
+    { key: 'for_revision',     label: 'For Revision' },
+    { key: 'pending_approval', label: 'Pending Approval' },
+    { key: 'approved',         label: 'Approved' },
 ];
 
 export default function ProjectsPage() {
@@ -21,6 +27,7 @@ export default function ProjectsPage() {
     const { user } = useAuth();
     const [view, setView] = useState('grid');
     const [activeTab, setActiveTab] = useState('');
+    const [activeSubTab, setActiveSubTab] = useState('');
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
@@ -31,6 +38,7 @@ export default function ProjectsPage() {
         try {
             const params = {};
             if (activeTab) params.status = activeTab;
+            if (activeTab === 'proposed' && activeSubTab) params.sub_status = activeSubTab;
             if (search) params.search = search;
             const res = await getProjects(params);
             setProjects(res.data.data || []);
@@ -43,8 +51,14 @@ export default function ProjectsPage() {
     };
 
     useEffect(() => {
+        // Reset sub-tab when main tab changes
+        setActiveSubTab('');
         fetchProjects();
     }, [activeTab]);
+
+    useEffect(() => {
+        fetchProjects();
+    }, [activeSubTab]);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -99,6 +113,28 @@ export default function ProjectsPage() {
                         );
                     })}
                 </div>
+
+                {/* Sub-status filters for Proposed */}
+                {activeTab === 'proposed' && (
+                    <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-top-1 duration-300">
+                        {SUB_STATUS_TABS.map((tab) => {
+                            const isActive = activeSubTab === tab.key;
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveSubTab(tab.key)}
+                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                                        isActive
+                                            ? 'bg-[#706BFF] text-white shadow-sm'
+                                            : 'bg-[#F0F0F8] text-[#A1A1A1] hover:bg-[#E8E8FF] hover:text-[#706BFF]'
+                                    }`}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
 
                 {/* Search bar */}
                 <form onSubmit={handleSearch} className="mb-6">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ProjectStatus;
+use App\Enums\ProjectSubStatus;
 use App\Http\Requests\AccountingApprovalRequest;
 use App\Http\Requests\ExecutiveApprovalRequest;
 use App\Http\Resources\ProjectResource;
@@ -20,7 +21,7 @@ class ProjectApprovalController extends Controller
      */
     public function accountingApproval(AccountingApprovalRequest $request, Project $project)
     {
-        if ($project->status !== ProjectStatus::PENDING_ACCOUNTING_APPROVAL) {
+        if ($project->sub_status !== ProjectSubStatus::PENDING_APPROVAL || $project->accounting_approved_at !== null) {
             return response()->json([
                 'message' => 'This project is not pending accounting approval.',
             ], 422);
@@ -43,7 +44,7 @@ class ProjectApprovalController extends Controller
      */
     public function executiveApproval(ExecutiveApprovalRequest $request, Project $project)
     {
-        if ($project->status !== ProjectStatus::PENDING_EXECUTIVE_APPROVAL) {
+        if ($project->sub_status !== ProjectSubStatus::PENDING_APPROVAL || $project->accounting_approved_at === null) {
             return response()->json([
                 'message' => 'This project is not pending executive approval.',
             ], 422);

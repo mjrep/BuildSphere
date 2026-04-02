@@ -48,7 +48,8 @@ class ProjectMilestoneController extends Controller
             'project_id'   => $project->id,
             'project_name' => $project->project_name,
             'status'       => $project->status->value,
-            'is_editable'  => in_array($project->status, [ProjectStatus::PROPOSED, ProjectStatus::FOR_REVISION]),
+            'sub_status'   => $project->sub_status?->value,
+            'is_editable'  => $project->isEditable(),
             'phases'        => $phases,
         ]);
     }
@@ -93,9 +94,9 @@ class ProjectMilestoneController extends Controller
             return response()->json(['message' => 'Only Project Engineers can submit milestone plans.'], 403);
         }
 
-        if (!in_array($project->status, [ProjectStatus::PROPOSED, ProjectStatus::FOR_REVISION])) {
+        if (!$project->isEditable()) {
             return response()->json([
-                'message' => 'Milestone plan can only be submitted for projects in Proposed or For Revision status.',
+                'message' => 'Milestone plan can only be submitted for projects in Proposed (Draft or For Revision) status.',
             ], 422);
         }
 

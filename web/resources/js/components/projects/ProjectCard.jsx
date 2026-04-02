@@ -25,7 +25,7 @@ export default function ProjectCard({ project }) {
                         </div>
                         <span className="text-sm font-bold text-[#1A1A1A] truncate">{project.project_name}</span>
                     </div>
-                    <StatusBadge status={project.status} />
+                    <StatusBadge status={project.status} subStatus={project.sub_status} />
                 </div>
                 <p className="text-xs text-[#A1A1A1] mt-1 ml-10">{project.client_name}</p>
             </div>

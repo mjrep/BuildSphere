@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use App\Enums\ProjectSubStatus;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,7 @@ class Project extends Model
         'start_date',
         'end_date',
         'status',
+        'sub_status',
         'created_by',
         'project_in_charge_id',
         'accounting_approved_by',
@@ -39,6 +41,7 @@ class Project extends Model
     {
         return [
             'status'                => ProjectStatus::class,
+            'sub_status'            => ProjectSubStatus::class,
             'contract_price'        => 'decimal:2',
             'contract_unit_price'   => 'decimal:2',
             'budget_for_materials'  => 'decimal:2',
@@ -132,12 +135,40 @@ class Project extends Model
         return $this->hasMany(ProjectRevision::class)->orderByDesc('created_at');
     }
 
+    public function members(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+            ->withPivot(['role_in_project', 'assigned_by', 'assigned_at'])
+            ->withTimestamps();
+    }
+
+    public function projectFiles(): HasMany
+    {
+        return $this->hasMany(ProjectFile::class)->orderByDesc('created_at');
+    }
+
+    public function inventoryItems(): HasMany
+    {
+        return $this->hasMany(ProjectInventoryItem::class)->orderBy('item_name');
+    }
+
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
     // ── Query Scopes ────────────────────────────────────────────────────
 
     public function scopeByStatus(Builder $query, string|ProjectStatus $status): Builder
     {
         $value = $status instanceof ProjectStatus ? $status->value : $status;
         return $query->where('status', $value);
+    }
+
+    public function scopeBySubStatus(Builder $query, string|ProjectSubStatus $subStatus): Builder
+    {
+        $value = $subStatus instanceof ProjectSubStatus ? $subStatus->value : $subStatus;
+        return $query->where('sub_status', $value);
     }
 
     public function scopeSearch(Builder $query, ?string $term): Builder
@@ -160,8 +191,31 @@ class Project extends Model
 
     // ── Helpers ──────────────────────────────────────────────────────────
 
+    public function isProposed(): bool
+    {
+        return $this->status === ProjectStatus::PROPOSED;
+    }
+
+    public function isOngoing(): bool
+    {
+        return $this->status === ProjectStatus::ONGOING;
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === ProjectStatus::COMPLETED;
+    }
+
     public function isEditable(): bool
     {
-        return $this->status->isEditable();
+        // Project is editable if it's proposed and in draft or for_revision states
+        if (!$this->isProposed()) {
+            return false;
+        }
+
+        return in_array($this->sub_status, [
+            ProjectSubStatus::DRAFT,
+            ProjectSubStatus::FOR_REVISION,
+        ]);
     }
 }

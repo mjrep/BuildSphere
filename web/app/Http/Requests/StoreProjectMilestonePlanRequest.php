@@ -20,10 +20,7 @@ class StoreProjectMilestonePlanRequest extends FormRequest
         }
 
         // Only editable statuses
-        return in_array($project->status, [
-            ProjectStatus::PROPOSED,
-            ProjectStatus::FOR_REVISION,
-        ]);
+        return $project->isEditable();
     }
 
     public function rules(): array

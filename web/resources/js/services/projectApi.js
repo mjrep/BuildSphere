@@ -18,19 +18,19 @@ export const deleteProject = (id) =>
     api.delete(`/projects/${id}`);
 
 export const getMilestonePlan = (projectId) =>
-    api.get(`/api/projects/${projectId}/milestone-plan`);
+    api.get(`/projects/${projectId}/milestone-plan`);
 
 export const storeMilestonePlan = (projectId, phases) =>
-    api.post(`/api/projects/${projectId}/milestone-plan`, { phases });
+    api.post(`/projects/${projectId}/milestone-plan`, { phases });
 
 export const getMilestoneChart = (projectId) =>
-    api.get(`/api/projects/${projectId}/milestone-chart`);
+    api.get(`/projects/${projectId}/milestone-chart`);
 
 export const submitMilestoneReview = (projectId) =>
-    api.post(`/api/projects/${projectId}/milestone-submit`);
+    api.post(`/projects/${projectId}/milestone-submit`, { });
 
 export const getPhaseTitles = () =>
-    api.get('/api/phase-titles');
+    api.get('/phase-titles');
 
 // ── Approvals ───────────────────────────────────────────────────────────
 

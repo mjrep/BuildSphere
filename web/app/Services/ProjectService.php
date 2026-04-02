@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ProjectStatus;
+use App\Enums\ProjectSubStatus;
 use App\Models\Project;
 use App\Models\ProjectActivityLog;
 use App\Models\ProjectApproval;
@@ -22,6 +23,7 @@ class ProjectService
             $project = Project::create([
                 ...$data,
                 'status'     => ProjectStatus::PROPOSED->value,
+                'sub_status' => ProjectSubStatus::DRAFT->value,
                 'created_by' => $user->id,
             ]);
 
@@ -77,12 +79,18 @@ class ProjectService
     {
         return DB::transaction(function () use ($project, $user) {
             $oldStatus = $project->status->value;
-            $isResubmission = $project->status === ProjectStatus::FOR_REVISION;
+            $oldSubStatus = $project->sub_status?->value;
+            $isResubmission = $project->sub_status === ProjectSubStatus::FOR_REVISION;
 
             $project->update([
-                'status'           => ProjectStatus::PENDING_ACCOUNTING_APPROVAL->value,
-                'rejected_by'      => null,
-                'rejection_reason' => null,
+                'status'                 => ProjectStatus::PROPOSED->value,
+                'sub_status'             => ProjectSubStatus::PENDING_APPROVAL->value,
+                'rejected_by'            => null,
+                'rejection_reason'       => null,
+                'accounting_approved_by' => null,
+                'accounting_approved_at' => null,
+                'executive_approved_by'  => null,
+                'executive_approved_at'  => null,
             ]);
 
             $action = $isResubmission ? 'MILESTONES_RESUBMITTED' : 'MILESTONES_SUBMITTED';
@@ -90,7 +98,7 @@ class ProjectService
                 ? 'Milestone plan resubmitted after revision. Project pending accounting approval.'
                 : 'Milestone plan submitted. Project pending accounting approval.';
 
-            $this->logRevision($project, $user, $oldStatus, ProjectStatus::PENDING_ACCOUNTING_APPROVAL->value, $desc);
+            $this->logRevision($project, $user, $oldStatus . ($oldSubStatus ? ":{$oldSubStatus}" : ""), ProjectStatus::PROPOSED->value . ":" . ProjectSubStatus::PENDING_APPROVAL->value, $desc);
             $this->logActivity($project, $user, $action, $desc);
 
             return $project->fresh();
@@ -117,23 +125,26 @@ class ProjectService
 
             if ($decision === 'APPROVED') {
                 $project->update([
-                    'status'                => ProjectStatus::PENDING_EXECUTIVE_APPROVAL->value,
+                    'status'                 => ProjectStatus::PROPOSED->value,
+                    'sub_status'             => ProjectSubStatus::PENDING_APPROVAL->value,
                     'accounting_approved_by' => $user->id,
                     'accounting_approved_at' => now(),
                 ]);
-                $newStatus = ProjectStatus::PENDING_EXECUTIVE_APPROVAL->value;
-                $this->logActivity($project, $user, 'ACCOUNTING_APPROVED', 'Accounting approved the project.');
+                $newStatus = ProjectStatus::PROPOSED->value . ":" . ProjectSubStatus::PENDING_APPROVAL->value;
+                $this->logActivity($project, $user, 'ACCOUNTING_APPROVED', 'Accounting approved the project. Now pending executive approval.');
             } else {
                 $project->update([
-                    'status'           => ProjectStatus::FOR_REVISION->value,
+                    'status'           => ProjectStatus::PROPOSED->value,
+                    'sub_status'       => ProjectSubStatus::FOR_REVISION->value,
                     'rejected_by'      => $user->id,
                     'rejection_reason' => $comments,
                 ]);
-                $newStatus = ProjectStatus::FOR_REVISION->value;
+                $newStatus = ProjectStatus::PROPOSED->value . ":" . ProjectSubStatus::FOR_REVISION->value;
                 $this->logActivity($project, $user, 'ACCOUNTING_REJECTED', "Accounting rejected: {$comments}");
             }
 
-            $this->logRevision($project, $user, $oldStatus, $newStatus, $comments);
+            $currentFullStatus = $project->status->value . ($project->sub_status ? ":{$project->sub_status->value}" : "");
+            $this->logRevision($project, $user, $oldStatus . ($project->getOriginal('sub_status') ? ":{$project->getOriginal('sub_status')}" : ""), $newStatus, $comments);
 
             return $project->fresh();
         });
@@ -158,7 +169,8 @@ class ProjectService
 
             if ($decision === 'APPROVED') {
                 $project->update([
-                    'status'                => ProjectStatus::ONGOING->value,
+                    'status'                 => ProjectStatus::ONGOING->value,
+                    'sub_status'             => null,
                     'executive_approved_by' => $user->id,
                     'executive_approved_at' => now(),
                 ]);
@@ -166,15 +178,17 @@ class ProjectService
                 $this->logActivity($project, $user, 'EXECUTIVE_APPROVED', 'Executive approved the project. Project is now ongoing.');
             } else {
                 $project->update([
-                    'status'           => ProjectStatus::FOR_REVISION->value,
+                    'status'           => ProjectStatus::PROPOSED->value,
+                    'sub_status'       => ProjectSubStatus::FOR_REVISION->value,
                     'rejected_by'      => $user->id,
                     'rejection_reason' => $comments,
                 ]);
-                $newStatus = ProjectStatus::FOR_REVISION->value;
+                $newStatus = ProjectStatus::PROPOSED->value . ":" . ProjectSubStatus::FOR_REVISION->value;
                 $this->logActivity($project, $user, 'EXECUTIVE_REJECTED', "Executive rejected: {$comments}");
             }
 
-            $this->logRevision($project, $user, $oldStatus, $newStatus, $comments);
+            $currentFullFrom = $oldStatus . ($project->getOriginal('sub_status') ? ":{$project->getOriginal('sub_status')}" : "");
+            $this->logRevision($project, $user, $currentFullFrom, $newStatus, $comments);
 
             return $project->fresh();
         });

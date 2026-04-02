@@ -35,6 +35,7 @@ class ProjectSeeder extends Seeder
 
         $projects = [
             [
+                'project_code'        => 'QC-2026-001',
                 'project_name'        => 'Quezon City Office Tower',
                 'client_name'         => 'XYZ Corporation',
                 'address'             => '123 Quezon Ave, Quezon City',
@@ -49,6 +50,7 @@ class ProjectSeeder extends Seeder
                 'project_in_charge_id'=> $engineer->id,
             ],
             [
+                'project_code'        => 'MK-2026-001',
                 'project_name'        => 'Makati Residential Complex',
                 'client_name'         => 'Aluminum Works Inc.',
                 'address'             => '456 Ayala Ave, Makati City',
@@ -63,10 +65,11 @@ class ProjectSeeder extends Seeder
                 'project_in_charge_id'=> $engineer->id,
             ],
             [
+                'project_code'        => 'BG-2026-001',
                 'project_name'        => 'BGC Glass Curtain Wall',
                 'client_name'         => 'Glassworks Philippines',
                 'address'             => '789 Bonifacio High Street, Taguig City',
-                'description'         => 'Curtain wall installation for a commercial building.',
+                'description' => 'Curtain wall installation for a commercial building.',
                 'contract_price'      => 8500000.00,
                 'contract_unit_price' => 8000.00,
                 'budget_for_materials'=> 4200000.00,
@@ -77,6 +80,7 @@ class ProjectSeeder extends Seeder
                 'project_in_charge_id'=> $engineer->id,
             ],
             [
+                'project_code'        => 'MN-2026-001',
                 'project_name'        => 'Mandaluyong Steel Warehouse',
                 'client_name'         => 'Metro Steel Corp',
                 'address'             => '321 Shaw Blvd, Mandaluyong City',

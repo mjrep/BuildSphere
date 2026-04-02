@@ -6,7 +6,7 @@ axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 
 // Axios automatically reads the XSRF-TOKEN cookie and sends it as X-XSRF-TOKEN header
 const api = axios.create({
-    baseURL: '/',
+    baseURL: '/api',
 });
 
 export default api;

@@ -1,6 +1,6 @@
 import api from './api';
 
-const BASE = '/api/tasks';
+const BASE = '/tasks';
 
 export const getTasks = (params = {}) =>
     api.get(BASE, { params }).then(r => r.data);

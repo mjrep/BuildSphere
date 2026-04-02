@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ProjectStatus;
+use App\Enums\ProjectSubStatus;
 use App\Http\Requests\CreateProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
@@ -32,6 +33,11 @@ class ProjectController extends Controller
         // Filter by status
         if ($request->filled('status')) {
             $query->byStatus($request->status);
+        }
+
+        // Filter by sub_status
+        if ($request->filled('sub_status')) {
+            $query->bySubStatus($request->sub_status);
         }
 
         // Filter by creator
@@ -78,11 +84,57 @@ class ProjectController extends Controller
             'projectInCharge',
             'milestones.creator',
             'approvals.approver',
-            'activityLogs.user',
+            'members',
+            'tasks',
         ]);
+
+        // Limit the heavy relationships so the API response doesn't get huge
+        $project->load(['activityLogs' => function ($query) {
+            $query->with('user')->orderByDesc('created_at')->limit(10);
+        }]);
+
+        $project->load(['projectFiles' => function ($query) {
+            $query->with('uploadedBy')->orderByDesc('created_at')->limit(5);
+        }]);
+
         $project->loadCount('milestones');
 
         return new ProjectResource($project);
+    }
+
+    /**
+     * POST /projects/{project}/team — add a user to the project team.
+     */
+    public function addTeamMember(Request $request, Project $project)
+    {
+        if (!in_array($request->user()->role, ['CEO', 'COO', 'HR'])) {
+            return response()->json(['message' => 'Not authorized to manage project team.'], 403);
+        }
+
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'role_in_project' => 'nullable|string|max:100',
+        ]);
+
+        if ($project->members()->where('user_id', $validated['user_id'])->exists()) {
+            return response()->json(['message' => 'User is already a member of this project.'], 422);
+        }
+
+        $project->members()->attach($validated['user_id'], [
+            'role_in_project' => $validated['role_in_project'] ?? null,
+            'assigned_by' => $request->user()->id,
+        ]);
+
+        // Optional: log to project activity
+        \App\Models\ProjectActivityLog::create([
+            'project_id' => $project->id,
+            'user_id' => $request->user()->id,
+            'action' => 'TEAM_MEMBER_ADDED',
+            'description' => "Added regular user ID {$validated['user_id']} to the team.",
+            'created_at' => now(),
+        ]);
+
+        return response()->json(['message' => 'Team member added successfully.']);
     }
 
     /**
@@ -101,7 +153,7 @@ class ProjectController extends Controller
      */
     public function destroy(Request $request, Project $project)
     {
-        if ($request->user()->role !== 'Sales' || $project->status !== ProjectStatus::PROPOSED) {
+        if ($request->user()->role !== 'Sales' || !$project->isProposed()) {
             return response()->json(['message' => 'Not authorized to delete this project.'], 403);
         }
 
@@ -122,6 +174,15 @@ class ProjectController extends Controller
             'badge_color' => $s->badgeColor(),
         ]);
 
-        return response()->json($statuses);
+        $subStatuses = collect(ProjectSubStatus::cases())->map(fn ($s) => [
+            'value'       => $s->value,
+            'label'       => $s->label(),
+            'badge_color' => $s->badgeColor(),
+        ]);
+
+        return response()->json([
+            'main' => $statuses,
+            'sub'  => $subStatuses,
+        ]);
     }
 }
