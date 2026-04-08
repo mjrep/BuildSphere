@@ -40,8 +40,6 @@ class ProjectInventoryController extends Controller
         $validated['project_id'] = $project->id;
         $validated['created_by'] = $request->user()->id;
         $validated['current_stock'] = 0;
-        $validated['stock_unit'] = '';
-        $validated['price_unit'] = '';
 
         $item = ProjectInventoryItem::create($validated);
 

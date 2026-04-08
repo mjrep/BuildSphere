@@ -13,10 +13,8 @@ class ProjectInventoryItem extends Model
         'item_name',
         'category',
         'current_stock',
-        'stock_unit',
         'critical_level',
         'price',
-        'price_unit',
         'created_by',
         'updated_by',
     ];

@@ -22,13 +22,11 @@ class ProjectInventoryItemResource extends JsonResource
             'item_name'        => $this->item_name,
             'category'         => $this->category,
             'current_stock'    => $this->current_stock,
-            'stock_unit'       => $this->stock_unit,
-            'stock_display'    => $this->current_stock . ' ' . $this->stock_unit,
+            'stock_display'    => (string)$this->current_stock,
             'critical_level'   => $this->critical_level,
-            'critical_display' => $this->critical_level . ' ' . $this->stock_unit,
+            'critical_display' => (string)$this->critical_level,
             'price'            => $this->price,
-            'price_unit'       => $this->price_unit,
-            'price_display'    => '₱' . number_format($this->price, 0) . ' ' . $this->price_unit,
+            'price_display'    => '₱' . number_format($this->price, 0),
             'status'           => $statusStr,
         ];
     }

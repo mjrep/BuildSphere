@@ -55,11 +55,8 @@ export default function UpdateStockModal({ project, item, onClose, onSuccess }) 
                                 type="number"
                                 min="0"
                                 step="any"
-                                className="w-full rounded-xl border border-gray-200 pl-3 pr-16 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
+                                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
                             />
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500 sm:text-sm">{item.stock_unit}</span>
-                            </div>
                         </div>
                     </div>
 
