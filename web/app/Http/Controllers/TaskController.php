@@ -48,13 +48,18 @@ class TaskController extends Controller
     /**
      * GET /api/tasks/meta — Filter dropdown data.
      */
-    public function meta(): JsonResponse
+    public function meta(Request $request): JsonResponse
     {
         $this->authorize('viewAny', Task::class);
 
-        $projects = Project::orderBy('project_name')
-            ->select('id', 'project_name')
-            ->get();
+        $projects = Project::visibleTo($request->user())
+            ->orderBy('project_name')
+            ->select('id', 'project_name', 'project_code')
+            ->get()
+            ->map(fn ($p) => [
+                'id'   => $p->id,
+                'name' => $p->project_name,
+            ]);
 
         $users = User::orderBy('first_name')
             ->select('id', 'first_name', 'last_name', 'role')

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TASK_PRIORITIES, TASK_STATUSES } from '../../utils/taskConstants';
 import { buildTaskFormData } from '../../utils/taskHelpers';
+import { getTaskMeta } from '../../services/taskApi';
 import api from '../../services/api';
 
 const STEPS = ['Details', 'Description'];
@@ -27,9 +28,9 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
 
     // Load meta on mount
     useEffect(() => {
-        api.get('/api/tasks/meta').then(r => {
-            setProjects(r.data.projects ?? []);
-            setUsers(r.data.users ?? []);
+        getTaskMeta().then(data => {
+            setProjects(data.projects ?? []);
+            setUsers(data.users ?? []);
         });
     }, []);
 
@@ -37,7 +38,7 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
     useEffect(() => {
         if (!form.project_id) { setPhases([]); setMilestones([]); return; }
         // Use the existing milestone-plan endpoint — it returns phases with milestones
-        api.get(`/api/projects/${form.project_id}/milestone-plan`)
+        api.get(`/projects/${form.project_id}/milestone-plan`)
             .then(r => setPhases(r.data.phases ?? []))
             .catch(() => setPhases([])); // Project may have no plan yet
         setForm(f => ({ ...f, phase_id: '', milestone_id: '' }));
@@ -86,7 +87,7 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
                 due_date:     form.due_date,
             }, files);
 
-            await api.post('/api/tasks', payload, {
+            await api.post('/tasks', payload, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
             setSuccess(true);
@@ -164,7 +165,7 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
                                 <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Project *</label>
                                 <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
                                     <option value="">Select</option>
-                                    {projects.map(p => <option key={p.id} value={p.id}>{p.project_name}</option>)}
+                                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                                 </select>
                                 {errors.project_id && <p className="text-red-500 text-xs mt-1">{errors.project_id}</p>}
                             </div>

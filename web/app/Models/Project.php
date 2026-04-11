@@ -184,6 +184,28 @@ class Project extends Model
         });
     }
 
+    public function scopeVisibleTo(Builder $query, User $user): Builder
+    {
+        $role = str_replace(' ', '_', strtolower($user->role));
+
+        // CEOs and COOs can view all projects
+        if (in_array($role, ['ceo', 'coo'], true)) {
+            return $query;
+        }
+
+        // Project Engineers, Sales, and other roles only see:
+        // 1. Projects they created
+        // 2. Projects they are in charge of
+        // 3. Projects where they are added as members
+        return $query->where(function (Builder $q) use ($user) {
+            $q->where('created_by', $user->id)
+              ->orWhere('project_in_charge_id', $user->id)
+              ->orWhereHas('members', function (Builder $mq) use ($user) {
+                  $mq->where('users.id', $user->id);
+              });
+        });
+    }
+
     public function scopeCreatedByUser(Builder $query, int $userId): Builder
     {
         return $query->where('created_by', $userId);

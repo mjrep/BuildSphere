@@ -25,7 +25,7 @@ export default function TaskProjectTabs({ projects, selected, onSelect }) {
                             : 'bg-white border border-[#E0E0F0] text-[#6B6B8D] hover:bg-[#F8F8FC]'
                     }`}
                 >
-                    {project.project_name}
+                    {project.name}
                 </button>
             ))}
         </div>
