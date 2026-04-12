@@ -40,8 +40,10 @@ class StoreProjectMilestonePlanRequest extends FormRequest
             'phases.*.milestones.*.milestone_name' => 'required|string|max:255',
             'phases.*.milestones.*.start_date'     => 'required|date',
             'phases.*.milestones.*.end_date'       => 'required|date|after_or_equal:phases.*.milestones.*.start_date',
+            'phases.*.milestones.*.weight_percentage' => 'required|numeric|min:0|max:100',
             'phases.*.milestones.*.has_quantity'    => 'boolean',
-            'phases.*.milestones.*.quantity_target' => 'nullable|numeric|min:0',
+            'phases.*.milestones.*.quantity_target' => 'nullable|integer|min:1',
+            'phases.*.milestones.*.unit_of_measure' => 'nullable|string|max:255',
         ];
     }
 
@@ -53,10 +55,19 @@ class StoreProjectMilestonePlanRequest extends FormRequest
         $validator->after(function ($validator) {
             $phases = $this->input('phases', []);
 
-            // ── Total weight must equal 100 ──
-            $totalWeight = collect($phases)->sum('weight_percentage');
-            if (abs($totalWeight - 100) > 0.01) {
-                $validator->errors()->add('phases', "Total phase weight must equal 100%. Current total: {$totalWeight}%.");
+            // ── Total phase weight must equal 100 ──
+            $totalPhaseWeight = collect($phases)->sum('weight_percentage');
+            if (abs($totalPhaseWeight - 100) > 0.01) {
+                $validator->errors()->add('phases', "Total phase weight must equal 100%. Current total: {$totalPhaseWeight}%.");
+            }
+
+            // ── Total milestone weight must not exceed 100 ──
+            $totalMilestoneWeight = collect($phases)->reduce(function ($carry, $phase) {
+                return $carry + collect($phase['milestones'] ?? [])->sum('weight_percentage');
+            }, 0);
+
+            if ($totalMilestoneWeight > 100.01) {
+                 $validator->errors()->add('phases', "Sum of all milestone weights cannot exceed 100%. Current sum: {$totalMilestoneWeight}%.");
             }
 
             // ── No duplicate phase keys ──
@@ -85,14 +96,22 @@ class StoreProjectMilestonePlanRequest extends FormRequest
                 }
             }
 
-            // ── quantity_target required when has_quantity is true ──
+            // ── quantity_target and unit_of_measure required when has_quantity is true ──
             foreach ($phases as $pi => $phase) {
                 foreach (($phase['milestones'] ?? []) as $mi => $ms) {
-                    if (!empty($ms['has_quantity']) && empty($ms['quantity_target'])) {
-                        $validator->errors()->add(
-                            "phases.{$pi}.milestones.{$mi}.quantity_target",
-                            'Quantity target is required when "has quantity" is enabled.'
-                        );
+                    if (!empty($ms['has_quantity'])) {
+                        if (empty($ms['quantity_target'])) {
+                            $validator->errors()->add(
+                                "phases.{$pi}.milestones.{$mi}.quantity_target",
+                                'Target quantity is required when milestone is quantifiable.'
+                            );
+                        }
+                        if (empty($ms['unit_of_measure'])) {
+                            $validator->errors()->add(
+                                "phases.{$pi}.milestones.{$mi}.unit_of_measure",
+                                'Unit of measure is required when milestone is quantifiable.'
+                            );
+                        }
                     }
                 }
             }

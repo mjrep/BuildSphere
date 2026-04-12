@@ -21,9 +21,35 @@ class ProjectResource extends JsonResource
         $tasksTotal = $this->relationLoaded('tasks') ? $this->tasks->count() : 0;
 
         $progress = 0;
-        // Fallback to task-based progress if no milestone engine value is pre-calculated from a dedicated service
-        if ($tasksTotal > 0) {
-            $progress = round(($tasksCompleted / $tasksTotal) * 100);
+        
+        if ($this->relationLoaded('milestones') && $this->relationLoaded('tasks')) {
+            $totalWeightedProgress = 0;
+            $totalProjectWeight = $this->milestones->sum('weight_percentage');
+            
+            foreach ($this->milestones as $milestone) {
+                $milestoneTasks = $this->tasks->where('milestone_id', $milestone->id);
+                $milestoneTasksTotal = $milestoneTasks->count();
+                $milestoneTasksCompleted = $milestoneTasks->where('status', 'completed')->count();
+                
+                $milestoneProgress = 0;
+                if ($milestoneTasksTotal > 0) {
+                    $milestoneProgress = ($milestoneTasksCompleted / $milestoneTasksTotal) * 100;
+                }
+                
+                if ($totalProjectWeight > 0) {
+                    $weight = $milestone->weight_percentage ?? 0;
+                    $totalWeightedProgress += ($milestoneProgress * ($weight / $totalProjectWeight));
+                } else if ($this->milestones->count() > 0) {
+                    $totalWeightedProgress += ($milestoneProgress * (1 / $this->milestones->count()));
+                }
+            }
+            
+            $progress = round($totalWeightedProgress);
+        } else {
+            // Fallback to task-based progress if milestones aren't loaded
+            if ($tasksTotal > 0) {
+                $progress = round(($tasksCompleted / $tasksTotal) * 100);
+            }
         }
 
         return [

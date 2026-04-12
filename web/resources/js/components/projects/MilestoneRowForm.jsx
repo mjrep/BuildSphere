@@ -55,10 +55,30 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                 />
                 {error?.end_date && <p className="text-red-500 text-xs ml-1">{error.end_date}</p>}
             </div>
+
+            {/* Weight Percentage */}
+            <div className="w-full lg:w-28 space-y-1">
+                <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                    Weight (%)
+                </label>
+                <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    value={milestone.weight_percentage || ''}
+                    onChange={(e) => handleFieldChange('weight_percentage', e.target.value)}
+                    placeholder="0.00"
+                    className={`w-full rounded-xl border px-4 py-3 text-sm ${
+                        error?.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                    } focus:outline-none focus:ring-2`}
+                />
+                {error?.weight_percentage && <p className="text-red-500 text-xs ml-1">{error.weight_percentage}</p>}
+            </div>
             
             {/* Has Quantity Toggle */}
             <div className="flex flex-col items-center justify-end pb-3 space-y-2">
-                <label className="block text-xs font-semibold text-[#1A1A1A]">With Qty?</label>
+                <label className="block text-xs font-semibold text-[#1A1A1A]">Is quantifiable?</label>
                 <input
                     type="checkbox"
                     checked={milestone.has_quantity}
@@ -67,24 +87,42 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                 />
             </div>
 
-            {/* Target Quantity (Conditional) */}
+            {/* Target Quantity & Unit (Conditional) */}
             {milestone.has_quantity && (
-                <div className="w-full lg:w-32 space-y-1">
-                    <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
-                        Quantity
-                    </label>
-                    <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={milestone.quantity_target || ''}
-                        onChange={(e) => handleFieldChange('quantity_target', e.target.value)}
-                        placeholder="0.00"
-                        className={`w-full rounded-xl border px-4 py-3 text-sm ${
-                            error?.quantity_target ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
-                        } focus:outline-none focus:ring-2`}
-                    />
-                    {error?.quantity_target && <p className="text-red-500 text-xs ml-1">{error.quantity_target}</p>}
+                <div className="flex gap-4">
+                    <div className="w-full lg:w-32 space-y-1">
+                        <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                            Target Quantity
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={milestone.quantity_target || ''}
+                            onChange={(e) => handleFieldChange('quantity_target', e.target.value ? parseInt(e.target.value, 10) : '')}
+                            placeholder="e.g. 10"
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${
+                                error?.quantity_target ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                            } focus:outline-none focus:ring-2`}
+                        />
+                        {error?.quantity_target && <p className="text-red-500 text-xs ml-1">{error.quantity_target}</p>}
+                    </div>
+
+                    <div className="w-full lg:w-32 space-y-1">
+                        <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                            Unit
+                        </label>
+                        <input
+                            type="text"
+                            value={milestone.unit_of_measure || ''}
+                            onChange={(e) => handleFieldChange('unit_of_measure', e.target.value)}
+                            placeholder="e.g. Panels"
+                            className={`w-full rounded-xl border px-4 py-3 text-sm ${
+                                error?.unit_of_measure ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                            } focus:outline-none focus:ring-2`}
+                        />
+                        {error?.unit_of_measure && <p className="text-red-500 text-xs ml-1">{error.unit_of_measure}</p>}
+                    </div>
                 </div>
             )}
 

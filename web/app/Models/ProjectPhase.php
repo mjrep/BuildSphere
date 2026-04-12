@@ -51,6 +51,11 @@ class ProjectPhase extends Model
         return $this->hasMany(ProjectMilestone::class, 'project_phase_id')->orderBy('sequence_no');
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class, 'phase_id');
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

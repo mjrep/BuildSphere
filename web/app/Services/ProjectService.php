@@ -58,8 +58,11 @@ class ProjectService
                         'milestone_name'  => $msData['milestone_name'],
                         'start_date'      => $msData['start_date'],
                         'end_date'        => $msData['end_date'],
+                        'weight_percentage' => $msData['weight_percentage'] ?? 0,
                         'has_quantity'    => $msData['has_quantity'] ?? false,
                         'target_quantity' => ($msData['has_quantity'] ?? false) ? ($msData['quantity_target'] ?? null) : null,
+                        'current_quantity' => 0,
+                        'unit_of_measure' => ($msData['has_quantity'] ?? false) ? ($msData['unit_of_measure'] ?? null) : null,
                         'sequence_no'     => $msIndex + 1,
                         'created_by'      => $user->id,
                     ]);
@@ -144,7 +147,8 @@ class ProjectService
             }
 
             $currentFullStatus = $project->status->value . ($project->sub_status ? ":{$project->sub_status->value}" : "");
-            $this->logRevision($project, $user, $oldStatus . ($project->getOriginal('sub_status') ? ":{$project->getOriginal('sub_status')}" : ""), $newStatus, $comments);
+            $originalSubStatus = $project->getRawOriginal('sub_status');
+            $this->logRevision($project, $user, $oldStatus . ($originalSubStatus ? ":{$originalSubStatus}" : ""), $newStatus, $comments);
 
             return $project->fresh();
         });
@@ -187,7 +191,8 @@ class ProjectService
                 $this->logActivity($project, $user, 'EXECUTIVE_REJECTED', "Executive rejected: {$comments}");
             }
 
-            $currentFullFrom = $oldStatus . ($project->getOriginal('sub_status') ? ":{$project->getOriginal('sub_status')}" : "");
+            $originalSubStatus = $project->getRawOriginal('sub_status');
+            $currentFullFrom = $oldStatus . ($originalSubStatus ? ":{$originalSubStatus}" : "");
             $this->logRevision($project, $user, $currentFullFrom, $newStatus, $comments);
 
             return $project->fresh();

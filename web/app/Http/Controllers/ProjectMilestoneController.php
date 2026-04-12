@@ -18,6 +18,76 @@ class ProjectMilestoneController extends Controller
     ) {}
 
     /**
+     * GET /api/projects/{project}/milestones
+     * Returns flat list of milestones with progress and status.
+     */
+    public function index(Project $project)
+    {
+        $project->load([
+            'phases.milestones',
+            'phases.tasks.assignedTo',
+            'phases.tasks.assignedBy',
+            'phases.tasks.milestone'
+        ]);
+
+        $data = $project->phases->map(function ($phase) {
+            $tasks = $phase->tasks->map(function ($task) {
+                return [
+                    'id'               => $task->id,
+                    'milestone_id'     => $task->milestone_id,
+                    'milestone_name'   => $task->milestone ? $task->milestone->milestone_name : 'No Milestone',
+                    'title'            => $task->title,
+                    'assigned_to_name' => $task->assignedTo ? $task->assignedTo->first_name . ' ' . $task->assignedTo->last_name : 'Unassigned',
+                    'given_by_name'    => $task->assignedBy ? $task->assignedBy->first_name . ' ' . $task->assignedBy->last_name : 'System',
+                    'start_date'       => $task->start_date ? $task->start_date->format('m/d/Y') : null,
+                    'end_date'         => $task->due_date ? $task->due_date->format('m/d/Y') : null,
+                    'status'           => $task->status,
+                ];
+            });
+
+            $totalTasks = $tasks->count();
+            $completedTasks = $tasks->where('status', 'completed')->count();
+
+            // Calculate milestone-based progress for the phase
+            $totalPhaseWeight = $phase->milestones->sum('weight_percentage');
+            $phaseWeightedProgress = 0;
+
+            $milestones = $phase->milestones->map(function($ms) use ($tasks, &$phaseWeightedProgress, $totalPhaseWeight, $phase) {
+                $msTasksTotal = $tasks->where('milestone_id', $ms->id)->count();
+                $msTasksCompleted = $tasks->where('milestone_id', $ms->id)->where('status', 'completed')->count();
+                $msProgress = $msTasksTotal > 0 ? round(($msTasksCompleted / $msTasksTotal) * 100) : 0;
+
+                if ($totalPhaseWeight > 0) {
+                    $phaseWeightedProgress += $msProgress * ($ms->weight_percentage / $totalPhaseWeight);
+                } else if ($phase->milestones->count() > 0) {
+                    $phaseWeightedProgress += $msProgress * (1 / $phase->milestones->count());
+                }
+
+                return [
+                    'id'                  => $ms->id,
+                    'title'               => $ms->milestone_name,
+                    'start_date'          => $ms->start_date->format('Y-m-d'),
+                    'end_date'            => $ms->end_date->format('Y-m-d'),
+                    'weight_percentage'   => (float) $ms->weight_percentage,
+                    'progress_percentage' => $msProgress,
+                ];
+            });
+
+            return [
+                'id'          => $phase->id,
+                'name'        => $phase->phase_title,
+                'progress'    => round($phaseWeightedProgress),
+                'completed_tasks_count' => $completedTasks,
+                'total_tasks_count'     => $totalTasks,
+                'milestones'  => $milestones,
+                'tasks' => $tasks
+            ];
+        });
+
+        return response()->json($data);
+    }
+
+    /**
      * GET /api/projects/{project}/milestone-plan
      * Returns phases + milestones for editing.
      */
@@ -36,10 +106,13 @@ class ProjectMilestoneController extends Controller
             'milestones'        => $phase->milestones->map(fn ($ms) => [
                 'id'              => $ms->id,
                 'milestone_name'  => $ms->milestone_name,
+                'weight_percentage' => (float) $ms->weight_percentage,
                 'start_date'      => $ms->start_date->format('Y-m-d'),
                 'end_date'        => $ms->end_date->format('Y-m-d'),
                 'has_quantity'    => (bool) $ms->has_quantity,
-                'quantity_target' => $ms->target_quantity ? (float) $ms->target_quantity : null,
+                'quantity_target' => $ms->target_quantity ? (int) $ms->target_quantity : null,
+                'current_quantity'=> (int) $ms->current_quantity,
+                'unit_of_measure' => $ms->unit_of_measure,
                 'sequence_no'     => $ms->sequence_no,
             ]),
         ]);

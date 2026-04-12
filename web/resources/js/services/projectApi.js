@@ -26,6 +26,9 @@ export const storeMilestonePlan = (projectId, phases) =>
 export const getMilestoneChart = (projectId) =>
     api.get(`/projects/${projectId}/milestone-chart`);
 
+export const getMilestones = (projectId) =>
+    api.get(`/projects/${projectId}/milestones`);
+
 export const submitMilestoneReview = (projectId) =>
     api.post(`/projects/${projectId}/milestone-submit`, { });
 
