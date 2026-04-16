@@ -6,14 +6,14 @@ const statusStyles = {
     'Near Due': 'bg-orange-400 text-white',
 };
 
-export default function OngoingProjectRow({ status, progress, daysLeft }) {
+export default function OngoingProjectRow({ project_name, status, progress, daysLeft }) {
     const badgeClass = statusStyles[status] ?? 'bg-gray-400 text-white';
 
     return (
-        <div className="bg-[#F8F8FF] rounded-2xl p-4 mb-3">
+        <div className="bg-[#F8F8FF] rounded-2xl p-4 mb-3 flex flex-col justify-center min-h-[96px]">
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                    <p className="text-sm font-bold text-[#1A1A1A]">Project Name</p>
+                    <p className="text-sm font-bold text-[#1A1A1A] max-w-[200px] truncate" title={project_name}>{project_name}</p>
                     <span className={`text-xs font-semibold px-3 py-1 rounded-full ${badgeClass}`}>
                         {status}
                     </span>

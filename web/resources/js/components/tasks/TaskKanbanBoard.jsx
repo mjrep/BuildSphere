@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import TaskKanbanColumn from './TaskKanbanColumn';
 import { KANBAN_COLUMNS } from '../../utils/taskConstants';
 
-export default function TaskKanbanBoard({ tasks, onTaskClick }) {
+export default function TaskKanbanBoard({ tasks, onTaskClick, onEdit, onDelete }) {
     const grouped = useMemo(() => {
         return KANBAN_COLUMNS.reduce((acc, status) => {
             acc[status] = tasks.filter(t => t.status === status);
@@ -18,6 +18,8 @@ export default function TaskKanbanBoard({ tasks, onTaskClick }) {
                     status={status}
                     tasks={grouped[status]}
                     onTaskClick={onTaskClick}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
                 />
             ))}
         </div>

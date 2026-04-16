@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\TaskQueryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class TaskController extends Controller
 {
@@ -25,24 +26,32 @@ class TaskController extends Controller
     {
         $this->authorize('viewAny', Task::class);
 
-        $query = $this->queryService->baseQuery($request->user());
-        $query = $this->queryService->applyFilters($query, $request->all());
-        $query = $this->queryService->applySort($query, $request->input('sort'));
+        // Build a deterministic cache key from user + query params
+        $cacheVersion = Cache::get('tasks_list_version', 1);
+        $cacheKey = 'tasks_list_' . $request->user()->id . '_v' . $cacheVersion . '_' . md5(serialize($request->all()));
 
-        $perPage = (int) $request->input('per_page', 20);
-        $perPage = max(1, min($perPage, 100));
+        $result = Cache::remember($cacheKey, now()->addMinutes(60), function () use ($request) {
+            $query = $this->queryService->baseQuery($request->user());
+            $query = $this->queryService->applyFilters($query, $request->all());
+            $query = $this->queryService->applySort($query, $request->input('sort'));
 
-        $tasks = $query->paginate($perPage);
+            $perPage = (int) $request->input('per_page', 20);
+            $perPage = max(1, min($perPage, 100));
 
-        return response()->json([
-            'data' => $tasks->map(fn (Task $task) => $this->formatTask($task)),
-            'meta' => [
-                'current_page' => $tasks->currentPage(),
-                'last_page'    => $tasks->lastPage(),
-                'per_page'     => $tasks->perPage(),
-                'total'        => $tasks->total(),
-            ],
-        ]);
+            $tasks = $query->paginate($perPage);
+
+            return [
+                'data' => $tasks->map(fn (Task $task) => $this->formatTask($task)),
+                'meta' => [
+                    'current_page' => $tasks->currentPage(),
+                    'last_page'    => $tasks->lastPage(),
+                    'per_page'     => $tasks->perPage(),
+                    'total'        => $tasks->total(),
+                ],
+            ];
+        });
+
+        return response()->json($result);
     }
 
     /**
@@ -88,14 +97,16 @@ class TaskController extends Controller
         $task->load([
             'project:id,project_name',
             'phase:id,phase_key',
-            'milestone:id,milestone_name',
+            'milestone:id,milestone_name,has_quantity,target_quantity,current_quantity,unit_of_measure',
             'assignedBy:id,first_name,last_name',
             'assignedTo:id,first_name,last_name',
             'creator:id,first_name,last_name',
             'updater:id,first_name,last_name',
             'comments.user:id,first_name,last_name',
             'attachments.uploader:id,first_name,last_name',
+            'progressLogs.creator:id,first_name,last_name',
         ]);
+        $task->loadCount(['comments', 'attachments']);
 
         return response()->json($this->formatTaskDetail($task));
     }
@@ -112,10 +123,13 @@ class TaskController extends Controller
             'status'      => $request->input('status', 'todo'),
         ]);
 
+        // Invalidate task list caches
+        $this->clearTaskCaches();
+
         // Handle optional attachment files uploaded with the create form
         if ($request->hasFile('attachments')) {
             foreach ($request->file('attachments') as $file) {
-                $path = $file->store('task-attachments', 'local');
+                $path = $file->store('', ['disk' => 'supabase']);
                 $task->attachments()->create([
                     'file_name'   => $file->getClientOriginalName(),
                     'file_path'   => $path,
@@ -145,9 +159,25 @@ class TaskController extends Controller
     public function update(UpdateTaskRequest $request, Task $task): JsonResponse
     {
         $task->update([
-            ...$request->validated(),
+            ...$request->safe()->except(['attachments']),
             'updated_by' => $request->user()->id,
         ]);
+
+        // Handle path attachments if any
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $path = $file->store('', ['disk' => 'supabase']);
+                $task->attachments()->create([
+                    'file_name'   => $file->getClientOriginalName(),
+                    'file_path'   => $path,
+                    'file_type'   => $file->getMimeType(),
+                    'file_size'   => $file->getSize(),
+                    'uploaded_by' => $request->user()->id,
+                ]);
+            }
+        }
+
+        $this->clearTaskCaches();
 
         $task->load([
             'project:id,project_name',
@@ -172,6 +202,8 @@ class TaskController extends Controller
             'updated_by' => $request->user()->id,
         ]);
 
+        $this->clearTaskCaches();
+
         return response()->json(['status' => $task->status]);
     }
 
@@ -187,7 +219,9 @@ class TaskController extends Controller
             \Illuminate\Support\Facades\Storage::disk('local')->delete($attachment->file_path);
         }
 
-        $task->delete();
+        $task->forceDelete();
+
+        $this->clearTaskCaches();
 
         return response()->json(['message' => 'Task deleted.']);
     }
@@ -206,7 +240,14 @@ class TaskController extends Controller
             'due_date'         => $task->due_date?->toDateString(),
             'project'          => $task->project ? ['id' => $task->project->id, 'name' => $task->project->project_name] : null,
             'phase'            => $task->phase   ? ['id' => $task->phase->id,   'name' => $task->phase->phase_key]     : null,
-            'milestone'        => $task->milestone ? ['id' => $task->milestone->id, 'name' => $task->milestone->milestone_name] : null,
+            'milestone'        => $task->milestone ? [
+                'id'               => $task->milestone->id,
+                'name'             => $task->milestone->milestone_name,
+                'has_quantity'     => (bool) $task->milestone->has_quantity,
+                'target_quantity'  => $task->milestone->target_quantity,
+                'current_quantity' => $task->milestone->current_quantity,
+                'unit_of_measure'  => $task->milestone->unit_of_measure,
+            ] : null,
             'assigned_by'      => $task->assignedBy ? ['id' => $task->assignedBy->id, 'name' => $task->assignedBy->first_name . ' ' . $task->assignedBy->last_name] : null,
             'assigned_to'      => $task->assignedTo ? ['id' => $task->assignedTo->id, 'name' => $task->assignedTo->first_name . ' ' . $task->assignedTo->last_name] : null,
             'created_by'       => $task->creator   ? ['id' => $task->creator->id,   'name' => $task->creator->first_name   . ' ' . $task->creator->last_name]   : null,
@@ -242,6 +283,32 @@ class TaskController extends Controller
             'download_url'=> route('task.attachment.download', ['task' => $task->id, 'attachment' => $a->id]),
         ]);
 
+        // ── Progress Logs (for quantifiable milestones) ────────────────
+        $base['progress_logs'] = $task->progressLogs->map(fn ($log) => [
+            'id'                     => $log->id,
+            'quantity_accomplished'  => $log->quantity_accomplished,
+            'evidence_image_path'    => $log->evidence_image_path,
+            'remarks'                => $log->remarks,
+            'ai_verification_status' => $log->ai_verification_status,
+            'created_at'             => $log->created_at?->toIso8601String(),
+            'user'                   => $log->creator ? [
+                'id'   => $log->creator->id,
+                'name' => $log->creator->first_name . ' ' . $log->creator->last_name,
+            ] : null,
+        ]);
+
         return $base;
+    }
+
+    /**
+     * Clear all task list caches.
+     *
+     * Since we use the array/file driver which doesn't support tags,
+     * we flush the entire cache store. In production with Redis you'd
+     * use Cache::tags(['tasks'])->flush() instead.
+     */
+    private function clearTaskCaches(): void
+    {
+        Cache::increment('tasks_list_version');
     }
 }

@@ -115,4 +115,9 @@ class Task extends Model
     {
         return $this->hasMany(TaskAttachment::class)->orderBy('created_at');
     }
+
+    public function progressLogs(): HasMany
+    {
+        return $this->hasMany(TaskProgressLog::class)->orderByDesc('created_at');
+    }
 }

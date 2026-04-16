@@ -14,7 +14,7 @@ import useTasks from '../hooks/useTasks';
 import useTaskFilters from '../hooks/useTaskFilters';
 import useTaskPermissions from '../hooks/useTaskPermissions';
 import useAuth from '../hooks/useAuth';
-import { getTaskMeta, updateTaskStatus, createTaskComment, uploadTaskAttachments } from '../services/taskApi';
+import { getTaskMeta, updateTaskStatus, createTaskComment, uploadTaskAttachments, deleteTask } from '../services/taskApi';
 
 export default function TasksPage() {
     const { user }        = useAuth();
@@ -31,6 +31,7 @@ export default function TasksPage() {
     const [view, setView]               = useState('list');
     const [metaData, setMetaData]       = useState(null);
     const [showAddModal, setShowAddModal]= useState(false);
+    const [taskToEdit, setTaskToEdit]   = useState(null);
     const [selectedTask, setSelectedTask]= useState(null);
     const [selectedProject, setSelectedProject] = useState('all');
 
@@ -77,6 +78,20 @@ export default function TasksPage() {
             toast.error('Upload failed.');
             return null;
         }
+    }, []);
+
+    const handleDeleteTask = useCallback(async (id) => {
+        try {
+            await deleteTask(id);
+            setTasks(prev => prev.filter(t => t.id !== id));
+            toast.success('Task deleted successfully.');
+        } catch {
+            toast.error('Failed to delete task.');
+        }
+    }, [setTasks]);
+
+    const handleEditTask = useCallback((task) => {
+        setTaskToEdit(task);
     }, []);
 
     return (
@@ -132,7 +147,12 @@ export default function TasksPage() {
                                     <span className="text-xs text-[#9090A8]">{meta.total} task{meta.total !== 1 ? 's' : ''}</span>
                                 )}
                             </div>
-                            <TaskListTable tasks={tasks} onTaskClick={setSelectedTask} />
+                             <TaskListTable 
+                                tasks={tasks} 
+                                onTaskClick={setSelectedTask} 
+                                onEdit={handleEditTask}
+                                onDelete={handleDeleteTask}
+                            />
 
                             {/* Pagination */}
                             {meta && meta.last_page > 1 && (
@@ -143,17 +163,23 @@ export default function TasksPage() {
                                 </div>
                             )}
                         </div>
-                    ) : (
-                        <TaskKanbanBoard tasks={tasks} onTaskClick={setSelectedTask} />
+                     ) : (
+                        <TaskKanbanBoard 
+                            tasks={tasks} 
+                            onTaskClick={setSelectedTask} 
+                            onEdit={handleEditTask}
+                            onDelete={handleDeleteTask}
+                        />
                     )}
                 </div>
             </div>
 
-            {/* Add Task Modal */}
-            {showAddModal && (
+            {/* Add/Edit Task Modal */}
+            {(showAddModal || taskToEdit) && (
                 <AddTaskModal
                     user={user}
-                    onClose={() => setShowAddModal(false)}
+                    task={taskToEdit}
+                    onClose={() => { setShowAddModal(false); setTaskToEdit(null); }}
                     onSuccess={loadTasks}
                 />
             )}

@@ -9,7 +9,7 @@ const COLUMN_COLORS = {
     completed:   'border-t-green-400',
 };
 
-export default function TaskKanbanColumn({ status, tasks, onTaskClick }) {
+export default function TaskKanbanColumn({ status, tasks, onTaskClick, onEdit, onDelete }) {
     const cfg      = TASK_STATUSES[status] ?? { label: status };
     const topColor = COLUMN_COLORS[status] ?? 'border-t-gray-300';
 
@@ -27,7 +27,13 @@ export default function TaskKanbanColumn({ status, tasks, onTaskClick }) {
             {/* Cards */}
             <div className="flex flex-col gap-2 flex-1 overflow-y-auto max-h-[600px] pr-0.5">
                 {tasks.map(task => (
-                    <TaskCard key={task.id} task={task} onClick={onTaskClick} />
+                    <TaskCard 
+                        key={task.id} 
+                        task={task} 
+                        onClick={onTaskClick} 
+                        onEdit={onEdit}
+                        onDelete={onDelete}
+                    />
                 ))}
                 {tasks.length === 0 && (
                     <div className="flex-1 flex items-center justify-center py-8">

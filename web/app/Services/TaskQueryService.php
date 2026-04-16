@@ -16,7 +16,7 @@ class TaskQueryService
         return Task::with([
             'project:id,project_name',
             'phase:id,phase_key',
-            'milestone:id,milestone_name',
+            'milestone:id,milestone_name,has_quantity,target_quantity,current_quantity,unit_of_measure',
             'assignedBy:id,first_name,last_name',
             'assignedTo:id,first_name,last_name',
             'creator:id,first_name,last_name',

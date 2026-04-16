@@ -62,4 +62,9 @@ class ProjectMilestone extends Model
     {
         return $this->hasMany(Task::class, 'milestone_id');
     }
+
+    public function progressLogs(): HasMany
+    {
+        return $this->hasMany(TaskProgressLog::class, 'milestone_id')->orderByDesc('created_at');
+    }
 }

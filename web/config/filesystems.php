@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        'supabase' => [
+            'driver' => 's3',
+            'key' => env('SUPABASE_S3_ACCESS_KEY_ID'),
+            'secret' => env('SUPABASE_S3_SECRET_ACCESS_KEY'),
+            'region' => env('SUPABASE_REGION'),
+            'bucket' => env('SUPABASE_BUCKET_ATTACHMENTS'), // Default bucket
+            'endpoint' => env('SUPABASE_URL').'/storage/v1/s3',
+            'use_path_style_endpoint' => true,
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

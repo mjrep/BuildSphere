@@ -4,6 +4,7 @@ use App\Http\Controllers\ProjectMilestoneController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TaskCommentController;
 use App\Http\Controllers\TaskAttachmentController;
+use App\Http\Controllers\TaskProgressLogController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -57,4 +58,9 @@ Route::middleware(['web', 'auth'])->group(function () {
         '/tasks/{task}/attachments/{attachment}/download',
         [TaskAttachmentController::class, 'download']
     )->name('task.attachment.download');
+
+    // ── Site Updates / Progress Logs ────────────────────────────────────
+    Route::get('/projects/{project}/progress-logs', [TaskProgressLogController::class, 'index']);
+    Route::post('/task-progress-logs', [TaskProgressLogController::class, 'store']);
+    Route::patch('/progress-logs/{id}', [TaskProgressLogController::class, 'update']);
 });

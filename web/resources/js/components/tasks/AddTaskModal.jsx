@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { TASK_PRIORITIES, TASK_STATUSES } from '../../utils/taskConstants';
 import { buildTaskFormData } from '../../utils/taskHelpers';
-import { getTaskMeta } from '../../services/taskApi';
-import api from '../../services/api';
+import { getTaskMeta, createTask, updateTask } from '../../services/taskApi';
+// import api from '../../services/api'; // No longer needed directly for tasks
 
 const STEPS = ['Details', 'Description'];
 
-export default function AddTaskModal({ onClose, onSuccess, user }) {
+export default function AddTaskModal({ onClose, onSuccess, user, task = null }) {
+    const isEdit = !!task;
     const [step, setStep]           = useState(0);
     const [submitting, setSubmitting]= useState(false);
     const [success, setSuccess]     = useState(false);
@@ -32,15 +33,36 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
             setProjects(data.projects ?? []);
             setUsers(data.users ?? []);
         });
-    }, []);
+
+        if (isEdit) {
+            setForm({
+                title: task.title || '',
+                project_id: task.project?.id || '',
+                phase_id: task.phase?.id || '',
+                milestone_id: task.milestone?.id || '',
+                description: task.description || '',
+                assigned_to: task.assigned_to?.id || '',
+                priority: task.priority || 'medium',
+                status: task.status || 'todo',
+                start_date: task.start_date ? task.start_date.substring(0, 10) : '',
+                due_date: task.due_date ? task.due_date.substring(0, 10) : '',
+            });
+        }
+    }, [task, isEdit]);
 
     // Reload phases when project changes
     useEffect(() => {
         if (!form.project_id) { setPhases([]); setMilestones([]); return; }
         // Use the existing milestone-plan endpoint — it returns phases with milestones
-        api.get(`/projects/${form.project_id}/milestone-plan`)
-            .then(r => setPhases(r.data.phases ?? []))
-            .catch(() => setPhases([])); // Project may have no plan yet
+        // Use the existing milestone-plan endpoint — it returns phases with milestones
+        getTaskMeta().then(data => { // Reusing meta endpoint if needed, but actually we need another one for phases
+            // Actually, keep using direct api for this specific endpoint if not in taskApi
+            import('../../services/api').then(({ default: api }) => {
+                api.get(`/projects/${form.project_id}/milestone-plan`)
+                    .then(r => setPhases(r.data.phases ?? []))
+                    .catch(() => setPhases([]));
+            });
+        });
         setForm(f => ({ ...f, phase_id: '', milestone_id: '' }));
     }, [form.project_id]);
 
@@ -87,9 +109,11 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
                 due_date:     form.due_date,
             }, files);
 
-            await api.post('/tasks', payload, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            });
+            if (isEdit) {
+                await updateTask(task.id, payload);
+            } else {
+                await createTask(payload);
+            }
             setSuccess(true);
         } catch (err) {
             const serverErrors = err.response?.data?.errors ?? {};
@@ -110,8 +134,8 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
                 <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-sm text-center">
                     <div className="w-16 h-16 rounded-full bg-[#5B5BD6] text-white flex items-center justify-center mx-auto mb-5 text-3xl">✓</div>
-                    <h3 className="text-xl font-bold text-[#1A1A2E] mb-2">Task Created!</h3>
-                    <p className="text-sm text-[#6B6B8D] mb-6">Task created successfully and added to the project.</p>
+                    <h3 className="text-xl font-bold text-[#1A1A2E] mb-2">Task {isEdit ? 'Updated' : 'Created'}!</h3>
+                    <p className="text-sm text-[#6B6B8D] mb-6">Task {isEdit ? 'updated' : 'created'} successfully and added to the project.</p>
                     <button
                         onClick={() => { onSuccess(); onClose(); }}
                         className="w-full py-2.5 bg-[#5B5BD6] text-white font-semibold rounded-xl hover:bg-[#4747B8] transition-colors"
@@ -128,7 +152,7 @@ export default function AddTaskModal({ onClose, onSuccess, user }) {
             <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                    <h2 className="text-lg font-bold text-[#5B5BD6]">Add a new task</h2>
+                    <h2 className="text-lg font-bold text-[#5B5BD6]">{isEdit ? 'Update task' : 'Add a new task'}</h2>
                     <button onClick={onClose} className="text-[#9090A8] hover:text-[#3A3A5C] p-1 rounded-lg hover:bg-[#F0F0F8]">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

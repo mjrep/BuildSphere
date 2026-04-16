@@ -19,8 +19,17 @@ export const createTask = (payload) => {
     }).then(r => r.data);
 };
 
-export const updateTask = (id, payload) =>
-    api.put(`${BASE}/${id}`, payload).then(r => r.data);
+export const updateTask = (id, payload) => {
+    const isFormData = payload instanceof FormData;
+    // Laravel needs _method=PUT for multipart updates via POST
+    if (isFormData) {
+        payload.append('_method', 'PUT');
+        return api.post(`${BASE}/${id}`, payload, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        }).then(r => r.data);
+    }
+    return api.put(`${BASE}/${id}`, payload).then(r => r.data);
+};
 
 export const updateTaskStatus = (id, status) =>
     api.patch(`${BASE}/${id}/status`, { status }).then(r => r.data);

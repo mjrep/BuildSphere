@@ -2,8 +2,9 @@ import React from 'react';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
 import { formatDate, getUserInitials } from '../../utils/taskHelpers';
+import TaskActionsDropdown from './TaskActionsDropdown';
 
-export default function TaskListTable({ tasks, onTaskClick }) {
+export default function TaskListTable({ tasks, onTaskClick, onEdit, onDelete }) {
     return (
         <div className="overflow-x-auto rounded-xl border border-[#F0F0F8] bg-white">
             <table className="w-full text-sm">
@@ -53,14 +54,12 @@ export default function TaskListTable({ tasks, onTaskClick }) {
                                 <td className="px-4 py-3 text-xs text-[#6B6B8D] whitespace-nowrap">{formatDate(task.due_date)}</td>
                                 <td className="px-4 py-3 text-xs text-[#6B6B8D] whitespace-nowrap">{createdBy}</td>
                                 <td className="px-4 py-3">
-                                    <button
-                                        onClick={e => { e.stopPropagation(); onTaskClick(task); }}
-                                        className="p-1.5 rounded-lg hover:bg-[#F0F0F8] text-[#9090A8]"
-                                    >
-                                        <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
-                                        </svg>
-                                    </button>
+                                    <TaskActionsDropdown 
+                                        task={task} 
+                                        onView={onTaskClick} 
+                                        onEdit={onEdit} 
+                                        onDelete={onDelete} 
+                                    />
                                 </td>
                             </tr>
                         );

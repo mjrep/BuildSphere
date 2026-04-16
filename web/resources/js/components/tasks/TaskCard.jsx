@@ -2,8 +2,9 @@ import React from 'react';
 import StatusBadge from './StatusBadge';
 import PriorityBadge from './PriorityBadge';
 import { formatDate, getUserInitials } from '../../utils/taskHelpers';
+import TaskActionsDropdown from './TaskActionsDropdown';
 
-export default function TaskCard({ task, onClick }) {
+export default function TaskCard({ task, onClick, onEdit, onDelete }) {
     const assignee = task.assigned_to?.name ?? '—';
     const initials = getUserInitials(assignee);
 
@@ -14,11 +15,19 @@ export default function TaskCard({ task, onClick }) {
                        hover:shadow-md hover:border-[#D8D8F0] transition-all group"
         >
             {/* Priority if high/urgent */}
-            {(task.priority === 'high' || task.priority === 'urgent') && (
-                <div className="mb-2">
-                    <PriorityBadge priority={task.priority} />
+            <div className="flex items-start justify-between mb-2">
+                <div>
+                    {(task.priority === 'high' || task.priority === 'urgent') && (
+                        <PriorityBadge priority={task.priority} />
+                    )}
                 </div>
-            )}
+                <TaskActionsDropdown 
+                    task={task} 
+                    onView={onClick} 
+                    onEdit={onEdit} 
+                    onDelete={onDelete} 
+                />
+            </div>
 
             {/* Project label */}
             {task.project && (

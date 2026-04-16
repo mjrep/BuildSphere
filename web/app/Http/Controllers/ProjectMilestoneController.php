@@ -53,9 +53,15 @@ class ProjectMilestoneController extends Controller
             $phaseWeightedProgress = 0;
 
             $milestones = $phase->milestones->map(function($ms) use ($tasks, &$phaseWeightedProgress, $totalPhaseWeight, $phase) {
-                $msTasksTotal = $tasks->where('milestone_id', $ms->id)->count();
-                $msTasksCompleted = $tasks->where('milestone_id', $ms->id)->where('status', 'completed')->count();
-                $msProgress = $msTasksTotal > 0 ? round(($msTasksCompleted / $msTasksTotal) * 100) : 0;
+                if ($ms->has_quantity && $ms->target_quantity > 0) {
+                    $msProgress = round(($ms->current_quantity / $ms->target_quantity) * 100);
+                } else {
+                    $msTasksTotal = $tasks->where('milestone_id', $ms->id)->count();
+                    $msTasksCompleted = $tasks->where('milestone_id', $ms->id)->where('status', 'completed')->count();
+                    $msProgress = $msTasksTotal > 0 ? round(($msTasksCompleted / $msTasksTotal) * 100) : 0;
+                }
+                
+                $msProgress = min(100, $msProgress);
 
                 if ($totalPhaseWeight > 0) {
                     $phaseWeightedProgress += $msProgress * ($ms->weight_percentage / $totalPhaseWeight);

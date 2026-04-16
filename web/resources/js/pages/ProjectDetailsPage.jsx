@@ -5,6 +5,7 @@ import ProjectOverviewTab from '../components/projects/ProjectOverviewTab';
 import ProjectInventoryTab from '../components/projects/ProjectInventoryTab';
 import ProjectMilestonesTab from '../components/projects/ProjectMilestonesTab';
 import ProposedProjectView from '../components/projects/ProposedProjectView';
+import SiteUpdatesTab from '../components/projects/SiteUpdatesTab';
 import useAuth from '../hooks/useAuth';
 import { getProject } from '../services/projectApi';
 
@@ -123,9 +124,7 @@ export default function ProjectDetailsPage() {
                     </div>
 
                     <div className={activeTab === 'Site Updates' ? 'block' : 'hidden'}>
-                        <div className="w-full h-40 flex items-center justify-center bg-white rounded-2xl border border-[#F0F0F8] text-[#A1A1A1] text-sm font-semibold shadow-sm">
-                            Site Updates Tab (Coming Soon)
-                        </div>
+                        <SiteUpdatesTab project={project} />
                     </div>
                 </div>
 

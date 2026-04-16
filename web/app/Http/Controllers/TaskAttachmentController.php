@@ -31,10 +31,12 @@ class TaskAttachmentController extends Controller
                     'id'   => $a->uploader->id,
                     'name' => $a->uploader->first_name . ' ' . $a->uploader->last_name,
                 ],
-                'download_url' => route('task.attachment.download', [
-                    'task'       => $task->id,
-                    'attachment' => $a->id,
-                ]),
+                'download_url' => sprintf(
+                    '%s/storage/v1/object/public/%s/%s',
+                    env('SUPABASE_URL'),
+                    env('SUPABASE_BUCKET_ATTACHMENTS', 'task-attachments'),
+                    ltrim($a->file_path, '/')
+                ),
             ]);
 
         return response()->json(['data' => $attachments]);
@@ -48,8 +50,10 @@ class TaskAttachmentController extends Controller
         $created = [];
 
         foreach ($request->file('files') as $file) {
-            // Store with sanitized generated name to avoid path traversal
-            $path = $file->store('task-attachments', 'local');
+            // Store to Supabase
+            $path = $file->store('', [
+                'disk' => 'supabase',
+            ]);
 
             $attachment = $task->attachments()->create([
                 'file_name'   => $file->getClientOriginalName(),
@@ -71,11 +75,20 @@ class TaskAttachmentController extends Controller
                     'id'   => $attachment->uploader->id,
                     'name' => $attachment->uploader->first_name . ' ' . $attachment->uploader->last_name,
                 ],
-                'download_url' => route('task.attachment.download', [
-                    'task'       => $task->id,
-                    'attachment' => $attachment->id,
-                ]),
+                'download_url' => sprintf(
+                    '%s/storage/v1/object/public/%s/%s',
+                    env('SUPABASE_URL'),
+                    env('SUPABASE_BUCKET_ATTACHMENTS', 'task-attachments'),
+                    ltrim($attachment->file_path, '/')
+                ),
             ];
+        }
+
+        if ($task->status === 'todo') {
+            $task->update([
+                'status' => 'in_progress',
+                'updated_by' => $request->user()->id,
+            ]);
         }
 
         return response()->json(['data' => $created], 201);
@@ -90,10 +103,13 @@ class TaskAttachmentController extends Controller
         abort_unless($attachment->task_id === $task->id, 404);
         $this->authorize('view', $task);
 
-        if (! Storage::disk('local')->exists($attachment->file_path)) {
-            abort(404, 'File not found.');
-        }
+        $publicUrl = sprintf(
+            '%s/storage/v1/object/public/%s/%s',
+            env('SUPABASE_URL'),
+            env('SUPABASE_BUCKET_ATTACHMENTS', 'task-attachments'),
+            ltrim($attachment->file_path, '/')
+        );
 
-        return Storage::disk('local')->download($attachment->file_path, $attachment->file_name);
+        return redirect($publicUrl);
     }
 }

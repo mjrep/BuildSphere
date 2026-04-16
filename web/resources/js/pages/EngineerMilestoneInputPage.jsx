@@ -40,9 +40,9 @@ export default function EngineerMilestoneInputPage() {
                             milestone_name: '',
                             start_date: '',
                             end_date: '',
+                            weight_percentage: 0,
                             has_quantity: false,
-                            quantity_target: '',
-                            unit_of_measure: ''
+                            quantity_target: ''
                         }]
                     }]);
                     setNumPhases(1);
@@ -76,6 +76,7 @@ export default function EngineerMilestoneInputPage() {
                             milestone_name: '',
                             start_date: '',
                             end_date: '',
+                            weight_percentage: 0,
                             has_quantity: false,
                             quantity_target: ''
                         }]
@@ -115,7 +116,6 @@ export default function EngineerMilestoneInputPage() {
             // Auto-clear target and unit if has_quantity is turned off
             if (field === 'has_quantity' && !value) {
                 updatedMilestones[msIndex].quantity_target = '';
-                updatedMilestones[msIndex].unit_of_measure = '';
             }
             
             updated[phaseIndex] = { ...updated[phaseIndex], milestones: updatedMilestones };
@@ -139,9 +139,9 @@ export default function EngineerMilestoneInputPage() {
                 milestone_name: '',
                 start_date: '',
                 end_date: '',
+                weight_percentage: 0,
                 has_quantity: false,
-                quantity_target: '',
-                unit_of_measure: ''
+                quantity_target: ''
             });
             return updated;
         });
