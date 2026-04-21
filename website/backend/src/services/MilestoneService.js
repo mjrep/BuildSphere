@@ -85,15 +85,19 @@ class MilestoneService {
 
       // Calculate milestone progress
       const mappedMilestones = phaseMilestones.map((ms) => {
+        const msTasks = tasks.filter(t => t.milestone_id === ms.id);
+        const msTasksTotal = msTasks.length;
+        const msTasksCompleted = msTasks.filter(t => t.status === 'completed').length;
+        const tPct = msTasksTotal > 0 ? (msTasksCompleted / msTasksTotal) * 100 : null;
+
         let msProgress = 0;
-        
         if (ms.has_quantity && ms.target_quantity > 0) {
-          msProgress = Math.round((ms.current_quantity / ms.target_quantity) * 100);
+          const qPct = (ms.current_quantity / ms.target_quantity) * 100;
+          // Hybrid approach: Average quantity progress and task progress if both are present
+          msProgress = tPct !== null ? Math.round((qPct + tPct) / 2) : Math.round(qPct);
         } else {
-          const msTasks = tasks.filter(t => t.milestone_id === ms.id);
-          const msTasksTotal = msTasks.length;
-          const msTasksCompleted = msTasks.filter(t => t.status === 'completed').length;
-          msProgress = msTasksTotal > 0 ? Math.round((msTasksCompleted / msTasksTotal) * 100) : 0;
+          // Use task progress if no quantity specified, otherwise 0
+          msProgress = tPct !== null ? Math.round(tPct) : 0;
         }
 
         msProgress = Math.min(100, msProgress);

@@ -32,7 +32,7 @@ class DashboardController {
           created_by, project_in_charge_id,
           project_in_charge:users!project_in_charge_id(id, first_name, last_name),
           members:project_user(users!user_id(id, first_name, last_name)),
-          tasks:tasks(id, status),
+          tasks:tasks(id, status, milestone_id),
           updates:tasks(
             id,
             progress_logs:task_progress_logs(id, created_at, work_date)
@@ -69,12 +69,34 @@ class DashboardController {
       });
 
       // 2. Project Teams (4 most recent ongoing)
-      const colors = ['#706BFF', '#EC4899', '#10B981', '#F59E0B'];
+      const colorPalette = ['bg-[#706BFF]', 'bg-yellow-400', 'bg-red-400', 'bg-green-400', 'bg-pink-400', 'bg-indigo-400'];
+      const avatarColors = ['#706BFF', '#EC4899', '#10B981', '#F59E0B'];
       const ongoingItems = visibleProjects.filter(p => (p.status || '').toLowerCase() === 'ongoing');
       
       const projectTeams = ongoingItems.slice(0, 4).map(project => {
         const tasksDone = project.tasks?.filter(t => t.status === 'completed').length || 0;
         const tasksTotal = project.tasks?.length || 0;
+
+        // Group tasks by milestone for the multi-colored progress bar
+        const tasksByMilestone = {};
+        (project.tasks || []).forEach(t => {
+          const mid = t.milestone_id || 'unassigned';
+          if (!tasksByMilestone[mid]) tasksByMilestone[mid] = { total: 0, completed: 0 };
+          tasksByMilestone[mid].total++;
+          if (t.status === 'completed') tasksByMilestone[mid].completed++;
+        });
+
+        const milestoneSegments = Object.keys(tasksByMilestone).map((mid, idx) => {
+          const mData = tasksByMilestone[mid];
+          // Each segment's width is (completed_tasks_in_milestone / total_tasks_in_project) * 100
+          const widthPercent = tasksTotal > 0 ? (mData.completed / tasksTotal) * 100 : 0;
+          
+          return {
+            milestone_id: mid,
+            color: colorPalette[idx % colorPalette.length],
+            percentage: widthPercent
+          };
+        }).filter(s => s.percentage > 0);
 
         let teamMembers = [];
         if (project.project_in_charge) {
@@ -92,7 +114,7 @@ class DashboardController {
           const first = m.first_name || 'U';
           const last = m.last_name || '';
           const initials = ((first[0] || '') + (last[0] || '')).toUpperCase() || 'U';
-          return { initials, color: colors[idx % colors.length] };
+          return { initials, color: avatarColors[idx % avatarColors.length] };
         });
 
         const picName = project.project_in_charge 
@@ -105,15 +127,15 @@ class DashboardController {
           engr_name: picName,
           tasksDone,
           tasksTotal,
+          milestone_segments: milestoneSegments,
           memberCount: mappedMembers.length + (project.project_in_charge ? 1 : 0),
           members: formattedMembers
         };
       });
 
       // 3. Ongoing Projects details
-      const ongoingProjects = [...ongoingItems]
+      const ongoingProjectsList = [...ongoingItems]
         .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
-        .slice(0, 3)
         .map(project => {
           const tasksDone = project.tasks?.filter(t => t.status === 'completed').length || 0;
           const tasksTotal = project.tasks?.length || 0;
@@ -156,19 +178,14 @@ class DashboardController {
         };
       })
       .filter(p => p.updates_today > 0)
-      .sort((a, b) => b.updates_today - a.updates_today)
-      .slice(0, 4);
-
-      while (updatesList.length < 4) {
-        updatesList.push({ project_name: '—', updates_today: 0 });
-      }
+      .sort((a, b) => b.updates_today - a.updates_today);
 
       res.json({
         ongoing_projects_count: ongoingCount,
         proposed_projects_count: proposedCount,
         completed_projects_count: completedCount,
         project_teams: projectTeams,
-        ongoing_projects: ongoingProjects,
+        ongoing_projects: ongoingProjectsList,
         project_updates: updatesList
       });
 

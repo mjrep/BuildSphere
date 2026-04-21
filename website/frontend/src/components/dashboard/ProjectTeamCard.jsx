@@ -1,15 +1,12 @@
 import React from 'react';
 
-export default function ProjectTeamCard({ project_name, location, engr_name, memberCount, tasksDone, tasksTotal, members }) {
+export default function ProjectTeamCard({ project_name, location, engr_name, memberCount, tasksDone, tasksTotal, members, milestone_segments }) {
     const pct = tasksTotal > 0 ? Math.round((tasksDone / tasksTotal) * 100) : 0;
 
-    // Multi-color progress bar segments
-    const segments = [
-        { color: 'bg-[#706BFF]', width: `${pct * 0.5}%` },
-        { color: 'bg-yellow-400',  width: `${pct * 0.25}%` },
-        { color: 'bg-red-400',     width: `${pct * 0.15}%` },
-        { color: 'bg-green-400',   width: `${pct * 0.1}%` },
-    ];
+    // Use milestone-specific segments if available, fallback to a single primary color if not
+    const segments = (milestone_segments && milestone_segments.length > 0) 
+        ? milestone_segments.map(s => ({ color: s.color, width: `${s.percentage}%` }))
+        : [{ color: 'bg-[#706BFF]', width: `${pct}%` }];
 
     return (
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-[#F0F0F8]">
@@ -43,9 +40,6 @@ export default function ProjectTeamCard({ project_name, location, engr_name, mem
                         {m.initials}
                     </div>
                 ))}
-                <div className="w-7 h-7 rounded-full bg-[#F0F0F8] flex items-center justify-center text-[#6B7280] text-sm font-bold">
-                    +
-                </div>
             </div>
         </div>
     );
