@@ -1,4 +1,6 @@
 const MilestoneService = require('../services/MilestoneService');
+const EvmService = require('../services/EvmService');
+const AiAssessmentService = require('../services/AiAssessmentService');
 const { createClient } = require('@supabase/supabase-js');
 
 class ProjectController {
@@ -375,6 +377,38 @@ class ProjectController {
 
   static async submitMilestoneReview(req, res) {
     res.json({ message: "Endpoint migrated." });
+  }
+
+  static async getEvmData(req, res) {
+    try {
+      const { id } = req.params;
+      const evmData = await EvmService.getProjectEvmData(id);
+      res.json(evmData);
+    } catch (error) {
+      console.error('Error fetching EVM data:', error);
+      res.status(500).json({ message: 'Error fetching EVM data', error: error.message });
+    }
+  }
+  static async getAiAssessment(req, res) {
+    try {
+      const { id } = req.params;
+
+      // Step 1: Fetch the structured EVM data bundle
+      const evm_data = await EvmService.getProjectEvmData(id);
+
+      // Step 2: Send to Gemini for analysis
+      const ai_assessment = await AiAssessmentService.generateEvmReport(evm_data);
+
+      // Step 3: Return combined snake_case payload
+      res.json({
+        success: true,
+        ai_assessment,
+        evm_data
+      });
+    } catch (error) {
+      console.error('Error generating AI assessment:', error);
+      res.status(500).json({ success: false, error_message: error.message });
+    }
   }
 }
 

@@ -52,6 +52,8 @@ app.post('/api/projects', authenticateToken, projectController.store);
 app.get('/api/projects/statuses', authenticateToken, projectController.statuses);
 app.get('/api/projects/phase-titles', authenticateToken, projectController.phaseTitles);
 app.get('/api/projects/:id', authenticateToken, projectController.show);
+app.get('/api/projects/:id/evm-data', authenticateToken, projectController.getEvmData);
+app.get('/api/projects/:id/ai-assessment', authenticateToken, projectController.getAiAssessment);
 app.put('/api/projects/:id', authenticateToken, projectController.update);
 app.delete('/api/projects/:id', authenticateToken, projectController.destroy);
 app.post('/api/projects/:id/team', authenticateToken, projectController.addTeamMember);
