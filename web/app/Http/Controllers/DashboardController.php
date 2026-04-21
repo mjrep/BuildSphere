@@ -22,9 +22,10 @@ class DashboardController extends Controller
             $baseQuery = Project::visibleTo($user);
 
             // 1. Stats Counter
-            $ongoingCount = (clone $baseQuery)->where('status', ProjectStatus::ONGOING)->count();
-            $proposedCount = (clone $baseQuery)->where('status', ProjectStatus::PROPOSED)->count();
-            $completedCount = (clone $baseQuery)->where('status', ProjectStatus::COMPLETED)->count();
+            $statusCounts = (clone $baseQuery)->selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status');
+            $ongoingCount = $statusCounts[ProjectStatus::ONGOING->value] ?? 0;
+            $proposedCount = $statusCounts[ProjectStatus::PROPOSED->value] ?? 0;
+            $completedCount = $statusCounts[ProjectStatus::COMPLETED->value] ?? 0;
 
             // 2. Project Teams (4 most recent ongoing)
             $teamsQuery = (clone $baseQuery)
