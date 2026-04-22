@@ -47,11 +47,14 @@ Provide your analysis as a strict JSON object (no markdown, no code fences, no e
 
   /**
    * Generate a WPM-EVM report using Gemini.
-   * @param {Object} evmData - The JSON bundle from EvmService.getProjectEvmData()
+   * Supports fallback to older models if the latest is busy.
    */
-  static async generateEvmReport(evmData, retries = 3) {
+  static async generateEvmReport(evmData, modelIndex = 0, retries = 3) {
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest'];
+    const selectedModel = models[modelIndex] || models[0];
+
     try {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = genAI.getGenerativeModel({ model: selectedModel });
       const prompt = this.buildPrompt(evmData);
       
       const result = await model.generateContent(prompt);
@@ -66,13 +69,22 @@ Provide your analysis as a strict JSON object (no markdown, no code fences, no e
       return JSON.parse(cleanJson);
     } catch (error) {
       const is503 = error.message?.includes('503');
+      
+      // If 503 and we have retries left for THIS model, wait and retry
       if (is503 && retries > 0) {
         const waitMs = (4 - retries) * 3000; // 3s, 6s, 9s
-        console.log(`Gemini busy (503). Retrying in ${waitMs / 1000}s... (${retries} retries left)`);
+        console.log(`Gemini (${selectedModel}) busy (503). Retrying in ${waitMs / 1000}s... (${retries} retries left)`);
         await new Promise(r => setTimeout(r, waitMs));
-        return this.generateEvmReport(evmData, retries - 1);
+        return this.generateEvmReport(evmData, modelIndex, retries - 1);
       }
-      console.error('Gemini API Error:', error.message);
+
+      // If we exhausted retries for the current model, try the fallback model
+      if (is503 && modelIndex < models.length - 1) {
+        console.log(`Switching to fallback model: ${models[modelIndex + 1]} due to 503 error.`);
+        return this.generateEvmReport(evmData, modelIndex + 1, 3); // Reset retries for the next model
+      }
+
+      console.error(`Gemini API Error (${selectedModel}):`, error.message);
       throw new Error(`AI assessment failed: ${error.message}`);
     }
   }

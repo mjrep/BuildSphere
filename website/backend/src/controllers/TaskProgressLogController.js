@@ -193,7 +193,8 @@ class TaskProgressLogController {
     const { data: logs } = await supabase
       .from('task_progress_logs')
       .select('quantity_accomplished')
-      .eq('milestone_id', milestoneId);
+      .eq('milestone_id', milestoneId)
+      .eq('ai_verification_status', 'approved');
 
     const totalMilestone = (logs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
 
@@ -215,7 +216,8 @@ class TaskProgressLogController {
     const { data: taskLogs } = await supabase
       .from('task_progress_logs')
       .select('quantity_accomplished')
-      .eq('task_id', taskId);
+      .eq('task_id', taskId)
+      .eq('ai_verification_status', 'approved');
 
     const taskProgress = (taskLogs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
     const isTaskDone = milestone && taskProgress >= milestone.target_quantity;

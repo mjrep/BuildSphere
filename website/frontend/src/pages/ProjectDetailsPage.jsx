@@ -6,8 +6,9 @@ import ProjectInventoryTab from '../components/projects/ProjectInventoryTab';
 import ProjectMilestonesTab from '../components/projects/ProjectMilestonesTab';
 import ProposedProjectView from '../components/projects/ProposedProjectView';
 import SiteUpdatesTab from '../components/projects/SiteUpdatesTab';
+import AiAssessmentModal from '../components/projects/AiAssessmentModal';
 import useAuth from '../hooks/useAuth';
-import { getProject } from '../services/projectApi';
+import { getProject, getAiAssessment } from '../services/projectApi';
 
 export default function ProjectDetailsPage() {
     const { id } = useParams();
@@ -15,7 +16,9 @@ export default function ProjectDetailsPage() {
     const { user } = useAuth();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [analyzing, setAnalyzing] = useState(false);
     const [activeTab, setActiveTab] = useState('Overview');
+    const [aiResult, setAiResult] = useState(null);
 
     const fetchProject = () => {
         setLoading(true);
@@ -26,6 +29,22 @@ export default function ProjectDetailsPage() {
                 navigate('/projects');
             })
             .finally(() => setLoading(false));
+    };
+
+    const handleAnalyze = () => {
+        if (analyzing) return;
+        setAnalyzing(true);
+        getAiAssessment(id)
+            .then((res) => {
+                setAiResult(res.data);
+            })
+            .catch((err) => {
+                console.error('AI Assessment failed:', err);
+                alert('AI Assessment failed: ' + (err.response?.data?.error_message || err.message));
+            })
+            .finally(() => {
+                setAnalyzing(false);
+            });
     };
 
     useEffect(() => {
@@ -100,12 +119,28 @@ export default function ProjectDetailsPage() {
                         ))}
                     </div>
                     
-                    {/* Placeholder Analyze button */}
-                    <button className="mb-2 px-5 py-2 bg-[#706BFF]/10 text-[#706BFF] text-sm font-bold rounded-xl hover:bg-[#706BFF]/20 transition-colors flex items-center gap-1.5">
-                        Analyze
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M5 21L12.5 13.5L16.5 17.5L24 10V13.5H26V5H17.5V7H21L16.5 11.5L12.5 7.5L3 17L5 21Z" />
-                        </svg>
+                    {/* Analyze button */}
+                    <button 
+                        onClick={handleAnalyze}
+                        disabled={analyzing}
+                        className={`mb-2 px-5 py-2 bg-[#706BFF]/10 text-[#706BFF] text-sm font-bold rounded-xl hover:bg-[#706BFF]/20 transition-colors flex items-center gap-2 ${analyzing ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                        {analyzing ? (
+                            <>
+                                <svg className="animate-spin h-4 w-4 text-[#706BFF]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Thinking...
+                            </>
+                        ) : (
+                            <>
+                                Analyze
+                                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M5 21L12.5 13.5L16.5 17.5L24 10V13.5H26V5H17.5V7H21L16.5 11.5L12.5 7.5L3 17L5 21Z" />
+                                </svg>
+                            </>
+                        )}
                     </button>
                 </div>
 
@@ -127,6 +162,14 @@ export default function ProjectDetailsPage() {
                         <SiteUpdatesTab project={project} />
                     </div>
                 </div>
+
+                {/* AI Assessment Modal */}
+                {aiResult && (
+                    <AiAssessmentModal 
+                        assessment={aiResult} 
+                        onClose={() => setAiResult(null)} 
+                    />
+                )}
 
             </div>
         </DashboardLayout>

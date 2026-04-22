@@ -10,6 +10,10 @@ export default function ProposedProjectView({ project }) {
     const formatCurrency = (val) =>
         val != null ? `₱ ${Number(val).toLocaleString('en-PH', { minimumFractionDigits: 2 })}` : '—';
 
+    // Normalize roles for comparison
+    const userRole = (user?.role || '').toLowerCase().replace(/\s+/g, '_');
+    const subStatus = (project.sub_status || '').toLowerCase();
+
     return (
         <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             {/* Header card */}
@@ -75,7 +79,7 @@ export default function ProposedProjectView({ project }) {
 
             {/* Action buttons based on role */}
             <div className="flex gap-3">
-                {user?.role === 'Project Engineer' && ['draft', 'for_revision'].includes(project.sub_status) && (
+                {userRole === 'project_engineer' && ['draft', 'for_revision'].includes(subStatus) && (
                     <button
                         onClick={() => navigate(`/projects/${project.id}/milestone-input`)}
                         className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"
@@ -83,7 +87,7 @@ export default function ProposedProjectView({ project }) {
                         Manage Milestone Plan
                     </button>
                 )}
-                {user?.role === 'Accounting' && project.sub_status === 'pending_approval' && !project.accounting_approved_at && (
+                {userRole === 'accounting' && subStatus === 'pending_approval' && !project.accounting_approved_at && (
                     <button
                         onClick={() => navigate(`/projects/${project.id}/approval`)}
                         className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"
@@ -91,7 +95,7 @@ export default function ProposedProjectView({ project }) {
                         Review & Approve
                     </button>
                 )}
-                {['CEO', 'COO'].includes(user?.role) && project.sub_status === 'pending_approval' && !!project.accounting_approved_at && (
+                {['ceo', 'coo'].includes(userRole) && subStatus === 'pending_approval' && !!project.accounting_approved_at && (
                     <button
                         onClick={() => navigate(`/projects/${project.id}/approval`)}
                         className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"

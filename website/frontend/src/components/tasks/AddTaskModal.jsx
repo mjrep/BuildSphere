@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { TASK_PRIORITIES, TASK_STATUSES } from '../../utils/taskConstants';
 import { buildTaskFormData } from '../../utils/taskHelpers';
-import { getTaskMeta, createTask, updateTask } from '../../services/taskApi';
+import { getTaskMeta, createTask, updateTask, uploadTaskAttachments } from '../../services/taskApi';
 // import api from '../../services/api'; // No longer needed directly for tasks
 
 const STEPS = ['Details', 'Description'];
@@ -96,27 +96,40 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
         setSubmitting(true);
         try {
-            const payload = buildTaskFormData({
+            // Send as JSON for the main task creation/update
+            const jsonData = {
                 title:        form.title,
-                project_id:   form.project_id,
-                phase_id:     form.phase_id    || null,
-                milestone_id: form.milestone_id || null,
+                project_id:   parseInt(form.project_id),
+                phase_id:     form.phase_id    ? parseInt(form.phase_id)    : null,
+                milestone_id: form.milestone_id ? parseInt(form.milestone_id) : null,
                 description:  form.description,
-                assigned_to:  form.assigned_to,
+                assigned_to:  parseInt(form.assigned_to),
                 priority:     form.priority,
                 status:       form.status,
                 start_date:   form.start_date  || null,
                 due_date:     form.due_date,
-            }, files);
+            };
 
+            let savedTask;
             if (isEdit) {
-                await updateTask(task.id, payload);
+                savedTask = await updateTask(task.id, jsonData);
             } else {
-                await createTask(payload);
+                savedTask = await createTask(jsonData);
             }
+
+            // Handle attachments separately if any
+            if (files.length > 0 && savedTask?.id) {
+                const fd = new FormData();
+                files.forEach(f => fd.append('files', f)); // Backend expects 'files' array
+                await uploadTaskAttachments(savedTask.id, fd);
+            }
+
             setSuccess(true);
         } catch (err) {
-            const serverErrors = err.response?.data?.errors ?? {};
+            console.error('Task Submission Error:', err);
+            const serverErrors = err.response?.data?.errors ?? { 
+                general: err.response?.data?.message || 'Error processing request' 
+            };
             setErrors(serverErrors);
         } finally {
             setSubmitting(false);

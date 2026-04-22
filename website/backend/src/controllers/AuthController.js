@@ -107,10 +107,11 @@ class AuthController {
       }
 
       // Safely grab user details from public users table if they exist
+      // Use email matching instead of ID because Auth IDs are UUIDs and public IDs are Integers
       const { data: userData } = await supabase
         .from('users')
         .select('*')
-        .eq('id', data.user.id)
+        .eq('email', email)
         .single();
         
       // Flatten user metadata if we are using the Auth user object instead of the public DB record
