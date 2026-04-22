@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
+const { applyProjectVisibility } = require('../utils/visibility');
 
 dotenv.config();
 
@@ -24,9 +25,8 @@ class DashboardController {
          return res.status(401).json({ message: 'Unauthenticated.' });
       }
 
-      // Fetch all projects for the dashboard stats
-      // Removed role-based filtering as requested - now visible to everyone
-      const { data: rawProjects, error } = await supabaseWithAuth
+      // Fetch all projects for the dashboard stats with strict visibility filtering
+      let query = supabaseWithAuth
         .from('projects')
         .select(`
           id, project_name, project_code, address, status, end_date, created_at,
@@ -38,8 +38,11 @@ class DashboardController {
             id,
             progress_logs:task_progress_logs(id, created_at, work_date)
           )
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+      query = applyProjectVisibility(query, user);
+      
+      const { data: rawProjects, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 

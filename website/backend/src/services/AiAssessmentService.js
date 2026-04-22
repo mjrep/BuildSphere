@@ -1,14 +1,90 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const crypto = require('crypto');
 const dotenv = require('dotenv');
+const fs = require('fs');
+const path = require('path');
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const CACHE_DIR = path.join(__dirname, '../../cache');
+const CACHE_FILE = path.join(CACHE_DIR, 'ai_reports.json');
+
+// Ensure cache directory exists
+if (!fs.existsSync(CACHE_DIR)) {
+  fs.mkdirSync(CACHE_DIR, { recursive: true });
+}
+
+// Key rotation counter - Randomize on startup to distribute load across multiple projects/keys
+let currentKeyIndex = Math.floor(Math.random() * 2); 
 
 /**
  * Service for AI-powered EVM project assessment via Google Gemini.
  */
 class AiAssessmentService {
+
+  /**
+   * Load cache from file system.
+   */
+  static _loadCache() {
+    try {
+      if (fs.existsSync(CACHE_FILE)) {
+        const raw = fs.readFileSync(CACHE_FILE, 'utf8');
+        return JSON.parse(raw);
+      }
+    } catch (err) {
+      console.error('[AI Cache] Load failed:', err.message);
+    }
+    return {};
+  }
+
+  /**
+   * Save cache to file system.
+   */
+  static _saveCache(data) {
+    try {
+      if (!fs.existsSync(CACHE_DIR)) {
+        fs.mkdirSync(CACHE_DIR, { recursive: true });
+      }
+      fs.writeFileSync(CACHE_FILE, JSON.stringify(data, null, 2), 'utf8');
+    } catch (err) {
+      console.error('[AI Cache] Save failed:', err.message);
+    }
+  }
+
+  /**
+   * Support multiple API keys separated by commas for rotation.
+   */
+  static getApiKey(forceNext = false) {
+    const keys = (process.env.GEMINI_API_KEY || '').split(',').map(k => k.trim()).filter(k => k);
+    if (!keys.length) return null;
+    
+    if (forceNext) {
+      currentKeyIndex = (currentKeyIndex + 1) % keys.length;
+    } else {
+      // Ensure current index is within bounds if keys changed
+      currentKeyIndex = currentKeyIndex % keys.length;
+    }
+    
+    return keys[currentKeyIndex];
+  }
+
+  /**
+   * Generate a unique hash for the project data to detect progress updates.
+   */
+  static generateProgressHash(evmData) {
+    const progressData = {
+      status: evmData.project_status,
+      phases: (evmData.phases || []).map(p => ({
+        id: p.phase_id,
+        completion: p.phase_completion_percentage,
+        milestones: (p.milestones || []).map(m => ({
+          id: m.milestone_id,
+          completion: m.completion_percentage
+        }))
+      }))
+    };
+    return crypto.createHash('md5').update(JSON.stringify(progressData)).digest('hex');
+  }
 
   static buildPrompt(evmData) {
     return `
@@ -46,47 +122,104 @@ Provide your analysis as a strict JSON object (no markdown, no code fences, no e
   }
 
   /**
-   * Generate a WPM-EVM report using Gemini.
-   * Supports fallback to older models if the latest is busy.
+   * Generate a WPM-EVM report using Gemini with exhaustive matrix fallback.
    */
-  static async generateEvmReport(evmData, modelIndex = 0, retries = 3) {
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-latest'];
-    const selectedModel = models[modelIndex] || models[0];
+  static async generateEvmReport(evmData) {
+    const projectId = evmData.project_id;
+    const currentHash = this.generateProgressHash(evmData);
 
-    try {
-      const model = genAI.getGenerativeModel({ model: selectedModel });
-      const prompt = this.buildPrompt(evmData);
-      
-      const result = await model.generateContent(prompt);
-      const responseText = result.response.text();
-
-      // Strip any accidental markdown code block wrappers
-      const cleanJson = responseText
-        .replace(/```json\s*/gi, '')
-        .replace(/```\s*/gi, '')
-        .trim();
-
-      return JSON.parse(cleanJson);
-    } catch (error) {
-      const is503 = error.message?.includes('503');
-      
-      // If 503 and we have retries left for THIS model, wait and retry
-      if (is503 && retries > 0) {
-        const waitMs = (4 - retries) * 3000; // 3s, 6s, 9s
-        console.log(`Gemini (${selectedModel}) busy (503). Retrying in ${waitMs / 1000}s... (${retries} retries left)`);
-        await new Promise(r => setTimeout(r, waitMs));
-        return this.generateEvmReport(evmData, modelIndex, retries - 1);
-      }
-
-      // If we exhausted retries for the current model, try the fallback model
-      if (is503 && modelIndex < models.length - 1) {
-        console.log(`Switching to fallback model: ${models[modelIndex + 1]} due to 503 error.`);
-        return this.generateEvmReport(evmData, modelIndex + 1, 3); // Reset retries for the next model
-      }
-
-      console.error(`Gemini API Error (${selectedModel}):`, error.message);
-      throw new Error(`AI assessment failed: ${error.message}`);
+    // 1. Check Persistent Cache
+    const cache = this._loadCache();
+    const cached = cache[projectId];
+    if (cached && cached.hash === currentHash) {
+      console.log(`[AI Cache] Hit for project ${projectId}`);
+      return cached.data;
     }
+
+    const keys = (process.env.GEMINI_API_KEY || '').split(',').map(k => k.trim()).filter(k => k);
+    if (!keys.length) throw new Error('GEMINI_API_KEY is not configured in .env');
+
+    // Matrix to explore - Based on user's AI Studio dashboard
+    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2-flash-lite', 'gemini-3-flash'];
+    const errors = [];
+
+    // Exhaustive search through Matrix[Model][Key]
+    for (let mIdx = 0; mIdx < models.length; mIdx++) {
+      const selectedModel = models[mIdx];
+      
+      for (let kIdx = 0; kIdx < keys.length; kIdx++) {
+        // Start from current global index and rotate
+        const actualKeyIdx = (currentKeyIndex + kIdx) % keys.length;
+        const apiKey = keys[actualKeyIdx];
+        
+        try {
+          console.log(`[AI Request] Trying Model #${mIdx + 1} (${selectedModel}) with Key #${actualKeyIdx + 1}...`);
+          
+          const genAI = new GoogleGenerativeAI(apiKey);
+          const model = genAI.getGenerativeModel({ model: selectedModel });
+          const prompt = this.buildPrompt(evmData);
+          
+          const result = await model.generateContent(prompt);
+          const responseText = result.response.text();
+
+          const cleanJson = responseText
+            .replace(/```json\s*/gi, '')
+            .replace(/```\s*/gi, '')
+            .trim();
+
+          const parsedData = JSON.parse(cleanJson);
+
+          // SUCCESS: Update Persistent Cache
+          cache[projectId] = {
+            hash: currentHash,
+            data: parsedData,
+            timestamp: Date.now()
+          };
+          this._saveCache(cache);
+
+          // Update global key index to keep load balanced for next time
+          currentKeyIndex = (actualKeyIdx + 1) % keys.length;
+          
+          return parsedData;
+
+        } catch (error) {
+          const errorMsg = error.message || String(error);
+          const statusCode = error.status || error.statusCode || (error.response ? error.response.status : null);
+          
+          const is429 = statusCode === 429 || errorMsg.includes('429') || errorMsg.toLowerCase().includes('rate limit') || errorMsg.toLowerCase().includes('quota');
+          const is404 = statusCode === 404 || errorMsg.includes('404') || errorMsg.toLowerCase().includes('not found');
+          const is503 = statusCode === 503 || errorMsg.includes('503') || errorMsg.toLowerCase().includes('overloaded') || errorMsg.toLowerCase().includes('busy');
+
+          const errorType = is429 ? 'RATE_LIMIT' : (is404 ? 'NOT_FOUND' : (is503 ? 'BUSY' : 'ERROR'));
+          console.warn(`[AI Attempt Failed] Model: ${selectedModel}, Key: #${actualKeyIdx + 1}, Type: ${errorType}, Msg: ${errorMsg.slice(0, 50)}...`);
+          
+          errors.push({ model: selectedModel, keyIndex: actualKeyIdx + 1, type: errorType, message: errorMsg });
+
+          // If it's a 404, this MODEL is bad. Break the inner loop and try the next model.
+          if (is404) {
+            console.log(`[AI Fallback] Model ${selectedModel} is not available. Skipping...`);
+            break; 
+          }
+
+          // If it's a 429 (RPM), wait a bit and move to the NEXT KEY
+          if (is429) {
+            const isRpm = errorMsg.toLowerCase().includes('rpm') || !errorMsg.toLowerCase().includes('daily');
+            const waitTime = isRpm ? 10000 : 1000; // 10s wait for RPM, 1s for daily/other
+            console.log(`[AI Backoff] Waiting ${waitTime/1000}s for quota reset...`);
+            await new Promise(r => setTimeout(r, waitTime));
+            continue; // Next key
+          }
+
+          // For other errors (503/Busy), just move to next key immediately
+          continue; 
+        }
+      }
+    }
+
+    // If we reached here, everything failed
+    console.error(`[AI Exhausted] All models and keys failed.`);
+    const summary = errors.map(e => `[Key ${e.keyIndex} ${e.model}]: ${e.type}`).join(' | ');
+    throw new Error(`AI assessment failed after trying all options. Summary: ${summary}. Please check your API keys or wait a minute.`);
   }
 }
 

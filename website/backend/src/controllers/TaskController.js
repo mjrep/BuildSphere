@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const TaskQueryService = require('../services/TaskQueryService');
+const { applyProjectVisibility } = require('../utils/visibility');
 
 class TaskController {
   static getSupabaseWithAuth(req) {
@@ -7,6 +8,15 @@ class TaskController {
     return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
       global: { headers: { Authorization: `Bearer ${token}` } }
     });
+  }
+
+  static isCreatorRole(user) {
+    const role = (user.role || '').toLowerCase().replace(/ /g, '_');
+    const allowed = [
+      'ceo', 'coo', 'project_engineer', 'project_coordinator',
+      'sales', 'accounting', 'human_resource', 'procurement', 'admin'
+    ];
+    return allowed.includes(role);
   }
 
   static async index(req, res) {
@@ -45,12 +55,15 @@ class TaskController {
     try {
       const supabase = TaskController.getSupabaseWithAuth(req);
       
-      // Projects
-      // Filtering visible projects could reuse logic from Dashboard, but simplistic select here:
-      const { data: projectsData } = await supabase
+      // Projects - Apply visibility so users only see projects they can assign tasks to
+      let query = supabase
         .from('projects')
-        .select('id, project_name, project_code')
-        .order('project_name', { ascending: true });
+        .select('id, project_name, project_code');
+      
+      query = applyProjectVisibility(query, req.user);
+
+      const { data: projectsData, error } = await query.order('project_name', { ascending: true });
+      if (error) throw error;
 
       const projects = (projectsData || []).map(p => ({
         id: p.id,
@@ -115,8 +128,12 @@ class TaskController {
 
   static async store(req, res) {
     try {
-      const supabase = TaskController.getSupabaseWithAuth(req);
       const user = req.user;
+      if (!TaskController.isCreatorRole(user)) {
+        return res.status(403).json({ message: 'Unauthorized to create tasks.' });
+      }
+
+      const supabase = TaskController.getSupabaseWithAuth(req);
       
       const payload = {
         project_id: req.body.project_id,
@@ -142,6 +159,25 @@ class TaskController {
         .single();
 
       if (error) throw error;
+
+      // Handle optional attachments if uploaded via multer
+      if (req.files && req.files.length > 0) {
+        const bucket = process.env.SUPABASE_BUCKET_ATTACHMENTS || 'task-attachments';
+        for (const file of req.files) {
+          const path = `${Date.now()}_${Math.random().toString(36).substring(2, 10)}_${file.originalname}`;
+          await supabase.storage.from(bucket).upload(path, file.buffer, { contentType: file.mimetype });
+          
+          await supabase.from('task_attachments').insert([{
+            task_id: task.id,
+            file_name: file.originalname,
+            file_path: path,
+            file_type: file.mimetype,
+            file_size: file.size,
+            uploaded_by: user.id
+          }]);
+        }
+      }
+
       res.status(201).json(TaskController.formatTask(task));
     } catch (err) {
       console.error(err);
@@ -151,8 +187,12 @@ class TaskController {
 
   static async update(req, res) {
     try {
-      const supabase = TaskController.getSupabaseWithAuth(req);
       const user = req.user;
+      if (!TaskController.isCreatorRole(user)) {
+        return res.status(403).json({ message: 'Unauthorized to update tasks.' });
+      }
+
+      const supabase = TaskController.getSupabaseWithAuth(req);
       const { task: id } = req.params;
 
       const payload = { ...req.body, updated_by: user.id, updated_at: new Date().toISOString() };
@@ -166,6 +206,25 @@ class TaskController {
         .single();
 
       if (error) throw error;
+
+      // Handle optional attachments if uploaded via multer
+      if (req.files && req.files.length > 0) {
+        const bucket = process.env.SUPABASE_BUCKET_ATTACHMENTS || 'task-attachments';
+        for (const file of req.files) {
+          const path = `${Date.now()}_${Math.random().toString(36).substring(2, 10)}_${file.originalname}`;
+          await supabase.storage.from(bucket).upload(path, file.buffer, { contentType: file.mimetype });
+          
+          await supabase.from('task_attachments').insert([{
+            task_id: task.id,
+            file_name: file.originalname,
+            file_path: path,
+            file_type: file.mimetype,
+            file_size: file.size,
+            uploaded_by: user.id
+          }]);
+        }
+      }
+
       res.json(TaskController.formatTask(task));
     } catch (err) {
       console.error(err);
@@ -175,10 +234,15 @@ class TaskController {
 
   static async updateStatus(req, res) {
     try {
+      const user = req.user;
+      if (!TaskController.isCreatorRole(user)) {
+        return res.status(403).json({ message: 'Unauthorized to update task status.' });
+      }
+
       const supabase = TaskController.getSupabaseWithAuth(req);
       const { task: id } = req.params;
-      const { status } = req.body;
 
+      const { status } = req.body;
       const { data, error } = await supabase
         .from('tasks')
         .update({ status, updated_by: req.user.id, updated_at: new Date().toISOString() })
@@ -196,6 +260,11 @@ class TaskController {
 
   static async destroy(req, res) {
     try {
+      const user = req.user;
+      if (!TaskController.isCreatorRole(user)) {
+        return res.status(403).json({ message: 'Unauthorized to delete tasks.' });
+      }
+
       const supabase = TaskController.getSupabaseWithAuth(req);
       const { task: id } = req.params;
 

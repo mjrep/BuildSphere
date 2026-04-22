@@ -4,11 +4,11 @@ const STATUS_MAP = {
     proposed: {
         draft:            { label: 'Draft',            bg: 'bg-gray-100',   text: 'text-gray-700' },
         for_revision:     { label: 'For Revision',     bg: 'bg-red-50',     text: 'text-red-500' },
-        pending_approval: { label: 'Pending Approval', bg: 'bg-orange-50',  text: 'text-orange-500' },
-        approved:         { label: 'Approved',         bg: 'bg-green-50',   text: 'text-green-500' },
+        pending_approval: { label: 'Pending Approval', bg: 'bg-orange-100', text: 'text-orange-700' },
+        approved:         { label: 'Approved',         bg: 'bg-emerald-100', text: 'text-emerald-700' },
     },
-    ongoing:   { label: 'Ongoing',   bg: 'bg-blue-100',  text: 'text-blue-700' },
-    completed: { label: 'Completed', bg: 'bg-emerald-100', text: 'text-emerald-700' },
+    ongoing:   { label: 'Ongoing',   bg: 'bg-indigo-600', text: 'text-white' },
+    completed: { label: 'Completed', bg: 'bg-emerald-600', text: 'text-white' },
 };
 
 export default function StatusBadge({ status, subStatus }) {
@@ -16,9 +16,11 @@ export default function StatusBadge({ status, subStatus }) {
     let config;
     
     if (status === 'proposed') {
-        config = STATUS_MAP.proposed[subStatus] || { label: 'Proposed', bg: 'bg-blue-50', text: 'text-blue-500' };
+        config = STATUS_MAP.proposed[subStatus] || { label: 'Proposed', bg: 'bg-slate-100', text: 'text-slate-600' };
+    } else if (status === 'ongoing') {
+        config = STATUS_MAP.ongoing;
     } else {
-        config = STATUS_MAP[status] || { label: status, bg: 'bg-gray-100', text: 'text-gray-600' };
+        config = STATUS_MAP[status] || { label: status, bg: 'bg-slate-50', text: 'text-slate-500' };
     }
 
     return (

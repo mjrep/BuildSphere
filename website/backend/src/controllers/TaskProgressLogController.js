@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
+const { applyProjectVisibility } = require('../utils/visibility');
 
 // Configure multer for single image upload
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -19,16 +20,37 @@ class TaskProgressLogController {
       const projectId = parseInt(req.params.project);
       const taskId = req.query.task_id;
 
+      // 1. Check Visibility first
+      let projectQuery = supabase.from('projects').select('id').eq('id', projectId);
+      projectQuery = applyProjectVisibility(projectQuery, req.user);
+      const { data: isVisible } = await projectQuery.single();
+
+      if (!isVisible) {
+        return res.status(403).json({ message: 'Unauthorized. You do not have access to this project.' });
+      }
+
+      // 2. Fetch logs with joined data
       let query = supabase
         .from('task_progress_logs')
         .select(`
           *,
           creator:users!created_by(id, first_name, last_name),
-          task:tasks(id, title),
-          milestone:project_milestones!inner(id, project_id, milestone_name, current_quantity, target_quantity, unit_of_measure)
-        `)
-        .eq('milestone.project_id', projectId)
-        .order('created_at', { ascending: false });
+          task:tasks!task_id(id, title),
+          milestone:project_milestones!milestone_id(
+            id, 
+            milestone_name, 
+            current_quantity, 
+            target_quantity, 
+            unit_of_measure,
+            project_id
+          )
+        `);
+
+      // Filter by project_id if it exists in the milestone relation
+      if (projectId) {
+        // We filter by checking if any of the phases/milestones of this project match
+        query = query.eq('milestone.project_id', projectId);
+      }
 
       if (taskId) {
         query = query.eq('task_id', taskId);
@@ -37,7 +59,12 @@ class TaskProgressLogController {
       const { data: logs, error } = await query;
       if (error) throw error;
 
-      res.json({ data: logs.map(val => TaskProgressLogController.formatLog(val)) });
+      // Filter out any logs that might come from null milestones after the project_id filter
+      // (PostgREST returns all logs but with null milestone if filtered this way unless it's an inner join)
+      // Alternatively, we use inner join !inner if available, but for simplicity we filter here
+      const validLogs = logs.filter(l => l.milestone && l.milestone.project_id === projectId);
+
+      res.json({ data: validLogs.map(val => TaskProgressLogController.formatLog(val)) });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: 'Error fetching progress logs', error: err.message });
@@ -193,8 +220,7 @@ class TaskProgressLogController {
     const { data: logs } = await supabase
       .from('task_progress_logs')
       .select('quantity_accomplished')
-      .eq('milestone_id', milestoneId)
-      .eq('ai_verification_status', 'approved');
+      .eq('milestone_id', milestoneId);
 
     const totalMilestone = (logs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
 
@@ -216,8 +242,7 @@ class TaskProgressLogController {
     const { data: taskLogs } = await supabase
       .from('task_progress_logs')
       .select('quantity_accomplished')
-      .eq('task_id', taskId)
-      .eq('ai_verification_status', 'approved');
+      .eq('task_id', taskId);
 
     const taskProgress = (taskLogs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
     const isTaskDone = milestone && taskProgress >= milestone.target_quantity;

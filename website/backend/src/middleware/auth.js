@@ -34,15 +34,12 @@ const authenticateToken = async (req, res, next) => {
       .eq('email', authData.user.email)
       .single();
 
-    // Flatten user metadata if we are using the Auth user object instead of the public DB record
+    // 1. ID Consistency: Ensure we use the integer ID from public members table
+    // 2. Role Integrity: Keep original casing but allow helpers to check
     const baseUser = userData || authData.user;
+    
     if (!userData && authData.user.user_metadata) {
       Object.assign(baseUser, authData.user.user_metadata);
-    }
-
-    // Normalize role for consistent case-insensitive checks across the app
-    if (baseUser.role) {
-      baseUser.role = baseUser.role.toLowerCase().replace(/\s+/g, '_');
     }
 
     req.user = baseUser;

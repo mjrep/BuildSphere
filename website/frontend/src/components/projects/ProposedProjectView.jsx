@@ -70,39 +70,39 @@ export default function ProposedProjectView({ project }) {
                 </div>
 
                 {project.description && (
-                    <div className="mt-4 text-sm">
+                    <div className="mt-4 text-sm pb-2">
                         <span className="text-[#A1A1A1]">Description</span>
                         <p className="font-medium text-[#1A1A1A] mt-1">{project.description}</p>
                     </div>
                 )}
-            </div>
 
-            {/* Action buttons based on role */}
-            <div className="flex gap-3">
-                {userRole === 'project_engineer' && ['draft', 'for_revision'].includes(subStatus) && (
-                    <button
-                        onClick={() => navigate(`/projects/${project.id}/milestone-input`)}
-                        className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"
-                    >
-                        Manage Milestone Plan
-                    </button>
-                )}
-                {userRole === 'accounting' && subStatus === 'pending_approval' && !project.accounting_approved_at && (
-                    <button
-                        onClick={() => navigate(`/projects/${project.id}/approval`)}
-                        className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"
-                    >
-                        Review & Approve
-                    </button>
-                )}
-                {['ceo', 'coo'].includes(userRole) && subStatus === 'pending_approval' && !!project.accounting_approved_at && (
-                    <button
-                        onClick={() => navigate(`/projects/${project.id}/approval`)}
-                        className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors"
-                    >
-                        Review & Approve
-                    </button>
-                )}
+                {/* Integrated Action Buttons */}
+                <div className="mt-6 pt-6 border-t border-[#F0F0F8] flex justify-center gap-4">
+                    {userRole === 'project_engineer' && ['draft', 'for_revision', ''].includes(subStatus) && (
+                        <button
+                            onClick={() => navigate(`/projects/${project.id}/milestone-input`)}
+                            className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-all shadow-sm hover:shadow-md"
+                        >
+                            Manage Milestone Plan
+                        </button>
+                    )}
+                    {userRole === 'accounting' && subStatus === 'pending_approval' && !project.accounting_approved_at && (
+                        <button
+                            onClick={() => navigate(`/projects/${project.id}/approval`)}
+                            className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-all shadow-sm hover:shadow-md"
+                        >
+                            Review & Approve
+                        </button>
+                    )}
+                    {['ceo', 'coo'].includes(userRole) && subStatus === 'pending_approval' && !!project.accounting_approved_at && (
+                        <button
+                            onClick={() => navigate(`/projects/${project.id}/approval`)}
+                            className="px-6 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-all shadow-sm hover:shadow-md"
+                        >
+                            Review & Approve
+                        </button>
+                    )}
+                </div>
             </div>
         </div>
     );

@@ -53,8 +53,8 @@ export default function MilestoneGanttGrid({ phases, onViewProgress }) {
                                                 </span>
                                             </td>
                                         )}
-                                        <td className="px-6 py-8 text-sm text-[#A1A1A1] font-medium border-b border-r border-[#F0F0F8]">
-                                            {ms.title}
+                                        <td className="px-6 py-8 text-sm text-[#1A1A1A] font-bold border-b border-r border-[#F0F0F8]">
+                                            {ms.milestone_name}
                                         </td>
                                         {months.map((month, monthIdx) => {
                                             const progress = getProgressInMonth(ms, monthIdx);

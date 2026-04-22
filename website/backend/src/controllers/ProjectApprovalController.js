@@ -22,11 +22,18 @@ class ProjectApprovalController {
 
   static async accountingApproval(req, res) {
     try {
+      const user = req.user;
+      const role = (user.role || '');
+      
+      // RBAC: Only Accounting role can approve budget
+      if (role !== 'Accounting' && role !== 'Admin') {
+        return res.status(403).json({ message: 'Unauthorized. Only Accounting can approve project budgets.' });
+      }
+
       const supabaseAdmin = ProjectApprovalController.getSupabaseAdmin();
-      const projectIdRaw = req.params.project; // Corrected to match index.js route :project
+      const projectIdRaw = req.params.project; 
       const projectId = parseInt(projectIdRaw);
       const { decision, comments } = req.body;
-      const user = req.user;
 
       if (isNaN(projectId)) {
         return res.status(422).json({ 
@@ -138,11 +145,18 @@ class ProjectApprovalController {
 
   static async executiveApproval(req, res) {
     try {
+      const user = req.user;
+      const role = (user.role || '');
+
+      // RBAC: Only CEO or COO can give final approval
+      if (!['CEO', 'COO', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only CEO or COO can provide executive approval.' });
+      }
+
       const supabaseAdmin = ProjectApprovalController.getSupabaseAdmin();
-      const projectIdRaw = req.params.project; // Corrected to match index.js route :project
+      const projectIdRaw = req.params.project; 
       const projectId = parseInt(projectIdRaw);
       const { decision, comments } = req.body;
-      const user = req.user;
 
       if (isNaN(projectId)) {
         return res.status(422).json({ 

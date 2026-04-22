@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 import InventoryTable from './InventoryTable';
 import AddInventoryItemModal from './AddInventoryItemModal';
@@ -8,11 +8,13 @@ import UpdateStockModal from './UpdateStockModal';
 import DeleteInventoryItemModal from './DeleteInventoryItemModal';
 import InventorySuccessModal from './InventorySuccessModal';
 
+import { supabase } from '../../utils/supabase';
+
 export default function ProjectInventoryTab({ project }) {
     const { user } = useAuth();
     
     // Roles allowed to Add/Edit/Update stock
-    const allowedRoles = ['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement'];
+    const allowedRoles = ['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement', 'Admin'];
     const canManageInventory = allowedRoles.includes(user?.role);
 
     const [items, setItems] = useState([]);
@@ -30,7 +32,7 @@ export default function ProjectInventoryTab({ project }) {
 
     const fetchInventory = () => {
         setLoading(true);
-        axios.get(`/api/projects/${project.id}/inventory`)
+        api.get(`/projects/${project.id}/inventory`)
             .then(res => setItems(res.data.data || res.data))
             .catch(err => console.error('Failed to load inventory', err))
             .finally(() => setLoading(false));
@@ -38,6 +40,23 @@ export default function ProjectInventoryTab({ project }) {
 
     useEffect(() => {
         fetchInventory();
+
+        // Real-time subscription
+        const channel = supabase
+            .channel('inventory-changes')
+            .on(
+                'postgres_changes', 
+                { event: '*', schema: 'public', table: 'project_inventory_items', filter: `project_id=eq.${project.id}` },
+                () => {
+                    console.log('Inventory change detected, refreshing...');
+                    fetchInventory();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [project.id]);
 
     const handleSuccess = (message) => {

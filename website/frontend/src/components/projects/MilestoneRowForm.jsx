@@ -57,6 +57,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
             </div>
 
 
+
             {/* Has Quantity Toggle */}
             <div className="flex flex-col items-center justify-end pb-3 space-y-2">
                 <label className="block text-xs font-semibold text-[#1A1A1A]">Is quantifiable?</label>

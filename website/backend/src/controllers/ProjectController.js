@@ -1,6 +1,7 @@
 const MilestoneService = require('../services/MilestoneService');
 const EvmService = require('../services/EvmService');
 const AiAssessmentService = require('../services/AiAssessmentService');
+const { applyProjectVisibility } = require('../utils/visibility');
 const { createClient } = require('@supabase/supabase-js');
 
 class ProjectController {
@@ -27,6 +28,9 @@ class ProjectController {
           created_by_user:users!created_by(id, first_name, last_name, role),
           project_in_charge:users!project_in_charge_id(id, first_name, last_name, role)
         `, { count: 'exact' });
+
+      // Apply granular visibility based on user role
+      query = applyProjectVisibility(query, req.user);
 
       // BuildSphere filters mappings
       if (search) {
@@ -87,7 +91,7 @@ class ProjectController {
       const { id } = req.params;
 
       // 1. Fetch Project with primary relations
-      const { data: project, error } = await supabase
+      let query = supabase
         .from('projects')
         .select(`
           *,
@@ -97,8 +101,12 @@ class ProjectController {
           approvals:project_approvals(*, approver:users!approver_user_id(*)),
           milestones:project_milestones(*, created_by_user:users!created_by(*))
         `)
-        .eq('id', id)
-        .single();
+        .eq('id', id);
+
+      // Apply visibility check
+      query = applyProjectVisibility(query, req.user);
+
+      const { data: project, error } = await query.single();
 
       if (error) throw error;
 
@@ -137,10 +145,13 @@ class ProjectController {
         if (daysLeft < 0) daysLeft = 0;
       }
 
-      // B. Tasks Summary & Progress
+      // B. Project Progress (Weighted by Phases)
+      const progressData = await MilestoneService.getProjectMilestonesProgress(id);
+      const progress = progressData.project_progress;
+
+      // Also need counts for the tasks summary card
       const totalTasks = tasks?.length || 0;
       const completedTasks = tasks?.filter(t => t.status === 'completed').length || 0;
-      const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
       if (daysLeft !== null) {
         if (daysLeft < 14 && progress < 80) statusLabel = 'near_due';
@@ -194,9 +205,12 @@ class ProjectController {
       // E. Final Format
       const formatted = {
         ...project,
-        status_label: statusLabel,
-        days_left: daysLeft,
+        status_metrics: {
+          status: statusLabel,
+          days_left: daysLeft
+        },
         progress,
+        client_name: project.client_name || (project.created_by_user ? 'Draft Project' : 'Unnamed'),
         cost_data: {
           planned: plannedCost,
           actual: actualCost
@@ -238,8 +252,15 @@ class ProjectController {
 
   static async store(req, res) {
     try {
-      const supabaseWithAuth = ProjectController.getSupabaseWithAuth(req);
       const user = req.user;
+      const role = (user.role || '');
+      
+      // RBAC: Only Sales, Admin or Executives can propose new projects
+      if (!['Sales', 'Admin', 'CEO', 'COO'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only Sales or Executives can create projects.' });
+      }
+
+      const supabaseWithAuth = ProjectController.getSupabaseWithAuth(req);
       
       const payload = { ...req.body, created_by: user.id };
       if (payload.status) payload.status = payload.status.toLowerCase();
@@ -308,8 +329,25 @@ class ProjectController {
 
   static async destroy(req, res) {
     try {
+      const user = req.user;
+      const role = (user.role || '');
+
       const supabaseWithAuth = ProjectController.getSupabaseWithAuth(req);
       const { id } = req.params;
+
+      // 1. Fetch project to check status and role
+      const { data: project } = await supabaseWithAuth.from('projects').select('status, sub_status').eq('id', id).single();
+      
+      if (!project) return res.status(404).json({ message: 'Project not found.' });
+
+      // RBAC: Only Sales can delete, and only if Proposed/Draft
+      if (role !== 'Sales' && role !== 'Admin') {
+        return res.status(403).json({ message: 'Unauthorized. Only Sales can delete projects.' });
+      }
+
+      if (project.status !== 'proposed') {
+        return res.status(422).json({ message: 'Only proposed projects in draft can be deleted.' });
+      }
 
       const { error } = await supabaseWithAuth
         .from('projects')
@@ -373,6 +411,14 @@ class ProjectController {
 
   static async addTeamMember(req, res) {
     try {
+      const user = req.user;
+      const role = (user.role || '');
+
+      // RBAC: CEO, COO, or HR only
+      if (!['CEO', 'COO', 'HR', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only CEO, COO, or HR can manage the project team.' });
+      }
+
       const supabase = ProjectController.getSupabaseWithAuth(req);
       const { id } = req.params;
       const { user_id, role_in_project } = req.body;
@@ -393,8 +439,19 @@ class ProjectController {
   static async getMilestones(req, res) {
     try {
       const { id } = req.params;
+      const supabase = ProjectController.getSupabaseWithAuth(req);
+
+      // Check visibility first
+      let visibleQuery = supabase.from('projects').select('id').eq('id', id);
+      visibleQuery = applyProjectVisibility(visibleQuery, req.user);
+      const { data: isVisible } = await visibleQuery.single();
+
+      if (!isVisible) {
+        return res.status(403).json({ message: 'Unauthorized access to project milestones.' });
+      }
+
       const data = await MilestoneService.getProjectMilestonesProgress(id);
-      res.json({ data });
+      res.json(data.phases);
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -404,10 +461,21 @@ class ProjectController {
     try {
       const supabase = ProjectController.getSupabaseWithAuth(req);
       const { id } = req.params;
+
+      // Check visibility as a safety measure
+      let visibleQuery = supabase.from('projects').select('id').eq('id', id);
+      visibleQuery = applyProjectVisibility(visibleQuery, req.user);
+      const { data: isVisible } = await visibleQuery.single();
+
+      if (!isVisible) {
+        return res.status(403).json({ message: 'Unauthorized access to milestone plan.' });
+      }
+
       const { data: phases, error } = await supabase
         .from('project_phases')
         .select('*, milestones:project_milestones(*)')
-        .eq('project_id', id);
+        .eq('project_id', id)
+        .order('sequence_no', { ascending: true });
         
       if (error) throw error;
       res.json({ phases: phases || [] });
@@ -418,50 +486,66 @@ class ProjectController {
 
   static async storeMilestonePlan(req, res) {
     try {
-      const supabase = ProjectController.getSupabaseWithAuth(req);
+      const user = req.user;
+      const role = (user.role || '');
       const { id: projectId } = req.params;
       const { phases } = req.body;
-      const user = req.user;
+
+      // RBAC: Only Project Engineers can plan milestones
+      if (!['Project Engineer', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only Project Engineers can store milestone plans.' });
+      }
+
+      const supabase = ProjectController.getSupabaseWithAuth(req);
 
       // Clean up existing data first
       // Note: project_milestones has FK to project_phases with cascade on delete
       await supabase.from('project_phases').delete().eq('project_id', projectId);
 
-      for (const phase of phases) {
-        const { data: newPhase, error: phaseError } = await supabase
-          .from('project_phases')
-          .insert([{
-            project_id: projectId,
-            phase_key: phase.phase_key,
-            weight_percentage: phase.weight_percentage,
-            start_date: phase.start_date,
-            end_date: phase.end_date,
-            created_by: user.id
-          }])
-          .select()
-          .single();
+      if (phases && Array.isArray(phases)) {
+        for (let i = 0; i < phases.length; i++) {
+          const phase = phases[i];
+          const { data: newPhase, error: phaseError } = await supabase
+            .from('project_phases')
+            .insert([{
+              project_id: projectId,
+              phase_key: phase.phase_key || phase.id, // Fallback if key missing
+              weight_percentage: phase.weight_percentage,
+              start_date: phase.start_date,
+              end_date: phase.end_date,
+              sequence_no: i,
+              created_by: user.id
+            }])
+            .select()
+            .single();
 
-        if (phaseError) throw phaseError;
+          if (phaseError) throw phaseError;
 
-        if (phase.milestones && phase.milestones.length > 0) {
-          const milestonesPayload = phase.milestones.map(ms => ({
-            project_id: projectId,
-            project_phase_id: newPhase.id, // Fixed column name (was phase_id)
-            milestone_name: ms.milestone_name,
-            weight_percentage: ms.weight_percentage || 0,
-            start_date: ms.start_date,
-            end_date: ms.end_date,
-            has_quantity: !!ms.has_quantity,
-            target_quantity: ms.quantity_target || 0,
-            current_quantity: 0,
-            created_by: user.id
-          }));
+          if (phase.milestones && phase.milestones.length > 0) {
+            const msCount = phase.milestones.length;
+            const baseWeight = Math.floor(100 / msCount);
+            const remainder = 100 % msCount;
 
-          const { error: msError } = await supabase
-            .from('project_milestones')
-            .insert(milestonesPayload);
+            const milestonesPayload = phase.milestones.map((ms, msIdx) => ({
+              project_id: projectId,
+              project_phase_id: newPhase.id,
+              milestone_name: ms.milestone_name,
+              weight_percentage: msIdx === msCount - 1 ? (baseWeight + remainder) : baseWeight,
+              start_date: ms.start_date,
+              end_date: ms.end_date,
+              has_quantity: !!ms.has_quantity,
+              target_quantity: ms.quantity_target || 0,
+              current_quantity: 0,
+              sequence_no: msIdx,
+              created_by: user.id
+            }));
 
-          if (msError) throw msError;
+            const { error: msError } = await supabase
+              .from('project_milestones')
+              .insert(milestonesPayload);
+
+            if (msError) throw msError;
+          }
         }
       }
 
@@ -478,9 +562,19 @@ class ProjectController {
       const { id } = req.params;
 
       const { data: project } = await supabase.from('projects').select('start_date, end_date').eq('id', id).single();
-      const { data: phases } = await supabase.from('project_phases').select('*, milestones:project_milestones(*)').eq('project_id', id);
+      const { data: phases } = await supabase
+        .from('project_phases')
+        .select(`
+          *, 
+          created_by_user:users!created_by(id, first_name, last_name, role),
+          milestones:project_milestones(*)
+        `)
+        .eq('project_id', id)
+        .order('sequence_no', { ascending: true });
 
-      if (!project || !phases) return res.json({ timeline_months: [], phases: [] });
+      if (!project || !phases || phases.length === 0) {
+        return res.json({ timeline_months: [], phases: [], submitted_by: null, submitted_at: null });
+      }
 
       // Generate timeline months from project range
       const timeline_months = [];
@@ -529,7 +623,36 @@ class ProjectController {
         })
       }));
 
-      res.json({ timeline_months, phases: formattedPhases });
+      // Extract submission details from the first phase
+      const creator = phases[0].created_by_user;
+      const submitted_by = creator ? `${creator.first_name} ${creator.last_name}` : null;
+      const submitted_at = phases[0].created_at;
+
+      // Extract approval history
+      const { data: approvals } = await supabase
+        .from('project_approvals')
+        .select(`
+          *,
+          approver:users!approver_user_id(first_name, last_name)
+        `)
+        .eq('project_id', id)
+        .order('decided_at', { ascending: true });
+
+      const approval_history = (approvals || []).map(app => ({
+        stage: app.approval_stage,
+        decision: app.decision,
+        decided_at: app.decided_at,
+        approver_name: app.approver ? `${app.approver.first_name} ${app.approver.last_name}` : 'Unknown Status',
+        comments: app.comments
+      }));
+
+      res.json({ 
+        timeline_months, 
+        phases: formattedPhases, 
+        submitted_by, 
+        submitted_at,
+        approval_history
+      });
     } catch (error) {
       console.error('Get Milestone Chart Error:', error);
       res.status(500).json({ error: error.message });
@@ -538,17 +661,40 @@ class ProjectController {
 
   static async submitMilestoneReview(req, res) {
     try {
-      const supabase = ProjectController.getSupabaseWithAuth(req);
+      const user = req.user;
       const { id } = req.params;
+      const role = (user.role || '');
 
-      // Update project status to "pending_approval"
+      // RBAC: Only Project Engineers can submit for review
+      if (!['Project Engineer', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only Project Engineers can submit milestone plans for review.' });
+      }
+
+      const supabase = ProjectController.getSupabaseWithAuth(req);
+
+      // 1. Verify project exists, is proposed, and is in an editable sub-status
+      const { data: project, error: fetchErr } = await supabase
+        .from('projects')
+        .select('status, sub_status')
+        .eq('id', id)
+        .single();
+      
+      if (fetchErr || !project) {
+        return res.status(404).json({ message: 'Project not found.' });
+      }
+
+      if (project.status !== 'proposed') {
+        return res.status(422).json({ message: 'Only proposed projects can have milestones submitted for review.' });
+      }
+
+      // 2. Update project status to "pending_approval"
       const { error } = await supabase
         .from('projects')
         .update({ sub_status: 'pending_approval' })
         .eq('id', id);
 
       if (error) throw error;
-      res.json({ message: 'Milestones submitted for review' });
+      res.json({ message: 'Milestones submitted for review. Project updated to pending_approval.' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

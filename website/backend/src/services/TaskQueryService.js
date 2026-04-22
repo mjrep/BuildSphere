@@ -1,14 +1,14 @@
+const { applyTaskVisibility } = require('../utils/visibility');
+
 class TaskQueryService {
   /**
    * Build a base query with all eager loads for list/kanban view, enforcing visibility.
    */
   static applyBaseQuery(query, user) {
-    const role = (user?.role || '').toLowerCase().replace(' ', '_');
-    
     // Add relation selections
     let baseQuery = query.select(`
       *,
-      project:projects(id, project_name),
+      project:projects!inner(id, project_name, project_code, created_by, project_in_charge_id, project_user(user_id)),
       phase:project_phases(id, phase_key),
       milestone:project_milestones(id, milestone_name, has_quantity, target_quantity, current_quantity, unit_of_measure),
       assignedBy:users!assigned_by(id, first_name, last_name),
@@ -16,15 +16,8 @@ class TaskQueryService {
       creator:users!created_by(id, first_name, last_name)
     `, { count: 'exact' });
 
-    // Enforce visibility
-    // Management and back-office roles see all tasks
-    const hasFullVisibility = ['ceo', 'coo', 'sales', 'accounting', 'procurement'].includes(role);
-    
-    if (!hasFullVisibility) {
-      // Others see tasks assigned to them, created by them, or matching their department role
-      // We also include null department_role tasks as 'general' or 'unassigned' visibility
-      baseQuery = baseQuery.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id},department_role.eq.${role},department_role.is.null`);
-    }
+    // Enforce visibility using the shared utility
+    baseQuery = applyTaskVisibility(baseQuery, user);
 
     return baseQuery;
   }

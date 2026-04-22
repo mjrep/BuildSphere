@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import { 
     Send, 
     ChevronLeft, 
@@ -195,19 +195,19 @@ export default function SiteUpdatesTab({ project }) {
     const [editingValue, setEditingValue] = useState('');
     const [isUpdating, setIsUpdating] = useState(false);
 
-    const userRole = currentUser?.role?.toLowerCase().replace(' ', '_');
+    const userRole = currentUser?.role;
     const isAuthorized = (
         project?.project_in_charge_id === currentUser?.id ||
-        ['ceo', 'coo', 'admin'].includes(userRole)
+        ['CEO', 'COO', 'Admin'].includes(userRole)
     );
 
     // ── Fetch real data from API ──────────────────────────────────────
     const fetchLogs = () => {
         if (!project?.id) return;
         setLoading(true);
-        axios.get(`/api/projects/${project.id}/progress-logs`)
+        api.get(`/projects/${project.id}/progress-logs`)
             .then(res => {
-                const data = res.data?.data ?? res.data ?? [];
+                const data = res.data?.data || res.data || [];
                 setLogs(data);
             })
             .catch(err => {
@@ -232,7 +232,7 @@ export default function SiteUpdatesTab({ project }) {
         setIsEditingQuantity(false);
         setIsUpdating(true);
 
-        axios.patch(`/api/progress-logs/${logId}`, data)
+        api.patch(`/progress-logs/${logId}`, data)
             .then(res => {
                 // Confirm with server data
                 const confirmedLog = res.data.data;

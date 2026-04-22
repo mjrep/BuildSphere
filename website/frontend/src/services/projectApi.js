@@ -54,8 +54,8 @@ export const getClients = () =>
 export const createClient = (data) =>
     api.post('/clients', data);
 
-export const getUsers = () =>
-    api.get('/users');
+export const getUsers = (params = {}) =>
+    api.get('/users', { params });
 
 export const getAiAssessment = (id) =>
     api.get(`/projects/${id}/ai-assessment`);

@@ -83,7 +83,7 @@ class EvmService {
         contract_price: contractPrice
       },
       // Using data structure derived perfectly from MilestoneService
-      phases: phasesProgress.map(phase => ({
+      phases: phasesProgress.phases.map(phase => ({
         phase_id: phase.id,
         phase_name: phase.name,
         phase_weight_percentage: phase.milestones.reduce((sum, m) => sum + (parseFloat(m.weight_percentage) || 0), 0),

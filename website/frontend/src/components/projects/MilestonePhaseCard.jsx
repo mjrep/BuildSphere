@@ -16,9 +16,9 @@ export default function MilestonePhaseCard({
     };
 
     return (
-        <div className="bg-[#F8F9FA] rounded-2xl p-6 border border-[#E8E8FF]">
+        <div className="bg-[#F8F9FA] rounded-2xl p-6 border border-[#E8E8FF] shadow-sm hover:shadow-md transition-shadow">
             {/* Phase Header Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="space-y-1 relative">
                     <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
                         Phase {phaseIndex + 1} Title
@@ -80,6 +80,16 @@ export default function MilestonePhaseCard({
                     />
                     {errors.end_date && <p className="text-red-500 text-xs ml-1 absolute">{errors.end_date}</p>}
                 </div>
+            </div>
+
+            {/* Milestones List Header */}
+            <div className="flex justify-between items-center mb-4 px-1">
+                <h3 className="text-sm font-bold text-[#1A1A1A] flex items-center gap-2">
+                    Milestones
+                    <span className="bg-[#E8E8FF] text-[#706BFF] text-[10px] px-2 py-0.5 rounded-full">
+                        {phase.milestones.length}
+                    </span>
+                </h3>
             </div>
 
             {/* Milestones List */}

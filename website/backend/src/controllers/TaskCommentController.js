@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const { applyTaskVisibility } = require('../utils/visibility');
 
 class TaskCommentController {
   
@@ -13,6 +14,15 @@ class TaskCommentController {
     try {
       const supabase = TaskCommentController.getSupabaseWithAuth(req);
       const { task: taskId } = req.params;
+
+      // 1. Check Task Visibility first
+      let taskQuery = supabase.from('tasks').select('id').eq('id', taskId);
+      taskQuery = applyTaskVisibility(taskQuery, req.user);
+      const { data: isVisible } = await taskQuery.single();
+
+      if (!isVisible) {
+        return res.status(403).json({ message: 'Unauthorized. You do not have access to this task.' });
+      }
 
       const { data: comments, error } = await supabase
         .from('task_comments')

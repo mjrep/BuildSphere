@@ -79,9 +79,9 @@ app.post('/api/projects/:id/milestone-submit', authenticateToken, projectControl
 // Task Routes
 app.get('/api/tasks/meta', authenticateToken, taskController.meta);
 app.get('/api/tasks', authenticateToken, taskController.index);
-app.post('/api/tasks', authenticateToken, taskController.store);
+app.post('/api/tasks', authenticateToken, uploadMiddleware, taskController.store);
 app.get('/api/tasks/:task', authenticateToken, taskController.show);
-app.put('/api/tasks/:task', authenticateToken, taskController.update);
+app.put('/api/tasks/:task', authenticateToken, uploadMiddleware, taskController.update);
 app.patch('/api/tasks/:task/status', authenticateToken, taskController.updateStatus);
 app.delete('/api/tasks/:task', authenticateToken, taskController.destroy);
 

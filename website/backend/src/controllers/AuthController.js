@@ -119,11 +119,7 @@ class AuthController {
       if (!userData && data.user?.user_metadata) {
         Object.assign(userToReturn, data.user.user_metadata);
       }
-
-      // Normalize role for consistent case-insensitive checks across the app
-      if (userToReturn.role) {
-        userToReturn.role = userToReturn.role.toLowerCase().replace(/\s+/g, '_');
-      }
+      req.user = userToReturn;
 
       // Set auth cookies for session persistence
       res.cookie('sb-access-token', data.session.access_token, {
@@ -200,9 +196,16 @@ class AuthController {
     if (!supabase) return res.status(500).json({ message: 'Supabase client not initialized' });
 
     try {
-      const { data: users, error } = await supabase
+      const { role } = req.query;
+      let query = supabase
         .from('users')
-        .select('id, first_name, last_name, role')
+        .select('id, first_name, last_name, role');
+
+      if (role) {
+        query = query.eq('role', role);
+      }
+
+      const { data: users, error } = await query
         .order('first_name', { ascending: true });
 
       if (error) throw error;

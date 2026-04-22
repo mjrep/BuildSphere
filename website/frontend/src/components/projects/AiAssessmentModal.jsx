@@ -3,8 +3,9 @@ import React from 'react';
 export default function AiAssessmentModal({ assessment, onClose }) {
     if (!assessment) return null;
 
-    const { ai_assessment } = assessment;
-    if (!ai_assessment) return null;
+    // The assessment might be wrapped in ai_assessment or passed directly
+    const ai_assessment = assessment.ai_assessment || assessment;
+    if (!ai_assessment || !ai_assessment.project_status) return null;
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -27,7 +28,7 @@ export default function AiAssessmentModal({ assessment, onClose }) {
                         </div>
                         <h2 className="text-xl font-bold font-display tracking-tight">Project Intelligence Report</h2>
                     </div>
-                    <p className="text-white/80 text-sm font-medium">Powered by Gemini 2.5 Flash</p>
+                    <p className="text-white/80 text-sm font-medium">Powered by Gemini 2.0 Flash</p>
                     
                     <button 
                         onClick={onClose}

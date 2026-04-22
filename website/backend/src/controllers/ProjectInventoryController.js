@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
+const { applyProjectVisibility } = require('../utils/visibility');
 
 dotenv.config();
 
@@ -16,8 +17,8 @@ class ProjectInventoryController {
   }
 
   static checkAccess(user) {
-    const allowedRoles = ['ceo', 'coo', 'project engineer', 'project coordinator', 'foreman', 'procurement'];
-    const role = (user?.role || '').toLowerCase();
+    const allowedRoles = ['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement', 'Admin'];
+    const role = (user?.role || '');
     if (!allowedRoles.includes(role)) {
       throw new Error('Unauthorized to manage project inventory.');
     }
@@ -27,6 +28,15 @@ class ProjectInventoryController {
     try {
       const supabaseWithAuth = ProjectInventoryController.getSupabaseWithAuth(req);
       const projectId = req.params.project;
+
+      // 1. Check Visibility first
+      let projectQuery = supabaseWithAuth.from('projects').select('id').eq('id', projectId);
+      projectQuery = applyProjectVisibility(projectQuery, req.user);
+      const { data: isVisible } = await projectQuery.single();
+
+      if (!isVisible) {
+        return res.status(403).json({ message: 'Unauthorized. You do not have access to this project.' });
+      }
 
       const { data: items, error } = await supabaseWithAuth
         .from('project_inventory_items')

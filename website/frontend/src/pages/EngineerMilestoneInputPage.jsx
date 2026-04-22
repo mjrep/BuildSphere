@@ -235,8 +235,34 @@ export default function EngineerMilestoneInputPage() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading project data...</div>;
-    if (!project) return <div className="p-8 text-center text-red-500">Project not found.</div>;
+    const distributePhaseWeights = () => {
+        const count = phases.length;
+        if (count === 0) return;
+        
+        const base = Math.floor(10000 / count) / 100; // 2 decimal places
+        const remainder = Math.round((100 - (base * count)) * 100) / 100;
+        
+        setPhases(prev => {
+            const updated = prev.map((p, i) => ({
+                ...p,
+                weight_percentage: i === count - 1 ? (base + remainder).toFixed(2) : base.toFixed(2)
+            }));
+            return updated;
+        });
+        
+        // Clear weight errors
+        setErrors(prev => {
+            const newErrors = { ...prev };
+            Object.keys(newErrors).forEach(key => {
+                if (key.includes('weight_percentage')) delete newErrors[key];
+            });
+            delete newErrors.general;
+            return newErrors;
+        });
+    };
+
+    if (loading) return <div className="p-8 text-center text-gray-500 font-medium">Loading project data...</div>;
+    if (!project) return <div className="p-8 text-center text-red-500 font-medium">Project not found.</div>;
 
     const buildNestedErrorObject = (flatErrors) => {
         const nested = { phases: [] };
@@ -264,11 +290,11 @@ export default function EngineerMilestoneInputPage() {
     const parsedErrors = buildNestedErrorObject(errors);
 
     return (
-        <div className="flex-1 bg-white p-8">
+        <div className="flex-1 bg-white p-8 animate-in fade-in duration-500">
             <div className="max-w-5xl mx-auto">
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold text-[#1A1A1A]">Project Milestones</h1>
-                    <p className="text-[#5A5A5A] mt-2 max-w-2xl">
+                    <p className="text-[#5A5A5A] mt-2 max-w-2xl text-sm leading-relaxed">
                         Define project phases and their nested milestones. Each phase must have a unique title, and the total weight of all phases must equal 100%. Dates of milestones must be within the phase's timeframe.
                     </p>
                 </div>
@@ -277,19 +303,28 @@ export default function EngineerMilestoneInputPage() {
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <div>
                             <h2 className="text-lg font-bold text-[#1A1A1A]">{project.project_code}</h2>
-                            <p className="text-[#5A5A5A]">{project.project_name}</p>
+                            <p className="text-[#5A5A5A] text-sm">{project.project_name}</p>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <label className="text-sm font-semibold text-[#1A1A1A]">Number of Phases:</label>
-                            <select 
-                                value={numPhases} 
-                                onChange={handleNumPhasesChange}
-                                className="rounded-xl border border-[#E8E8FF] px-4 py-2 text-sm focus:border-[#706BFF] focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20"
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-3">
+                                <label className="text-sm font-semibold text-[#1A1A1A]">Phases:</label>
+                                <select 
+                                    value={numPhases} 
+                                    onChange={handleNumPhasesChange}
+                                    className="rounded-xl border border-[#E8E8FF] px-4 py-2 text-sm focus:border-[#706BFF] focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20 bg-white"
+                                >
+                                    {[1,2,3,4,5,6,7,8,9,10].map(n => (
+                                        <option key={n} value={n}>{n}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={distributePhaseWeights}
+                                className="text-xs font-bold text-[#706BFF] hover:text-[#5C57E6] px-3 py-2 rounded-lg bg-[#E8E8FF] transition-colors"
                             >
-                                {[1,2,3,4,5,6,7,8,9,10].map(n => (
-                                    <option key={n} value={n}>{n}</option>
-                                ))}
-                            </select>
+                                Distribute Evenly
+                            </button>
                         </div>
                     </div>
                 </div>

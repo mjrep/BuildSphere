@@ -92,11 +92,8 @@ class MilestoneService {
 
         let msProgress = 0;
         if (ms.has_quantity && ms.target_quantity > 0) {
-          const qPct = (ms.current_quantity / ms.target_quantity) * 100;
-          // Hybrid approach: Average quantity progress and task progress if both are present
-          msProgress = tPct !== null ? Math.round((qPct + tPct) / 2) : Math.round(qPct);
+          msProgress = Math.round((ms.current_quantity / ms.target_quantity) * 100);
         } else {
-          // Use task progress if no quantity specified, otherwise 0
           msProgress = tPct !== null ? Math.round(tPct) : 0;
         }
 
@@ -119,9 +116,24 @@ class MilestoneService {
         };
       });
 
+      // Helper to convert PREPARATION_PLANNING to Preparation & Planning
+      const formatPhaseTitle = (key) => {
+        const labels = {
+          'PREPARATION_PLANNING': 'Preparation & Planning',
+          'CLIENT_KICKOFF_MEETING': 'Client Kick-off Meeting',
+          'PROCUREMENT': 'Procurement',
+          'MOBILIZATION': 'Mobilization',
+          'EXECUTION': 'Execution',
+          'COMPLETION': 'Completion',
+          'CLOSE_OUT': 'Close Out'
+        };
+        return labels[key] || key;
+      };
+
       return {
         id: phase.id,
-        name: phase.phase_key,
+        name: formatPhaseTitle(phase.phase_key),
+        phase_key: phase.phase_key,
         progress: Math.round(phaseWeightedProgress),
         completed_tasks_count: completedTasks,
         total_tasks_count: totalTasks,
@@ -130,7 +142,24 @@ class MilestoneService {
       };
     });
 
-    return result;
+    // Calculate overall project progress based on phase weights
+    const totalProjectWeight = (phases || []).reduce((acc, p) => acc + parseFloat(p.weight_percentage || 0), 0);
+    let projectProgress = 0;
+
+    if (totalProjectWeight > 0) {
+      projectProgress = result.reduce((acc, phase) => {
+        const phaseData = phases.find(p => p.id === phase.id);
+        const weight = parseFloat(phaseData?.weight_percentage || 0);
+        return acc + (phase.progress * (weight / totalProjectWeight));
+      }, 0);
+    } else if (result.length > 0) {
+      projectProgress = result.reduce((acc, phase) => acc + phase.progress, 0) / result.length;
+    }
+
+    return {
+      phases: result,
+      project_progress: Math.round(projectProgress)
+    };
   }
 }
 

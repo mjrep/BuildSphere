@@ -25,7 +25,7 @@ export default function NewProjectPage() {
     });
 
     useEffect(() => {
-        getUsers()
+        getUsers({ role: 'Project Engineer' })
             .then((res) => setUsers(res.data))
             .catch(() => {});
     }, []);
