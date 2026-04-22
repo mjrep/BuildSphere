@@ -43,7 +43,9 @@ function ProgressVisualizer({ task, isQuantifiable }) {
 
     if (isQuantifiable && task.milestone) {
         const { target_quantity, unit_of_measure } = task.milestone;
-        const current_quantity = task.progress_logs?.reduce((sum, log) => sum + (Number(log.quantity_accomplished) || 0), 0) || 0;
+        const current_quantity = task.progress_logs
+            ?.filter(log => log.ai_verification_status === 'approved')
+            .reduce((sum, log) => sum + (Number(log.quantity_accomplished) || 0), 0) || 0;
         
         pct = target_quantity > 0 ? Math.min(100, Math.round((current_quantity / target_quantity) * 100)) : 0;
         isComplete = current_quantity >= target_quantity;

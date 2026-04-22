@@ -65,14 +65,15 @@ export default function ProjectsPage() {
         fetchProjects();
     };
 
-    const isSales = user?.role === 'Sales';
+    const role = (user?.role || '').toLowerCase();
+    const canCreateProject = role === 'sales' || role === 'ceo' || role === 'coo';
 
     return (
         <DashboardLayout pageTitle="Projects">
             {/* Top bar: View toggle + New Project button */}
             <div className="flex items-center justify-between mb-5">
                 <ViewToggle view={view} onChange={setView} />
-                {isSales && (
+                {canCreateProject && (
                     <button
                         onClick={() => navigate('/projects/new')}
                         className="px-5 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl
@@ -162,7 +163,7 @@ export default function ProjectsPage() {
                 ) : projects.length === 0 ? (
                     <div className="text-center py-16">
                         <p className="text-[#A1A1A1] text-sm">No projects found.</p>
-                        {isSales && (
+                        {canCreateProject && (
                             <button
                                 onClick={() => navigate('/projects/new')}
                                 className="mt-4 text-[#706BFF] text-sm font-semibold hover:underline"

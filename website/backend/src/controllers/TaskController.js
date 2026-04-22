@@ -99,7 +99,7 @@ class TaskController {
           updater:users!updated_by(id, first_name, last_name),
           comments:task_comments(id, comment, created_at, user:users(id, first_name, last_name)),
           attachments:task_attachments(id, file_name, file_type, file_size, created_at, uploader:users(id, first_name, last_name)),
-          progress_logs:task_progress_logs(id, quantity_accomplished, evidence_image_path, remarks, ai_verification_status, created_at, creator:users(id, first_name, last_name))
+          progress_logs:task_progress_logs(id, quantity_accomplished, evidence_image_path, remarks, ai_verification_status, created_at, creator:users!created_by(id, first_name, last_name))
         `)
         .eq('id', id)
         .single();

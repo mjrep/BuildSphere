@@ -17,8 +17,13 @@ class TaskQueryService {
     `, { count: 'exact' });
 
     // Enforce visibility
-    if (!['ceo', 'coo'].includes(role)) {
-      baseQuery = baseQuery.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id}`);
+    // Management and back-office roles see all tasks
+    const hasFullVisibility = ['ceo', 'coo', 'sales', 'accounting', 'procurement'].includes(role);
+    
+    if (!hasFullVisibility) {
+      // Others see tasks assigned to them, created by them, or matching their department role
+      // We also include null department_role tasks as 'general' or 'unassigned' visibility
+      baseQuery = baseQuery.or(`assigned_to.eq.${user.id},assigned_by.eq.${user.id},department_role.eq.${role},department_role.is.null`);
     }
 
     return baseQuery;

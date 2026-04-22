@@ -27,10 +27,11 @@ const authenticateToken = async (req, res, next) => {
     }
 
     // Attach user record from public users table to req.user
+    // We match by email because Supabase Auth uses UUIDs but our public table uses legacy Integers
     const { data: userData } = await supabase
       .from('users')
       .select('*')
-      .eq('id', authData.user.id)
+      .eq('email', authData.user.email)
       .single();
 
     // Flatten user metadata if we are using the Auth user object instead of the public DB record

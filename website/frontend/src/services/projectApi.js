@@ -33,7 +33,7 @@ export const submitMilestoneReview = (projectId) =>
     api.post(`/projects/${projectId}/milestone-submit`, { });
 
 export const getPhaseTitles = () =>
-    api.get('/phase-titles');
+    api.get('/projects/phase-titles');
 
 // ── Approvals ───────────────────────────────────────────────────────────
 
@@ -56,3 +56,6 @@ export const createClient = (data) =>
 
 export const getUsers = () =>
     api.get('/users');
+
+export const getAiAssessment = (id) =>
+    api.get(`/projects/${id}/ai-assessment`);

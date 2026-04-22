@@ -24,7 +24,8 @@ class DashboardController {
          return res.status(401).json({ message: 'Unauthenticated.' });
       }
 
-      // Fetch projects mimicking the `visibleTo` logic from Laravel
+      // Fetch all projects for the dashboard stats
+      // Removed role-based filtering as requested - now visible to everyone
       const { data: rawProjects, error } = await supabaseWithAuth
         .from('projects')
         .select(`
@@ -42,19 +43,7 @@ class DashboardController {
 
       if (error) throw error;
 
-      // Filter visible projects
-      const role = (user.role || '').toLowerCase();
-      const isExec = role === 'ceo' || role === 'coo';
-      
       let visibleProjects = rawProjects || [];
-      if (!isExec) {
-        visibleProjects = visibleProjects.filter(p => {
-          if (p.created_by === user.id) return true;
-          if (p.project_in_charge_id === user.id) return true;
-          if (p.members?.some(m => m.users?.id === user.id)) return true;
-          return false;
-        });
-      }
 
       // 1. Stats Counter
       let ongoingCount = 0;

@@ -43,20 +43,35 @@ export default function NewProjectPage() {
 
         try {
             const payload = {
-                ...form,
+                project_name: form.project_name.trim(),
+                client_name: form.client_name.trim(),
+                address: form.address.trim(),
+                description: form.description.trim(),
+                start_date: form.start_date,
+                end_date: form.end_date,
                 contract_price: parseFloat(form.contract_price) || 0,
                 contract_unit_price: form.contract_unit_price ? parseFloat(form.contract_unit_price) : null,
                 budget_for_materials: form.budget_for_materials ? parseFloat(form.budget_for_materials) : null,
                 project_in_charge_id: form.project_in_charge_id ? parseInt(form.project_in_charge_id) : null,
             };
-            await createProject(payload);
+
+            if (!payload.project_name || !payload.address || !payload.start_date || !payload.end_date) {
+                alert('Please fill in all required fields (Project Name, Address, Start and End Dates).');
+                setSaving(false);
+                return;
+            }
+
+            const response = await createProject(payload);
+            console.log('Project created:', response.data);
             navigate('/projects/success');
         } catch (err) {
             console.error('Create project failed:', err);
+            const errorData = err.response?.data;
             if (err.response?.status === 422) {
-                setErrors(err.response.data.errors || {});
+                setErrors(errorData.errors || { project_name: [errorData.message || 'Validation failed'] });
             } else {
-                const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+                const message = errorData?.message || errorData?.error || 'Something went wrong. Please try again.';
+                alert('Error: ' + message);
                 setErrors({ project_name: [message] });
             }
         } finally {

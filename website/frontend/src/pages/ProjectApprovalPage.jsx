@@ -28,12 +28,14 @@ export default function ProjectApprovalPage() {
             .finally(() => setLoading(false));
     }, [id]);
 
-    const isAccounting = user?.role === 'Accounting' && 
+    const userRole = (user?.role || '').toLowerCase();
+
+    const isAccounting = userRole === 'accounting' && 
                          project?.status === 'proposed' && 
                          project?.sub_status === 'pending_approval' && 
                          !project?.accounting_approved_at;
 
-    const isExecutive = ['CEO', 'COO'].includes(user?.role) && 
+    const isExecutive = ['ceo', 'coo'].includes(userRole) && 
                         (project?.status === 'proposed' && project?.sub_status === 'pending_approval' && !!project?.accounting_approved_at);
 
     const handleApprove = async () => {
