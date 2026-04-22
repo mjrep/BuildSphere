@@ -20,16 +20,21 @@ This document serves as the persistent context for the **Antigravity** AI assist
     - If a milestone has tasks: `msProgress = (QuantityProgress + TaskProgress) / 2`.
     - If no tasks: `msProgress = QuantityProgress`.
     - If no quantity: `msProgress = TaskProgress`.
-- **Case-Insensitivity**: Always use `.toLowerCase()` or Case-Insensitive filters (e.g., `.ilike()` or `.eq()` with lowercase values) for status and role checks (e.g., "Ongoing" vs "ongoing").
+- **Project Progress**: Always use **Weighted Average** of phases. 
+    - `OverallProgress = Σ(phase_progress * phase_weight)`. 
+    - Crucial: Ensure phases with 0% progress are included to prevent "Incomplete" projects from showing as 100% finished.
+- **Case-Insensitivity**: Always use `.toLowerCase()` or Case-Insensitive filters (e.g., `.ilike()` or `.eq()` with lowercase values) for status and role checks (e.g., "Ongoing" vs "ongoing") to prevent UI crashes/white-screens.
 - **Dashboard**: All stats and lists (Ongoing Projects, Updates) must be **dynamic**. Avoid `.slice()` caps unless explicitly requested for UI layout limits.
 - **WPM-EVM Analysis**:
     - **Service**: `EvmService` aggregates data across projects, phases, and tasks.
     - **BAC**: Primary metric is `budget_for_materials`.
     - **Durations**: Calculated in exact days using JS `Date` math.
 - **AI Assessment**:
-    - **Service**: `AiAssessmentService` uses Gemini 2.5 Flash for progress analysis.
+    - **Service**: `AiAssessmentService` uses an **Exhaustive Matrix Fallback** loop.
+    - **Models**: Prioritize `gemini-2.5-flash` and `gemini-2.0-flash`. Skip unsupported `1.5-flash` models.
+    - **Persistence**: Reports are cached in `backend/cache/ai_reports.json` using project data hashes to avoid redundant API calls.
+    - **Quota Management**: Try every model across every API key (round-robin) with a 10s cooling period for RPM limits and automatic switching for RPD limits.
     - **Output**: Strict `snake_case` JSON format without markdown code blocks.
-    - **Reliability**: Implement exponential backoff for 503 (Service Unavailable) errors.
 
 ### 3. Aesthetics & UI
 - **Design Tone**: Premium, modern, and state-of-the-art. 
