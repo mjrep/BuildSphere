@@ -15,7 +15,7 @@ export default function ProjectInventoryTab({ project }) {
     
     // Roles allowed to Add/Edit/Update stock
     const allowedRoles = ['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement', 'Admin'];
-    const canManageInventory = allowedRoles.includes(user?.role);
+    const canManageInventory = allowedRoles.includes(user?.role) && project.status !== 'completed';
 
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -92,19 +92,21 @@ export default function ProjectInventoryTab({ project }) {
             {/* Header - Always visible immediately */}
             <div className="px-6 py-5 border-b border-[#F0F0F8] flex items-center justify-between">
                 <h3 className="text-base font-bold text-[#1A1A1A]">Inventory list</h3>
-                <button 
-                    onClick={() => setShowAddModal(true)}
-                    className="px-5 py-2 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors shadow-sm shadow-[#706BFF]/20"
-                >
-                    Add Item
-                </button>
+                {canManageInventory && (
+                    <button 
+                        onClick={() => setShowAddModal(true)}
+                        className="px-5 py-2 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors shadow-sm shadow-[#706BFF]/20"
+                    >
+                        Add Item
+                    </button>
+                )}
             </div>
 
             {/* Content Area */}
             <div className="pb-6">
                 <InventoryTable 
                     items={items} 
-                    canManage={true} 
+                    canManage={canManageInventory} 
                     onEdit={handleEditItem}
                     onUpdateStock={handleUpdateStock}
                     onDelete={handleDeleteItem}

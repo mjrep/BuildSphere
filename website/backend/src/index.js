@@ -26,8 +26,10 @@ const taskController = require('./controllers/TaskController');
 const taskCommentController = require('./controllers/TaskCommentController');
 const { TaskAttachmentController, uploadMiddleware } = require('./controllers/TaskAttachmentController');
 const { TaskProgressLogController, progressUploadMiddleware } = require('./controllers/TaskProgressLogController');
+const ReportController = require('./controllers/ReportController');
 
 const authenticateToken = require('./middleware/auth');
+const projectLock = require('./middleware/projectLock');
 
 // Auth Routes
 app.post('/api/login', authController.login);
@@ -54,9 +56,10 @@ app.get('/api/projects/phase-titles', authenticateToken, projectController.phase
 app.get('/api/projects/:id', authenticateToken, projectController.show);
 app.get('/api/projects/:id/evm-data', authenticateToken, projectController.getEvmData);
 app.get('/api/projects/:id/ai-assessment', authenticateToken, projectController.getAiAssessment);
-app.put('/api/projects/:id', authenticateToken, projectController.update);
-app.delete('/api/projects/:id', authenticateToken, projectController.destroy);
-app.post('/api/projects/:id/team', authenticateToken, projectController.addTeamMember);
+app.put('/api/projects/:id', authenticateToken, projectLock('id'), projectController.update);
+app.patch('/api/projects/:id/complete', authenticateToken, projectController.complete);
+app.delete('/api/projects/:id', authenticateToken, projectLock('id'), projectController.destroy);
+app.post('/api/projects/:id/team', authenticateToken, projectLock('id'), projectController.addTeamMember);
 
 // Approvals
 app.post('/api/projects/:project/accounting-approval', authenticateToken, projectApprovalController.accountingApproval);
@@ -64,17 +67,17 @@ app.post('/api/projects/:project/executive-approval', authenticateToken, project
 
 // Inventory
 app.get('/api/projects/:project/inventory', authenticateToken, projectInventoryController.index);
-app.post('/api/projects/:project/inventory', authenticateToken, projectInventoryController.store);
-app.put('/api/projects/:project/inventory/:item', authenticateToken, projectInventoryController.update);
-app.patch('/api/projects/:project/inventory/:item/stock', authenticateToken, projectInventoryController.updateStock);
-app.delete('/api/projects/:project/inventory/:item', authenticateToken, projectInventoryController.destroy);
+app.post('/api/projects/:project/inventory', authenticateToken, projectLock('project'), projectInventoryController.store);
+app.put('/api/projects/:project/inventory/:item', authenticateToken, projectLock('project'), projectInventoryController.update);
+app.patch('/api/projects/:project/inventory/:item/stock', authenticateToken, projectLock('project'), projectInventoryController.updateStock);
+app.delete('/api/projects/:project/inventory/:item', authenticateToken, projectLock('project'), projectInventoryController.destroy);
 
 // Project Milestone Routes
 app.get('/api/projects/:id/milestones', authenticateToken, projectController.getMilestones);
 app.get('/api/projects/:id/milestone-plan', authenticateToken, projectController.getMilestonePlan);
-app.post('/api/projects/:id/milestone-plan', authenticateToken, projectController.storeMilestonePlan);
+app.post('/api/projects/:id/milestone-plan', authenticateToken, projectLock('id'), projectController.storeMilestonePlan);
 app.get('/api/projects/:id/milestone-chart', authenticateToken, projectController.getMilestoneChart);
-app.post('/api/projects/:id/milestone-submit', authenticateToken, projectController.submitMilestoneReview);
+app.post('/api/projects/:id/milestone-submit', authenticateToken, projectLock('id'), projectController.submitMilestoneReview);
 
 // Task Routes
 app.get('/api/tasks/meta', authenticateToken, taskController.meta);
@@ -96,6 +99,9 @@ app.get('/api/tasks/:task/attachments/:attachment/download', authenticateToken, 
 app.get('/api/projects/:project/progress-logs', authenticateToken, TaskProgressLogController.index);
 app.post('/api/task-progress-logs', authenticateToken, progressUploadMiddleware, TaskProgressLogController.store);
 app.patch('/api/progress-logs/:id', authenticateToken, TaskProgressLogController.update);
+
+// Report Routes
+app.post('/api/reports/generate', authenticateToken, ReportController.generate);
 
 // Basic health check
 app.get('/health', (req, res) => {

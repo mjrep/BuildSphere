@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../layouts/DashboardLayout';
 import TaskToolbar from '../components/tasks/TaskToolbar';
-import TaskProjectTabs from '../components/tasks/TaskProjectTabs';
+import TaskProjectFilter from '../components/tasks/TaskProjectFilter';
 import TaskListTable from '../components/tasks/TaskListTable';
 import TaskKanbanBoard from '../components/tasks/TaskKanbanBoard';
 import AddTaskModal from '../components/tasks/AddTaskModal';
@@ -118,7 +118,7 @@ export default function TasksPage() {
                     />
                 </div>
 
-                <TaskProjectTabs 
+                <TaskProjectFilter 
                     projects={metaData?.projects || []} 
                     selected={selectedProject} 
                     onSelect={setSelectedProject} 

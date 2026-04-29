@@ -90,11 +90,17 @@ class MilestoneService {
         const msTasksCompleted = msTasks.filter(t => t.status === 'completed').length;
         const tPct = msTasksTotal > 0 ? (msTasksCompleted / msTasksTotal) * 100 : null;
 
+        const qPct = (ms.has_quantity && ms.target_quantity > 0) 
+          ? (ms.current_quantity / ms.target_quantity) * 100 
+          : null;
+
         let msProgress = 0;
-        if (ms.has_quantity && ms.target_quantity > 0) {
-          msProgress = Math.round((ms.current_quantity / ms.target_quantity) * 100);
-        } else {
-          msProgress = tPct !== null ? Math.round(tPct) : 0;
+        if (qPct !== null && tPct !== null) {
+          msProgress = Math.round((qPct + tPct) / 2);
+        } else if (qPct !== null) {
+          msProgress = Math.round(qPct);
+        } else if (tPct !== null) {
+          msProgress = Math.round(tPct);
         }
 
         msProgress = Math.min(100, msProgress);

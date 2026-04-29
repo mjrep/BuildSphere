@@ -15,7 +15,7 @@ const getColorForString = (str) => {
 
 export default function OverviewTeamCard({ project, onMemberAdded }) {
     const { user } = useAuth();
-    const canManageTeam = ['ceo', 'coo', 'hr'].includes(user?.role);
+    const canManageTeam = ['ceo', 'coo', 'hr'].includes(user?.role) && project.status !== 'completed';
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [users, setUsers] = useState([]);
