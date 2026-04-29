@@ -151,7 +151,7 @@ export default function LoginScreen({
 ceo@buildsphere.com         | password123!
 projeng@buildsphere.com     | password123!
 projcoor@buildsphere.com    | password123!
-sales@buildspere.com        | password123!
+sales@buildsphere.com        | password123!
 accounting@buildsphere.com  | password123!
 procurement@buildsphere.com | password123!
 hr@buildsphere.com          | password123!
