@@ -1,11 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import Constants from 'expo-constants';
 
 const API_KEY = process.env.EXPO_PUBLIC_GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(API_KEY);
-
-const debuggerHost = Constants.expoConfig?.hostUri;
-const machineIp = debuggerHost?.split(':').shift() || '172.20.10.2';
 
 const withRetry = async <T>(fn: () => Promise<T>, retries = 2, delay = 2000): Promise<T> => {
   try {
@@ -23,7 +19,7 @@ export const countGlassPanels = async (base64Image: string, mimeType: string) =>
   console.log('DEBUG: High-Precision Coordinate Detection Mode Engaged');
   try {
     return await withRetry(async () => {
-      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
       
       // Using Bounding Box Detection Prompt for maximum accuracy
       const prompt = `
@@ -47,14 +43,9 @@ export const countGlassPanels = async (base64Image: string, mimeType: string) =>
                 }
             `;
 
-      // Strip data URI prefix if present
-      const cleanBase64 = base64Image.includes('base64,') 
-        ? base64Image.split('base64,')[1] 
-        : base64Image;
-
       const result = await model.generateContent([
         prompt,
-        { inlineData: { data: cleanBase64, mimeType: mimeType } },
+        { inlineData: { data: base64Image, mimeType: mimeType } },
       ]);
 
       const response = await result.response;
@@ -78,23 +69,40 @@ export const countGlassPanels = async (base64Image: string, mimeType: string) =>
   }
 };
 
-export const hybridGlassAudit = async (base64Image: string, mimeType: string, photoUri?: string) => {
+// ── CV Service Detection Types ──────────────────────────────────────
+export interface CVDetection {
+  bounding_box: number[];          // [x1, y1, x2, y2] in pixels
+  confidence_score: number;        // 0.0 – 1.0
+  label: string;                   // e.g. "full_glass_panel"
+  polygon: number[][] | null;      // [[x,y], ...] from YOLOv8-seg, null for box mode
+}
+
+export interface CVAuditResult {
+  count: number;                   // total_valid_panels
+  summary: string;                 // AI-generated audit summary
+  annotatedImage: string | null;   // base64 annotated JPEG
+  detections: CVDetection[];       // per-panel detection list
+  detectionMode: 'box' | 'segmentation' | 'gemini-fallback';
+  avgConfidence: number;           // average confidence across detections
+}
+
+export const hybridGlassAudit = async (
+  base64Image: string,
+  mimeType: string,
+  photoUri?: string
+): Promise<CVAuditResult> => {
   console.log('DEBUG: Hybrid AI Audit Commencing (Local YOLO + Gemini)');
   
-  // Dynamic API URL based on host machine IP
-  const API_URL = `http://${machineIp}:8000/detect-panels`;
-  console.log(`DEBUG: Calling Local CV Service at ${API_URL}...`);
+  // Use a stable tunnel URL for mobile-to-PC connection
+  const CV_API_URL = "https://buildsphere-ai-audit.loca.lt/detect-panels";
 
   try {
-    let count = 0;
-    let summary = '';
-    let annotatedImage = null;
-    let rawDetections = null;
-
     if (!photoUri) {
-        throw new Error('Photo URI is required for local CV Service.');
+      throw new Error('Photo URI is required for local CV Service.');
     }
 
+    console.log('DEBUG: Calling Local CV Service...');
+    
     const formData = new FormData();
     const filename = photoUri.split('/').pop() || 'photo.jpg';
     
@@ -104,14 +112,14 @@ export const hybridGlassAudit = async (base64Image: string, mimeType: string, ph
       type: mimeType,
     } as any);
 
-    // Fetch with a manual timeout to give better feedback
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 seconds
 
-    const cvResponse = await fetch(API_URL, {
+    const cvResponse = await fetch(CV_API_URL, {
       method: "POST",
       headers: {
         'Accept': 'application/json',
+        'bypass-tunnel-reminder': 'true'
       },
       body: formData,
       signal: controller.signal
@@ -120,70 +128,55 @@ export const hybridGlassAudit = async (base64Image: string, mimeType: string, ph
     clearTimeout(timeoutId);
 
     if (!cvResponse.ok) {
-        const errText = await cvResponse.text();
-        console.error('CV_API_ERROR:', cvResponse.status, errText);
-        throw new Error(`CV Service Error (${cvResponse.status}): ${errText.substring(0, 100)}`);
+      const errText = await cvResponse.text();
+      console.error('CV_API_ERROR:', cvResponse.status, errText);
+      throw new Error(`CV Service Error (${cvResponse.status}): ${errText.substring(0, 100)}`);
     }
 
     const cvData = await cvResponse.json();
-    count = cvData.total_valid_panels || 0;
-    summary = cvData.summary_text || `Site Audit Complete. CV API detected ${count} valid panels.`;
-    annotatedImage = cvData.annotated_image_base64;
-    rawDetections = cvData.detections;
-    
-    console.log(`DEBUG: CV Service returned ${count} panels and summary.`);
+
+    const count: number = cvData.total_valid_panels || 0;
+    const detections: CVDetection[] = cvData.detections || [];
+    const detectionMode = cvData.detection_mode || 'box';
+    const summary: string = cvData.summary_text
+      || `Site Audit Complete. CV API detected ${count} valid panels.`;
+    const annotatedImage: string | null = cvData.annotated_image_base64 || null;
+
+    // Compute average confidence from detections
+    const avgConfidence = detections.length > 0
+      ? detections.reduce((sum, d) => sum + d.confidence_score, 0) / detections.length
+      : 0;
+
+    console.log(
+      `DEBUG: CV Service returned ${count} panels, ` +
+      `mode=${detectionMode}, avgConf=${avgConfidence.toFixed(3)}`
+    );
 
     return {
       count,
       summary,
       annotatedImage,
-      rawDetections
+      detections,
+      detectionMode,
+      avgConfidence,
     };
 
   } catch (error: any) {
-    if (error.name === 'AbortError') {
-        console.warn('⚠️ CV Service Timed Out. Entering Gemini Fallback Mode...');
-    } else {
-        console.error('❌ HYBRID_AUDIT_CONNECTION_ERROR:', error.message);
-    }
-    
-    // FALLBACK: If local CV service is down or times out, use Gemini directly
-    console.log('🚀 [FALLBACK] Starting direct Gemini 2.5 Vision analysis...');
-    try {
-        const result = await countGlassPanels(base64Image, mimeType);
-        console.log('✅ [FALLBACK] Gemini analysis successful:', result.count, 'panels found.');
-        
-        return {
-            count: result.count || 0,
-            summary: `(Cloud AI Fallback) ${result.explanation || ''}`,
-            annotatedImage: null,
-            rawDetections: result.panels
-        };
-    } catch (fallbackError: any) {
-        console.error('❌ [FALLBACK_FAILED]:', fallbackError.message);
-        
-        const finalError = error.name === 'AbortError' 
-            ? `CV Service timed out at ${API_URL} AND Gemini fallback also failed: ${fallbackError.message}`
-            : `Hybrid Audit Failed: ${error.message}. Fallback also failed: ${fallbackError.message}`;
-            
-        throw new Error(finalError);
-    }
+    console.error('HYBRID_AUDIT_ERROR:', error);
+    throw new Error(`Hybrid Audit Failed: ${error.message || 'Unknown Error'}`);
   }
 };
 
-
-
 export const getBuildsphereAI = async (p: string) => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const result = await model.generateContent(p);
   return result.response.text();
 };
 
 export const analyzeBuildsphereImage = async (p: string, b: string, m: string) => {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const result = await model.generateContent([p, { inlineData: { data: b, mimeType: m } }]);
   return result.response.text();
 };
 
 export default genAI;
-
