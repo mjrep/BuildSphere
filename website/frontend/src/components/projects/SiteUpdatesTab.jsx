@@ -199,7 +199,7 @@ export default function SiteUpdatesTab({ project }) {
     const isAuthorized = (
         project?.project_in_charge_id === currentUser?.id ||
         ['CEO', 'COO', 'Admin'].includes(userRole)
-    );
+    ) && project.status !== 'completed';
 
     // ── Fetch real data from API ──────────────────────────────────────
     const fetchLogs = () => {

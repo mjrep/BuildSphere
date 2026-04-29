@@ -17,6 +17,9 @@ export const updateProject = (id, data) =>
 export const deleteProject = (id) =>
     api.delete(`/projects/${id}`);
 
+export const completeProject = (id) =>
+    api.patch(`/projects/${id}/complete`);
+
 export const getMilestonePlan = (projectId) =>
     api.get(`/projects/${projectId}/milestone-plan`);
 

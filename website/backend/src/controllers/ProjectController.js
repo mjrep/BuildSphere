@@ -699,6 +699,56 @@ class ProjectController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  static async complete(req, res) {
+    try {
+      const { id } = req.params;
+      const supabase = ProjectController.getSupabaseWithAuth(req);
+
+      // 1. Fetch progress data
+      const progressData = await MilestoneService.getProjectMilestonesProgress(id);
+      
+      // 2. Strict Validation: Progress must be 100
+      if (progressData.project_progress < 100) {
+        return res.status(422).json({
+          message: `Cannot complete project: Current progress is only ${progressData.project_progress}%.`,
+          errors: { progress: ['Project must be at 100% progress to be completed.'] }
+        });
+      }
+
+      // 3. Strict Validation: All tasks must be completed
+      const { data: pendingTasks } = await supabase
+        .from('tasks')
+        .select('id, title')
+        .eq('project_id', id)
+        .not('status', 'eq', 'completed'); // Flexible check for non-completed
+
+      if (pendingTasks && pendingTasks.length > 0) {
+        return res.status(422).json({
+          message: `Cannot complete project: ${pendingTasks.length} tasks are still pending.`,
+          errors: { tasks: pendingTasks.map(t => t.title) }
+        });
+      }
+
+      // 4. Update status
+      const { data: updatedProject, error } = await supabase
+        .from('projects')
+        .update({ status: 'completed' })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      res.json({
+        message: 'Project successfully marked as completed.',
+        data: updatedProject
+      });
+    } catch (error) {
+      console.error('Project Completion Error:', error);
+      res.status(500).json({ message: 'Error completing project', error: error.message });
+    }
+  }
 }
 
 module.exports = ProjectController;

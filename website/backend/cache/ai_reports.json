@@ -1,4 +1,57 @@
 {
+  "15": {
+    "hash": "242f2c2770d614f2934ee884980bce8c",
+    "data": {
+      "project_status": "Ahead of Schedule",
+      "schedule_performance_index": 4.43,
+      "executive_summary": "The project is significantly ahead of its planned schedule, with an impressive average phase completion of 14.5% against only 3.28% of the project's planned duration elapsed. This is primarily driven by substantial progress in the Execution phase. A key limitation for precise Earned Value Management (EVM) is that all phase and milestone weights are currently set to zero in the provided data, necessitating a heuristic approach for the Schedule Performance Index calculation. Financially, the project's budget at completion is comfortably below the contract price, indicating a healthy profit margin.",
+      "risk_level": "Low",
+      "suggested_actions": [
+        "Urgently update WPM data to include realistic phase and milestone weight percentages to enable accurate and reliable EVM calculations.",
+        "Review 'Preparation & Planning' and 'Procurement' phases to ensure they are initiated according to the master schedule, as they currently show 0% completion and may become critical path items later.",
+        "Leverage the strong progress in the 'Execution' phase to proactively identify potential areas for further acceleration or optimization of interdependent activities."
+      ],
+      "milestone_flags": [
+        {
+          "phase_name": "Completion",
+          "milestone_name": "Complete project without",
+          "flag": "On Track",
+          "reason": "Expected 0% completion at this early stage of the project."
+        },
+        {
+          "phase_name": "Execution",
+          "milestone_name": "Bed without q",
+          "flag": "On Track",
+          "reason": "Milestone 100% complete, indicating excellent progress well ahead of the overall project timeline."
+        },
+        {
+          "phase_name": "Execution",
+          "milestone_name": "Glass installation 10",
+          "flag": "On Track",
+          "reason": "Milestone 15% complete, which is significantly ahead of the overall time-based planned progress (3.28%)."
+        },
+        {
+          "phase_name": "Preparation & Planning",
+          "milestone_name": "Blueprint without q",
+          "flag": "At Risk",
+          "reason": "Shows 0% completion after 4 elapsed days; planning activities typically begin early. Requires verification against detailed schedule to avoid future delays."
+        },
+        {
+          "phase_name": "Procurement",
+          "milestone_name": "Glass delivery 5",
+          "flag": "At Risk",
+          "reason": "Shows 0% completion after 4 elapsed days; procurement activities often start early and can impact later phases. Requires verification against detailed schedule."
+        },
+        {
+          "phase_name": "Procurement",
+          "milestone_name": "Cement delivery 5",
+          "flag": "At Risk",
+          "reason": "Shows 0% completion after 4 elapsed days; procurement activities often start early and can impact later phases. Requires verification against detailed schedule."
+        }
+      ]
+    },
+    "timestamp": 1777230307797
+  },
   "16": {
     "hash": "eadad6b69395d2b5ddc780dd5aa973e4",
     "data": {
