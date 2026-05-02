@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { applyProjectVisibility } = require('../utils/visibility');
+const NotificationService = require('../services/NotificationService');
 
 // Configure multer for single image upload
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } }); // 10MB limit
@@ -145,6 +146,42 @@ class TaskProgressLogController {
 
       if (logError) throw logError;
 
+      // --- Notification Trigger: Mentions & Site Update ---
+      try {
+        const { data: projectData } = await supabase
+          .from('projects')
+          .select('project_name, project_coordinator_id')
+          .eq('id', milestone.project_id)
+          .single();
+
+        // 1. Mentions
+        const { mentioned_user_ids } = req.body;
+        if (mentioned_user_ids && Array.isArray(mentioned_user_ids)) {
+          for (const mentionedId of mentioned_user_ids) {
+            await NotificationService.createNotification(
+              mentionedId,
+              'You were mentioned',
+              `${user.first_name} ${user.last_name} mentioned you in a site update on ${task?.title || 'Task'}.`,
+              'info',
+              `/projects/${milestone.project_id}/progress-logs`
+            );
+          }
+        }
+
+        // 2. Site Update Alert (to Project Coordinator)
+        if (projectData?.project_coordinator_id) {
+          await NotificationService.createNotification(
+            projectData.project_coordinator_id,
+            'New Site Update',
+            `A new site update has been posted for ${projectData.project_name} and is ready for review.`,
+            'info',
+            `/projects/${milestone.project_id}/progress-logs`
+          );
+        }
+      } catch (notifErr) {
+        console.error('Site Update Notification Error:', notifErr);
+      }
+
       // 4. Reconcile
       await TaskProgressLogController.reconcileProgress(supabase, task_id, milestone.id);
 
@@ -200,6 +237,29 @@ class TaskProgressLogController {
         .single();
 
       if (updateError) throw updateError;
+
+      // --- AI Vision Trigger (Phase 2) ---
+      if (ai_verification_status === 'verified') {
+        try {
+          const { data: project } = await supabase
+            .from('projects')
+            .select('id, project_in_charge_id')
+            .eq('id', log.milestone?.project_id || 0)
+            .single();
+
+          if (project?.project_in_charge_id) {
+            await NotificationService.createNotification(
+              project.project_in_charge_id,
+              'AI Vision Update',
+              `AI Vision successfully counted and logged installed glass panels for ${log.task?.title || 'Task'}.`,
+              'success',
+              `/tasks/${log.task_id}`
+            );
+          }
+        } catch (notifErr) {
+          console.error('AI Vision Notification Error:', notifErr);
+        }
+      }
 
       // Reconcile
       await TaskProgressLogController.reconcileProgress(supabase, log.task_id, log.milestone_id);
@@ -263,6 +323,67 @@ class TaskProgressLogController {
       if (newStatus !== task.status) {
         await supabase.from('tasks').update({ status: newStatus }).eq('id', taskId);
       }
+    }
+
+    // --- Notification Triggers: Completion Rollups ---
+    try {
+      // 1. Milestone 100%
+      const { data: updatedMilestone } = await supabase
+        .from('project_milestones')
+        .select('*')
+        .eq('id', milestoneId)
+        .single();
+      
+      if (updatedMilestone && updatedMilestone.current_quantity >= updatedMilestone.target_quantity) {
+        // Send to Accounting
+        const { data: accts } = await supabase
+          .from('users')
+          .select('id')
+          .eq('role', 'Accounting');
+        
+        if (accts) {
+          for (const acct of accts) {
+            await NotificationService.createNotification(
+              acct.id,
+              'Milestone Completed',
+              `Milestone '${updatedMilestone.milestone_name}' is complete. Ready for accounting review.`,
+              'success',
+              `/projects/${updatedMilestone.project_id}/milestones`
+            );
+          }
+        }
+
+        // 2. Project 100%
+        const MilestoneService = require('../services/MilestoneService');
+        const progressData = await MilestoneService.getProjectMilestonesProgress(updatedMilestone.project_id);
+        
+        if (progressData.project_progress >= 100) {
+          const { data: project } = await supabase
+            .from('projects')
+            .select('project_name')
+            .eq('id', updatedMilestone.project_id)
+            .single();
+
+          const { data: stakeholders } = await supabase
+            .from('users')
+            .select('id')
+            .in('role', ['CEO', 'COO', 'Accounting']);
+          
+          if (stakeholders) {
+            for (const person of stakeholders) {
+              await NotificationService.createNotification(
+                person.id,
+                'Project Completed',
+                `Project '${project?.project_name || 'Project'}' has reached 100% completion.`,
+                'success',
+                `/projects/${updatedMilestone.project_id}`
+              );
+            }
+          }
+        }
+      }
+    } catch (notifErr) {
+      console.error('Completion Rollup Notification Error:', notifErr);
     }
   }
 

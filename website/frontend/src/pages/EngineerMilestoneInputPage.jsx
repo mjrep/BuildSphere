@@ -134,28 +134,39 @@ export default function EngineerMilestoneInputPage() {
 
     const handleAddMilestone = (phaseIndex) => {
         setPhases(prev => {
-            const updated = [...prev];
-            updated[phaseIndex].milestones.push({
-                milestone_name: '',
-                start_date: '',
-                end_date: '',
-                weight_percentage: 0,
-                has_quantity: false,
-                quantity_target: ''
+            return prev.map((phase, idx) => {
+                if (idx !== phaseIndex) return phase;
+                return {
+                    ...phase,
+                    milestones: [
+                        ...phase.milestones,
+                        {
+                            milestone_name: '',
+                            start_date: '',
+                            end_date: '',
+                            weight_percentage: 0,
+                            has_quantity: false,
+                            quantity_target: ''
+                        }
+                    ]
+                };
             });
-            return updated;
         });
     };
 
     const handleRemoveMilestone = (phaseIndex, msIndex) => {
         setPhases(prev => {
-            const updated = [...prev];
-            if (updated[phaseIndex].milestones.length > 1) {
-                updated[phaseIndex].milestones.splice(msIndex, 1);
-            } else {
-                toast.error('Each phase must have at least one milestone.');
-            }
-            return updated;
+            return prev.map((phase, idx) => {
+                if (idx !== phaseIndex) return phase;
+                if (phase.milestones.length <= 1) {
+                    toast.error('Each phase must have at least one milestone.');
+                    return phase;
+                }
+                return {
+                    ...phase,
+                    milestones: phase.milestones.filter((_, mIdx) => mIdx !== msIndex)
+                };
+            });
         });
     };
 
@@ -179,6 +190,7 @@ export default function EngineerMilestoneInputPage() {
                 newErrors[`phases.${pIdx}.end_date`] = 'Must be after start';
             }
             
+            let msTotalWeight = 0;
             phase.milestones.forEach((ms, mIdx) => {
                 if (!ms.milestone_name) newErrors[`phases.${pIdx}.milestones.${mIdx}.milestone_name`] = 'Required';
                 if (!ms.start_date) newErrors[`phases.${pIdx}.milestones.${mIdx}.start_date`] = 'Required';
@@ -187,6 +199,8 @@ export default function EngineerMilestoneInputPage() {
                     newErrors[`phases.${pIdx}.milestones.${mIdx}.end_date`] = 'Must be after start';
                 }
                 
+                msTotalWeight += parseFloat(ms.weight_percentage || 0);
+
                 // Check if ms dates are within phase dates
                 if (phase.start_date && phase.end_date && ms.start_date && ms.end_date) {
                     if (ms.start_date < phase.start_date || ms.end_date > phase.end_date) {
@@ -198,6 +212,10 @@ export default function EngineerMilestoneInputPage() {
                     newErrors[`phases.${pIdx}.milestones.${mIdx}.quantity_target`] = 'Required when toggled';
                 }
             });
+
+            if (Math.abs(msTotalWeight - 100) > 0.01) {
+                newErrors[`phases.${pIdx}.general`] = `Milestone weights for this phase must total 100%. Current: ${msTotalWeight.toFixed(1)}%`;
+            }
         });
         
         if (Math.abs(totalWeight - 100) > 0.01) {

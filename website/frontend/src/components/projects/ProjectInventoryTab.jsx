@@ -4,7 +4,9 @@ import useAuth from '../../hooks/useAuth';
 import InventoryTable from './InventoryTable';
 import AddInventoryItemModal from './AddInventoryItemModal';
 import EditInventoryItemModal from './EditInventoryItemModal';
-import UpdateStockModal from './UpdateStockModal';
+import InventoryTransactionModal from './InventoryTransactionModal';
+import InventoryHistoryModal from './InventoryHistoryModal';
+import MasterInventoryLedger from './MasterInventoryLedger';
 import DeleteInventoryItemModal from './DeleteInventoryItemModal';
 import InventorySuccessModal from './InventorySuccessModal';
 
@@ -24,6 +26,8 @@ export default function ProjectInventoryTab({ project }) {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showStockModal, setShowStockModal] = useState(false);
+    const [showHistoryModal, setShowHistoryModal] = useState(false);
+    const [showMasterLedger, setShowMasterLedger] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [successMessage, setSuccessMessage] = useState(''); // e.g. "Item added!"
     
@@ -81,6 +85,11 @@ export default function ProjectInventoryTab({ project }) {
         setSelectedItem(item);
         setShowStockModal(true);
     };
+    
+    const handleViewHistory = (item) => {
+        setSelectedItem(item);
+        setShowHistoryModal(true);
+    };
 
     const handleDeleteItem = (item) => {
         setSelectedItem(item);
@@ -92,14 +101,25 @@ export default function ProjectInventoryTab({ project }) {
             {/* Header - Always visible immediately */}
             <div className="px-6 py-5 border-b border-[#F0F0F8] flex items-center justify-between">
                 <h3 className="text-base font-bold text-[#1A1A1A]">Inventory list</h3>
-                {canManageInventory && (
+                <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => setShowAddModal(true)}
-                        className="px-5 py-2 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors shadow-sm shadow-[#706BFF]/20"
+                        onClick={() => setShowMasterLedger(true)}
+                        className="px-5 py-2 bg-white border border-[#E0E0E8] text-[#1A1A1A] text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
                     >
-                        Add Item
+                        <svg className="w-4 h-4 text-[#706BFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                        View Master Ledger
                     </button>
-                )}
+                    {canManageInventory && (
+                        <button 
+                            onClick={() => setShowAddModal(true)}
+                            className="px-5 py-2 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors shadow-sm shadow-[#706BFF]/20"
+                        >
+                            Add Item
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Content Area */}
@@ -109,6 +129,7 @@ export default function ProjectInventoryTab({ project }) {
                     canManage={canManageInventory} 
                     onEdit={handleEditItem}
                     onUpdateStock={handleUpdateStock}
+                    onViewHistory={handleViewHistory}
                     onDelete={handleDeleteItem}
                     isLoading={loading}
                 />
@@ -135,11 +156,27 @@ export default function ProjectInventoryTab({ project }) {
             )}
 
             {showStockModal && selectedItem && (
-                <UpdateStockModal 
+                <InventoryTransactionModal 
                     project={project}
                     item={selectedItem}
                     onClose={() => setShowStockModal(false)}
-                    onSuccess={() => handleSuccess('Item updated!')}
+                    onSuccess={() => handleSuccess('Transaction logged!')}
+                />
+            )}
+            
+            {showHistoryModal && selectedItem && (
+                <InventoryHistoryModal 
+                    project={project}
+                    item={selectedItem}
+                    onClose={() => setShowHistoryModal(false)}
+                />
+            )}
+
+            {showMasterLedger && (
+                <MasterInventoryLedger 
+                    project={project}
+                    inventoryItems={items}
+                    onClose={() => setShowMasterLedger(false)}
                 />
             )}
 

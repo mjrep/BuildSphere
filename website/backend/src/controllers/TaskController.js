@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const TaskQueryService = require('../services/TaskQueryService');
 const { applyProjectVisibility } = require('../utils/visibility');
+const NotificationService = require('../services/NotificationService');
 
 class TaskController {
   static getSupabaseWithAuth(req) {
@@ -178,6 +179,29 @@ class TaskController {
         }
       }
 
+      if (error) throw error;
+
+      // --- Notification Trigger: Task Assignment ---
+      if (task.assigned_to) {
+        try {
+          const { data: project } = await supabase
+            .from('projects')
+            .select('project_name')
+            .eq('id', task.project_id)
+            .single();
+
+          await NotificationService.createNotification(
+            task.assigned_to,
+            'New Task Assignment',
+            `You have been assigned to a new task: '${task.title}' on ${project?.project_name || 'Project'}.`,
+            'info',
+            `/tasks/${task.id}`
+          );
+        } catch (notifErr) {
+          console.error('Task Assignment Notification Error:', notifErr);
+        }
+      }
+
       res.status(201).json(TaskController.formatTask(task));
     } catch (err) {
       console.error(err);
@@ -225,6 +249,29 @@ class TaskController {
         }
       }
 
+      if (error) throw error;
+
+      // --- Notification Trigger: Task Assignment (Reassignment) ---
+      if (req.body.assigned_to) {
+        try {
+          const { data: project } = await supabase
+            .from('projects')
+            .select('project_name')
+            .eq('id', task.project_id)
+            .single();
+
+          await NotificationService.createNotification(
+            task.assigned_to,
+            'New Task Assignment',
+            `You have been assigned to a new task: '${task.title}' on ${project?.project_name || 'Project'}.`,
+            'info',
+            `/tasks/${task.id}`
+          );
+        } catch (notifErr) {
+          console.error('Task Assignment Notification Error:', notifErr);
+        }
+      }
+
       res.json(TaskController.formatTask(task));
     } catch (err) {
       console.error(err);
@@ -251,6 +298,30 @@ class TaskController {
         .single();
 
       if (error) throw error;
+
+      // --- Notification Trigger: Task Ready for Review ---
+      if (['in_review', 'completed'].includes(status)) {
+        try {
+          const { data: taskData } = await supabase
+            .from('tasks')
+            .select('title, project:projects(project_name, project_in_charge_id)')
+            .eq('id', id)
+            .single();
+
+          if (taskData?.project?.project_in_charge_id) {
+            await NotificationService.createNotification(
+              taskData.project.project_in_charge_id,
+              'Task Ready for Review',
+              `Task '${taskData.title}' has been marked ready for review by ${req.user.first_name} ${req.user.last_name}.`,
+              'info',
+              `/tasks/${id}`
+            );
+          }
+        } catch (notifErr) {
+          console.error('Task Review Notification Error:', notifErr);
+        }
+      }
+
       res.json({ status: data.status });
     } catch (err) {
       console.error(err);

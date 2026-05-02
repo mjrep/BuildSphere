@@ -1,54 +1,146 @@
-# Antigravity Context & Guidelines
+# BuildSphere Persistent System Memory
 
-This document serves as the persistent context for the **Antigravity** AI assistant to maintain the BuildSphere project's architecture, standards, and tone across sessions.
+This document serves as the ground-up mental model and operational baseline for BuildSphere, a high-performance construction management platform. It represents the verified state of the system architecture, business logic, and development progress as of April 2026.
 
-## 🚀 Technology Stack
-- **Backend**: Node.js with Express.js.
-- **Database**: Supabase (PostgreSQL).
-- **Frontend**: React.js with Vite and Vanilla CSS (premium aesthetics).
-- **Auth**: Supabase Auth (Cookie-based session via `sb-access-token`).
+---
 
-## 🛠️ Development Rules
+## 🚀 1. The Active Technology Stack
 
-### 1. Naming Conventions (Critical)
-- **JSON Responses**: All API responses from Express must use strictly `snake_case` keys to match the frontend expectations.
-- **Database**: Mirrors Supabase schema (snake_case).
-- **Roles**: All user roles must be normalized to lowercase (e.g., `ceo`, `coo`, `project_engineer`, `hr`) in both backend checks and frontend permission logic.
+### Web Platform
+- **Frontend**: React.js with Vite.
+- **Styling**: Vanilla CSS for premium, bespoke aesthetics (HSL-based tokens, glassmorphism).
+- **Architecture**: Atomic components with dedicated Service layers for API communication.
 
-### 2. Logic Standards
-- **Milestone Progress**: Use the **Hybrid Progress Calculation**.
-    - If a milestone has tasks: `msProgress = (QuantityProgress + TaskProgress) / 2`.
-    - If no tasks: `msProgress = QuantityProgress`.
-    - If no quantity: `msProgress = TaskProgress`.
-- **Project Progress**: Always use **Weighted Average** of phases. 
-    - `OverallProgress = Σ(phase_progress * phase_weight)`. 
-    - Crucial: Ensure phases with 0% progress are included to prevent "Incomplete" projects from showing as 100% finished.
-- **Case-Insensitivity**: Always use `.toLowerCase()` or Case-Insensitive filters (e.g., `.ilike()` or `.eq()` with lowercase values) for status and role checks (e.g., "Ongoing" vs "ongoing") to prevent UI crashes/white-screens.
-- **Dashboard**: All stats and lists (Ongoing Projects, Updates) must be **dynamic**. Avoid `.slice()` caps unless explicitly requested for UI layout limits.
-- **WPM-EVM Analysis**:
-    - **Service**: `EvmService` aggregates data across projects, phases, and tasks.
-    - **BAC**: Primary metric is `budget_for_materials`.
-    - **Durations**: Calculated in exact days using JS `Date` math.
-- **AI Assessment**:
-    - **Service**: `AiAssessmentService` uses an **Exhaustive Matrix Fallback** loop.
-    - **Models**: Prioritize `gemini-2.5-flash` and `gemini-2.0-flash`. Skip unsupported `1.5-flash` models.
-    - **Persistence**: Reports are cached in `backend/cache/ai_reports.json` using project data hashes to avoid redundant API calls.
-    - **Quota Management**: Try every model across every API key (round-robin) with a 10s cooling period for RPM limits and automatic switching for RPD limits.
-    - **Output**: Strict `snake_case` JSON format without markdown code blocks.
+### Mobile Platform
+- **Frontend**: Expo (React Native).
+- **Styling**: NativeWind (Tailwind CSS) for efficient mobile UI development.
+- **Interconnectivity**: Interacts directly with the same Supabase instance as the Web platform, ensuring real-time data parity.
 
-### 3. Aesthetics & UI
-- **Design Tone**: Premium, modern, and state-of-the-art. 
-- **Details**: Use curated color palettes (HSL), glassmorphism, smooth gradients, and subtle micro-animations.
-- **Placeholders**: Never use placeholders. Use `generate_image` for dynamic assets.
+### Backend APIs
+- **Framework**: Node.js with Express.js (Migrated from Laravel).
+- **Design**: Modular Controller-Service architecture.
+- **Jobs**: Time-based background tasks managed via `node-cron`.
+- **Auth**: Cookie-based session management using Supabase Auth (`sb-access-token`).
+- **AI Integration**: `@google/generative-ai` (Gemini Pro/Flash) for site photo analysis and WPM-EVM assessments.
 
-## 🎭 Tone & Communication
-- **Tone**: Powerful, proactive, and highly agentic. You are a pair-programmer, not just a service.
-- **Clarity**: Keep responses concise and formatted in GitHub-style markdown.
-- **Stability**: Always verify changes with `scratch` scripts before finalizing.
-- **Planning**: For complex features, always propose an `implementation_plan.md` first.
+### Database
+- **Engine**: Supabase (PostgreSQL).
+- **Pattern**: Relational schema with extensive use of JSONB for flexible attributes and strict Foreign Key constraints for referential integrity.
+- **Access**: Dual-client strategy (Standard Anon Client for user operations, Service Role Client for administrative/background tasks).
 
-## 📂 Project Structure
-- `/website`: The main Express/React application.
-    - `/backend`: Express source code. All logic resides in `src/controllers` and `src/services`.
-    - `/frontend`: React source code.
-- `/web`: Legacy Laravel application (Reference only).
+---
+
+## 🧩 2. Module Architecture & Interconnectivity
+
+### 1. Accounts and User Management
+- **Status**: **Production Ready.** Features a robust Role-Based Access Control (RBAC) system.
+- **Access Levels**: Executive (CEO/COO), Managerial (Project Manager/Engineer), and Staff (Foreman/Supervisor).
+- **Interconnectivity**: Serves as the global session provider. Every request is filtered by user role to determine project visibility and action permissions (e.g., only CEO/Accounting can transition projects to "Active").
+
+### 2. Project Management
+- **Status**: **Core Stable.** Manages the lifecycle from "Proposed" to "Completed".
+- **Flow**: Sales (Proposal) → Accounting (Budget Verification) → Executive (Approval).
+- **Interconnectivity**: Once "Active," it triggers the availability of the Monitoring and Task modules for that specific project.
+
+### 3. Task Management
+- **Status**: **Live / Operational.** Supports granular task assignment and tracking.
+- **Flow**: PMs assign tasks on Web; Foremen update statuses (Pending, In Progress, Review, Completed) on Mobile.
+- **Interconnectivity**: Individual task completion percentages are the primary data feed for the **Hybrid Progress Calculation**.
+
+### 4. Monitoring Module (The Engine)
+- **Status**: **Active Development.** Tracking physical quantities and AI-verified progress.
+- **Key Feature**: AI Image Analysis verifies site photos against reported quantities to prevent "ghost progress."
+- **Interconnectivity**: Aggregates data from Task Management and Inventory to calculate milestone-level health.
+
+### 5. Inventory Management
+- **Status**: **Operational (Ledger-Based).** Tracks material lifecycle using an immutable transaction history.
+- **Architecture**: **Append-Only Ledger.** All quantity changes are recorded in `project_inventory_logs`. Direct updates to `current_stock` are prohibited.
+- **Automation**: A PostgreSQL trigger (`trg_update_inventory_stock`) automatically synchronizes item stock levels based on log entries.
+- **Interconnectivity**: Material 'CONSUMPTION' is strictly linked to specific project Tasks via `reference_task_id` for precise job-costing.
+- **Flow**: RECEIVING → CONSUMPTION (Task-Linked) → SPOILAGE → ADJUSTMENT (Discrepancies).
+
+### 6. Reports & Analytics (The Command Center)
+- **Status**: **Production Ready (Web Preview Phase).** Features a comprehensive multi-project reporting engine.
+- **Interconnectivity**: Pulls live data from Monitoring (Site Updates), Task Management (Completed Works), and Inventory (Stock Levels). Aggregates these into a unified document-style preview for executives.
+- **Key Feature**: Interactive "Before/After" site update comparisons with calendar-based activity indicators.
+
+---
+
+## 🔢 3. Established Core Logic & Mathematical Rules
+
+### Hybrid Progress Tracking Logic
+BuildSphere uses a multi-variable calculation to ensure progress isn't just binary:
+1. **Milestone Progress (`msProgress`)**:
+   - `IF (milestone.has_quantity)`: Calculate `(current_quantity / target_quantity) * 100`.
+   - `IF (milestone has tasks)`: Calculate the average completion % of all associated tasks.
+   - **The Fusion**: If both exist, `msProgress = (QuantityProgress + TaskProgress) / 2`.
+2. **Phase Progress**: The weighted average of all child milestones.
+   - **Strict Weighting Rule**: The sum of all milestone `weight_percentage` values within a single Phase **MUST exactly equal 100%**. This is enforced at both the UI and Backend levels.
+3. **Project Progress**: The weighted average of all child Phases. **Rule**: Even 0% phases must be included in the denominator to ensure the overall progress accurately reflects the remaining scope.
+
+### WPM-EVM AI Integration
+The `EvmService` provides a deep-dive analysis using the following:
+- **Metrics**: BAC (Budget at Completion), PV (Planned Value), EV (Earned Value), and AC (Actual Cost).
+- **SPI (Schedule Performance Index)**: `EV / PV`. SPI < 1 indicates a delay.
+- **AI Assessment**: Sends project data hashes to Gemini with an **Exhaustive Matrix Fallback** (retrying across all keys/models) to generate a Risk Level (Low, Medium, High) and an actionable narrative.
+### Performance & Caching
+- **N+1 Prevention**: Backend uses eager loading via Supabase `.select('*, milestones(*)')` to fetch nested hierarchies in single round-trips.
+- **Case-Insensitivity**: All role and status comparisons are forced to `.toLowerCase()` to prevent UI failures caused by data entry inconsistencies.
+
+### Role-Based Notification Module (RBAC Notifications)
+A real-time notification system synchronized via Supabase Realtime and the `<NotificationBell/>` component.
+- **Trigger Source**: `NotificationService.createNotification(userId, title, message, type, referenceUrl)`.
+- **RBAC Matrix (Automated Triggers)**:
+  - **CEO/COO**: New Project Proposals, Project 100% Completion, Massive Spoilage Alerts (>50 units).
+  - **Project Engineer**: AI Vision automated consumption logs, Low Stock alerts for assigned projects, Tasks marked 'Ready for Review'.
+  - **Project Coordinator**: Site update submissions, Task deadline misses (Daily 8:00 AM Cron Job).
+  - **Foreman**: New task assignments.
+  - **Procurement**: Global Low Stock alerts, Inventory 'ADJUSTMENT' logs (Stock Discrepancies).
+  - **Accounting**: Milestone 100% completion (Ready for audit), Project 100% completion.
+  - **All Staff**: Explicit @mentions in comments/notes via `mentioned_user_ids`.
+
+---
+
+## ✅ 4. Development Progress Verification
+
+### Successfully Resolved
+- **Backend Migration**: Transitioned from Laravel to Express/Node.js with optimized query patterns.
+- **Reports Module (Phase 1)**: Completed the Multi-Project Reporting engine with interactive web previews and sticky action headers.
+- **Interactive Document Engine**: Implemented centered document rendering with drop shadows and high-fidelity typography.
+- **Site Update Logic**: Fixed complex timezone/date-shift errors in the accomplishment calendar, ensuring accurate "indicator dots" for site activity.
+- **Inventory Synchronization**: Corrected stock level and pricing mapping for inventory summaries.
+
+### The Current Frontier
+- **PDF/Excel Export**: Implementing the client-side generation logic using `jspdf` and `exceljs` for the "Export" buttons in the Preview view.
+- **AI Narrative Synthesis**: Integrating the Gemini-based health summaries into the final report document.
+- **Mobile Offline Sync**: Ensuring Foremen can log tasks in low-connectivity areas for later synchronization.
+
+---
+
+**I have verified the system progress and internalized this architecture. I am ready to continue development based on these established realities.**
+## 🔐 System Credentials (Development)
+The following credentials can be used for testing various role-based workflows:
+
+- **CEO**: `ceo@buildsphere.com` | `password123!`
+- **Project Engineer**: `projeng@buildsphere.com` | `password123!`
+- **Project Coordinator**: `projcoor@buildsphere.com` | `password123!`
+- **Sales**: `sales@buildspere.com` | `password123!`
+- **Accounting**: `accounting@buildsphere.com` | `password123!`
+- **Procurement**: `procurement@buildsphere.com` | `password123!`
+- **HR**: `hr@buildsphere.com` | `password123!`
+- **Staff**: `staff@buildsphere.com` | `password123!`
+- **Foreman**: `foreman@buildsphere.com` | `password123!`
+
+---
+
+## 📝 5. Latest Session Notes (April 29, 2026)
+- **Reports Module Finalized**: The Web Preview UX is now live. Users can configure multi-project reports and preview them in a document-style view before exporting.
+- **Accomplishments Tab**: Fully interactive. Features a "Before/After" photo comparison with a mini-calendar that highlights site activity.
+- **Data Integrity**: Backend query logic in `ReportController.js` was refactored to use JavaScript filtering for higher reliability across complex joins.
+- **Fixes**: Resolved a persistent date-shift error in the calendar indicators and fixed inventory data mapping (stock/price).
+
+## 📝 6. Implementation Notes (May 2, 2026)
+- **Append-Only Inventory Ledger**: Migrated the inventory system to a transaction-log architecture with a Postgres trigger for stock management.
+- **Role-Based Notification System**: Launched the real-time notification hub with a dedicated Bell component and comprehensive RBAC trigger logic.
+- **Time-Based Alerts**: Integrated `node-cron` for automated deadline tracking and coordinator escalations.
+- **UI Consistency**: Standardized relative time formatting (Intl API) and bell animations matching the BuildSphere premium design system.

@@ -54,7 +54,12 @@ export default function MilestoneGanttGrid({ phases, onViewProgress }) {
                                             </td>
                                         )}
                                         <td className="px-6 py-8 text-sm text-[#1A1A1A] font-bold border-b border-r border-[#F0F0F8]">
-                                            {ms.milestone_name}
+                                            <div className="flex flex-col gap-1">
+                                                <span>{ms.milestone_name}</span>
+                                                <span className="text-[10px] font-bold text-[#706BFF] bg-[#E8E8FF] px-2 py-0.5 rounded-full w-fit">
+                                                    Weight: {ms.weight_percentage}%
+                                                </span>
+                                            </div>
                                         </td>
                                         {months.map((month, monthIdx) => {
                                             const progress = getProgressInMonth(ms, monthIdx);

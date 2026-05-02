@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 
-export default function InventoryActionsDropdown({ item, onEdit, onUpdateStock, onDelete }) {
+export default function InventoryActionsDropdown({ item, onEdit, onUpdateStock, onViewHistory, onDelete }) {
     const [isOpen, setIsOpen] = useState(false);
     const [coords, setCoords] = useState({ top: 0, left: 0 });
     const buttonRef = useRef(null);
@@ -87,7 +87,22 @@ export default function InventoryActionsDropdown({ item, onEdit, onUpdateStock, 
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
-                Update Stock
+                Log Transaction
+            </button>
+
+            <button
+                onClick={() => {
+                    setIsOpen(false);
+                    onViewHistory(item);
+                }}
+                className="w-[calc(100%-8px)] mx-1 flex items-center gap-3 px-3 py-2 text-sm text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors font-semibold group"
+            >
+                <div className="w-7 h-7 bg-emerald-50 group-hover:bg-white rounded-lg flex items-center justify-center transition-colors">
+                    <svg className="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                View History
             </button>
 
             <div className="mx-3 my-1 border-t border-[#F0F0F8]" />

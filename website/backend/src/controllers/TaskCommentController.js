@@ -1,4 +1,5 @@
 const { createClient } = require('@supabase/supabase-js');
+const NotificationService = require('../services/NotificationService');
 const { applyTaskVisibility } = require('../utils/visibility');
 
 class TaskCommentController {
@@ -80,6 +81,30 @@ class TaskCommentController {
         .single();
 
       if (error) throw error;
+
+      // --- Notification Trigger: User Mentions ---
+      const { mentioned_user_ids } = req.body;
+      if (mentioned_user_ids && Array.isArray(mentioned_user_ids)) {
+        try {
+          const { data: task } = await supabase
+            .from('tasks')
+            .select('title')
+            .eq('id', taskId)
+            .single();
+
+          for (const mentionedId of mentioned_user_ids) {
+            await NotificationService.createNotification(
+              mentionedId,
+              'You were mentioned',
+              `${user.first_name} ${user.last_name} mentioned you in a comment on ${task?.title || 'Task'}.`,
+              'info',
+              `/tasks/${taskId}`
+            );
+          }
+        } catch (notifErr) {
+          console.error('Mention Notification Error:', notifErr);
+        }
+      }
 
       res.status(201).json({
         id: newComment.id,

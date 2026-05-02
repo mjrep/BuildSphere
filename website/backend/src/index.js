@@ -2,12 +2,16 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser');
+const initDeadlineJob = require('./jobs/deadlineChecker');
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Initialize Cron Jobs
+initDeadlineJob();
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
@@ -27,6 +31,7 @@ const taskCommentController = require('./controllers/TaskCommentController');
 const { TaskAttachmentController, uploadMiddleware } = require('./controllers/TaskAttachmentController');
 const { TaskProgressLogController, progressUploadMiddleware } = require('./controllers/TaskProgressLogController');
 const ReportController = require('./controllers/ReportController');
+const NotificationController = require('./controllers/NotificationController');
 
 const authenticateToken = require('./middleware/auth');
 const projectLock = require('./middleware/projectLock');
@@ -42,6 +47,11 @@ app.get('/api/dashboard/stats', authenticateToken, dashboardController.stats);
 app.get('/api/auth/user', authenticateToken, profileController.show);
 app.get('/api/profile/me', authenticateToken, profileController.show);
 app.put('/api/profile/update', authenticateToken, profileController.update);
+
+// Notification Routes
+app.get('/api/notifications', authenticateToken, NotificationController.index);
+app.patch('/api/notifications/read-all', authenticateToken, NotificationController.markAllAsRead);
+app.patch('/api/notifications/:id/read', authenticateToken, NotificationController.markAsRead);
 
 // Client Routes
 app.get('/api/clients', authenticateToken, clientController.index);
@@ -67,9 +77,11 @@ app.post('/api/projects/:project/executive-approval', authenticateToken, project
 
 // Inventory
 app.get('/api/projects/:project/inventory', authenticateToken, projectInventoryController.index);
+app.get('/api/projects/:project/inventory/history', authenticateToken, projectInventoryController.getProjectInventoryHistory);
+app.get('/api/projects/:project/inventory/:item/history', authenticateToken, projectInventoryController.getItemHistory);
 app.post('/api/projects/:project/inventory', authenticateToken, projectLock('project'), projectInventoryController.store);
 app.put('/api/projects/:project/inventory/:item', authenticateToken, projectLock('project'), projectInventoryController.update);
-app.patch('/api/projects/:project/inventory/:item/stock', authenticateToken, projectLock('project'), projectInventoryController.updateStock);
+app.patch('/api/projects/:project/inventory/:item/stock', authenticateToken, projectLock('project'), projectInventoryController.logTransaction);
 app.delete('/api/projects/:project/inventory/:item', authenticateToken, projectLock('project'), projectInventoryController.destroy);
 
 // Project Milestone Routes
