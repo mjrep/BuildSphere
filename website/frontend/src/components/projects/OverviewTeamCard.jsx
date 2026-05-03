@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
@@ -15,7 +15,7 @@ const getColorForString = (str) => {
 
 export default function OverviewTeamCard({ project, onMemberAdded }) {
     const { user } = useAuth();
-    const canManageTeam = ['ceo', 'coo', 'hr'].includes(user?.role) && project.status !== 'completed';
+    const canManageTeam = ['ceo', 'coo', 'hr'].includes(user?.role?.toLowerCase()) && project.status !== 'completed';
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [users, setUsers] = useState([]);
@@ -27,7 +27,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
 
     useEffect(() => {
         if (isModalOpen && users.length === 0) {
-            axios.get('/api/users')
+            api.get('/users')
                  .then(res => setUsers(res.data))
                  .catch(err => console.error(err));
         }
@@ -39,7 +39,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
         
         setIsSubmitting(true);
         try {
-            await axios.post(`/api/projects/${project.id}/team`, {
+            await api.post(`/projects/${project.id}/team`, {
                 user_id: selectedUserId,
                 role_in_project: roleInProject
             });

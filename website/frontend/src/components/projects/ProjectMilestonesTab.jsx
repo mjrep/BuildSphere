@@ -5,7 +5,7 @@ import MilestonePhaseProgress from './milestones/MilestonePhaseProgress';
 import MilestoneTaskTable from './milestones/MilestoneTaskTable';
 
 export default function ProjectMilestonesTab({ project }) {
-    const { phases, loading, error } = useMilestoneTracking(project.id);
+    const { phases, months, loading, error } = useMilestoneTracking(project.id);
     const [view, setView] = useState('grid'); // 'grid' or 'details'
 
     if (loading) {
@@ -47,6 +47,7 @@ export default function ProjectMilestonesTab({ project }) {
                 <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
                     <MilestoneGanttGrid 
                         phases={phases} 
+                        months={months}
                         onViewProgress={() => setView('details')} 
                     />
                 </div>

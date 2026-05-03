@@ -114,6 +114,8 @@ app.patch('/api/progress-logs/:id', authenticateToken, TaskProgressLogController
 
 // Report Routes
 app.post('/api/reports/generate', authenticateToken, ReportController.generate);
+app.post('/api/reports/export/pdf', authenticateToken, ReportController.exportPDF);
+app.post('/api/reports/export/excel', authenticateToken, ReportController.exportExcel);
 
 // Basic health check
 app.get('/health', (req, res) => {

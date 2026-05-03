@@ -3,21 +3,26 @@ import React from 'react';
 /**
  * Replicates the Gantt-like milestone tracking grid from Mockup 1.
  */
-export default function MilestoneGanttGrid({ phases, onViewProgress }) {
-    const months = ['January', 'February', 'March', 'April', 'May', 'June'];
-
+export default function MilestoneGanttGrid({ phases, months = [], onViewProgress }) {
     // Helper to check if a milestone spans a month
-    const getProgressInMonth = (milestone, monthIndex) => {
+    const getProgressInMonth = (milestone, monthKey) => {
         if (!milestone.start_date || !milestone.end_date) return null;
         
+        // The backend now provides 'month_spans' which is an array of 'YYYY-MM'
+        // If it's missing (legacy), we fallback to a simple month check
+        if (milestone.month_spans && Array.isArray(milestone.month_spans)) {
+            if (milestone.month_spans.includes(monthKey)) {
+                return milestone.progress_percentage || 0;
+            }
+            return null;
+        }
+
+        // Fallback for legacy data
         const start = new Date(milestone.start_date);
         const end = new Date(milestone.end_date);
-        const monthYear = new Date(2026, monthIndex, 1); // Assuming 2026 for now
-
-        // This is a simplified check for the mockup replication
-        // In a real app, we'd more accurately map dates to columns
-        const msMonth = start.getMonth();
-        if (msMonth === monthIndex) {
+        const msMonthKey = start.toISOString().substring(0, 7);
+        
+        if (msMonthKey === monthKey) {
             return milestone.progress_percentage || 0;
         }
         return null;
@@ -32,15 +37,15 @@ export default function MilestoneGanttGrid({ phases, onViewProgress }) {
                             <th className="px-6 py-6 text-sm font-bold text-[#706BFF] border-b border-r border-[#F0F0F8] w-[200px]">Phase</th>
                             <th className="px-6 py-6 text-sm font-bold text-[#706BFF] border-b border-r border-[#F0F0F8] w-[200px]">Milestone</th>
                             {months.map(month => (
-                                <th key={month} className="px-4 py-6 text-xs font-semibold text-[#A1A1A1] border-b border-r border-[#F0F0F8] min-w-[100px]">
-                                    {month}
+                                <th key={month.key} className="px-4 py-6 text-xs font-semibold text-[#A1A1A1] border-b border-r border-[#F0F0F8] min-w-[120px]">
+                                    {month.label}
                                 </th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {phases.map((phase, pIdx) => (
-                            <React.Fragment key={phase.name}>
+                            <React.Fragment key={phase.id}>
                                 {phase.milestones.map((ms, mIdx) => (
                                     <tr key={ms.id} className="group">
                                         {mIdx === 0 && (
@@ -49,7 +54,7 @@ export default function MilestoneGanttGrid({ phases, onViewProgress }) {
                                                 className="px-6 py-4 text-center border-b border-r border-[#F0F0F8] bg-white align-middle"
                                             >
                                                 <span className="text-sm font-bold text-[#706BFF] leading-tight block">
-                                                    {phase.name}
+                                                    {phase.phase_title}
                                                 </span>
                                             </td>
                                         )}
@@ -61,10 +66,10 @@ export default function MilestoneGanttGrid({ phases, onViewProgress }) {
                                                 </span>
                                             </div>
                                         </td>
-                                        {months.map((month, monthIdx) => {
-                                            const progress = getProgressInMonth(ms, monthIdx);
+                                        {months.map((month) => {
+                                            const progress = getProgressInMonth(ms, month.key);
                                             return (
-                                                <td key={month} className="p-0 border-b border-r border-[#F0F0F8] h-full relative min-h-[60px]">
+                                                <td key={month.key} className="p-0 border-b border-r border-[#F0F0F8] h-full relative min-h-[60px]">
                                                     {progress !== null && (
                                                         <div className="absolute inset-0.5 bg-[#706BFF]/5 rounded-lg overflow-hidden flex items-center justify-center">
                                                             <div 

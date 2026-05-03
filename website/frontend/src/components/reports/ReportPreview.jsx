@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Calendar, Printer, TrendingUp, Package, ListChecks, ArrowRight, Download, Filter, ArrowUpDown, MoreVertical, Camera, Clock, User } from 'lucide-react';
+import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HELPERS for Calendar
@@ -106,6 +108,86 @@ export default function ReportPreview({ reportData, config, onBack }) {
     const [afterDate, setAfterDate] = useState(config?.endDate ? new Date(config.endDate) : new Date());
     const [showBeforeCalendar, setShowBeforeCalendar] = useState(false);
     const [showAfterCalendar, setShowAfterCalendar] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
+    const [exportType, setExportType] = useState(null); // 'pdf' | 'excel'
+
+    const handleExportPDF = async () => {
+        try {
+            setIsExporting(true);
+            setExportType('pdf');
+            
+            const response = await api.post('/reports/export/pdf', { reportData, config }, {
+                responseType: 'blob'
+            });
+
+            const blob = response.data instanceof Blob 
+                ? response.data 
+                : new Blob([response.data], { type: 'application/pdf' });
+            
+            if (blob.size === 0) throw new Error('Generated PDF is empty');
+            console.log(`Downloaded PDF Size: ${blob.size} bytes`);
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `BuildSphere_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                link.remove();
+            }, 100);
+            
+            toast.success('PDF report downloaded');
+        } catch (err) {
+            console.error('PDF Export Error:', err);
+            toast.error('Failed to generate PDF report');
+        } finally {
+            setIsExporting(false);
+            setExportType(null);
+        }
+    };
+
+    const handleExportExcel = async () => {
+        try {
+            setIsExporting(true);
+            setExportType('excel');
+            
+            const response = await api.post('/reports/export/excel', { reportData, config }, {
+                responseType: 'blob'
+            });
+
+            const blob = response.data instanceof Blob 
+                ? response.data 
+                : new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            
+            if (blob.size === 0) throw new Error('Generated Excel is empty');
+            console.log(`Downloaded Excel Size: ${blob.size} bytes`);
+
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `BuildSphere_Report_${new Date().toISOString().split('T')[0]}.xlsx`);
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                link.remove();
+            }, 100);
+
+            toast.success('Excel report downloaded');
+        } catch (err) {
+            console.error('Excel Export Error:', err);
+            toast.error('Failed to generate Excel report');
+        } finally {
+            setIsExporting(false);
+            setExportType(null);
+        }
+    };
 
     if (!reportData || reportData.length === 0) {
         return (
@@ -141,17 +223,41 @@ export default function ReportPreview({ reportData, config, onBack }) {
                     Back to Builder
                 </button>
 
-                <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+                <div className="flex items-center gap-4 no-print">
+                    <button 
+                        onClick={handleExportPDF}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50"
+                    >
                         <FileText size={16} />
-                        Export to PDF
+                        {isExporting && exportType === 'pdf' ? 'Generating PDF...' : 'Export to PDF'}
                     </button>
-                    <button className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-95">
+                    <button 
+                        onClick={handleExportExcel}
+                        disabled={isExporting}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-95 disabled:opacity-50"
+                    >
                         <FileSpreadsheet size={16} />
-                        Export to Excel
+                        {isExporting && exportType === 'excel' ? 'Generating Excel...' : 'Export to Excel'}
                     </button>
                 </div>
             </div>
+
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    .no-print { display: none !important; }
+                    body { background: white !important; margin: 0; padding: 0; }
+                    .max-w-\\[1000px\\] { max-width: 100% !important; margin: 0 !important; border: none !important; box-shadow: none !important; }
+                    .bg-slate-100 { background: white !important; }
+                    .shadow-2xl { box-shadow: none !important; }
+                    .rounded-3xl { border-radius: 0 !important; }
+                    .p-12 { padding: 0 !important; }
+                    .mt-12 { margin-top: 0 !important; }
+                    .animate-in { animation: none !important; }
+                    .sticky { position: static !important; }
+                    .overflow-hidden { overflow: visible !important; }
+                }
+            `}} />
 
             {/* Centered Document Page */}
             <div className="max-w-[1000px] mx-auto mt-12 bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200/50 animate-in fade-in slide-in-from-bottom-8 duration-700 min-h-[1400px]">

@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const MilestoneService = require('../services/MilestoneService');
+const ReportExportService = require('../services/ReportExportService');
 
 /**
  * ReportController - Handles complex construction report generation.
@@ -197,6 +198,46 @@ class ReportController {
     } catch (error) {
       console.error('Report Generation Error:', error);
       res.status(500).json({ message: 'Internal server error during report compilation', error: error.message });
+    }
+  }
+
+  /**
+   * Exports compiled report data to PDF.
+   * POST /api/reports/export/pdf
+   */
+  static async exportPDF(req, res) {
+    try {
+      const { reportData, config } = req.body;
+      if (!reportData) return res.status(400).json({ message: 'Missing report data' });
+
+      const pdfBuffer = await ReportExportService.generatePDF(reportData, config);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'attachment; filename=BuildSphere_Report.pdf');
+      res.end(pdfBuffer, 'binary');
+    } catch (error) {
+      console.error('PDF Export Error:', error);
+      res.status(500).json({ message: 'Failed to generate PDF', error: error.message });
+    }
+  }
+
+  /**
+   * Exports compiled report data to Excel.
+   * POST /api/reports/export/excel
+   */
+  static async exportExcel(req, res) {
+    try {
+      const { reportData, config } = req.body;
+      if (!reportData) return res.status(400).json({ message: 'Missing report data' });
+
+      const excelBuffer = await ReportExportService.generateExcel(reportData, config);
+
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', 'attachment; filename=BuildSphere_Report.xlsx');
+      res.end(excelBuffer, 'binary');
+    } catch (error) {
+      console.error('Excel Export Error:', error);
+      res.status(500).json({ message: 'Failed to generate Excel', error: error.message });
     }
   }
 }

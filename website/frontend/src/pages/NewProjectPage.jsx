@@ -40,9 +40,28 @@ export default function NewProjectPage() {
             .catch(() => {});
     }, []);
 
+    const formatNumber = (val) => {
+        if (!val && val !== 0) return '';
+        const parts = val.toString().split('.');
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join('.');
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        let finalValue = value;
+
+        // Financial fields handling
+        if (['contract_price', 'contract_unit_price', 'budget_for_materials'].includes(name)) {
+            // Remove commas and non-numeric chars except decimal point
+            finalValue = value.replace(/,/g, '').replace(/[^0-9.]/g, '');
+            
+            // Prevent multiple decimals
+            const dots = finalValue.split('.').length - 1;
+            if (dots > 1) return;
+        }
+
+        setForm((prev) => ({ ...prev, [name]: finalValue }));
         setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
@@ -190,19 +209,28 @@ export default function NewProjectPage() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Contract Price</label>
-                                        <input type="number" step="0.01" name="contract_price" value={form.contract_price} onChange={handleChange}
-                                               placeholder="0.00" className={inputClass('contract_price')} />
+                                        <div className="relative group">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                            <input type="text" name="contract_price" value={formatNumber(form.contract_price)} onChange={handleChange}
+                                                   placeholder="0.00" className={inputClass('contract_price') + " pl-8"} />
+                                        </div>
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Unit Price</label>
-                                        <input type="number" step="0.01" name="contract_unit_price" value={form.contract_unit_price} onChange={handleChange}
-                                               placeholder="0.00" className={inputClass('contract_unit_price')} />
+                                        <div className="relative group">
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                            <input type="text" name="contract_unit_price" value={formatNumber(form.contract_unit_price)} onChange={handleChange}
+                                                   placeholder="0.00" className={inputClass('contract_unit_price') + " pl-8"} />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Budget for Materials</label>
-                                    <input type="number" step="0.01" name="budget_for_materials" value={form.budget_for_materials} onChange={handleChange}
-                                           placeholder="0.00" className={inputClass('budget_for_materials')} />
+                                    <div className="relative group">
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                        <input type="text" name="budget_for_materials" value={formatNumber(form.budget_for_materials)} onChange={handleChange}
+                                               placeholder="0.00" className={inputClass('budget_for_materials') + " pl-8"} />
+                                    </div>
                                 </div>
                             </div>
 

@@ -98,7 +98,7 @@ class ProjectController {
           *,
           created_by_user:users!created_by(*),
           project_in_charge:users!project_in_charge_id(*),
-          members:project_user(users!user_id(*)),
+          members:project_user(*, users!user_id(*)),
           approvals:project_approvals(*, approver:users!approver_user_id(*)),
           milestones:project_milestones(*, created_by_user:users!created_by(*))
         `)
@@ -305,6 +305,8 @@ class ProjectController {
       if (newProject.status === 'proposed' || newProject.status !== 'active') {
         try {
           const supabase = ProjectController.getSupabaseWithAuth(req);
+          
+          // 1. Notify Executives
           const { data: execs } = await supabase
             .from('users')
             .select('id')
@@ -320,6 +322,17 @@ class ProjectController {
                 `/projects/${newProject.id}`
               );
             }
+          }
+
+          // 2. Notify Assigned Project Engineer
+          if (newProject.project_in_charge_id) {
+            await NotificationService.createNotification(
+              newProject.project_in_charge_id,
+              'New Project Assignment',
+              `You have been assigned as the Project-in-Charge for '${newProject.project_name}'.`,
+              'info',
+              `/projects/${newProject.id}`
+            );
           }
         } catch (notifErr) {
           console.error('New Project Notification Error:', notifErr);
@@ -346,6 +359,22 @@ class ProjectController {
         .single();
 
       if (error) throw error;
+
+      // --- Notification Trigger: Project Reassignment ---
+      if (req.body.project_in_charge_id) {
+        try {
+          await NotificationService.createNotification(
+            updatedProject.project_in_charge_id,
+            'New Project Assignment',
+            `You have been assigned as the Project-in-Charge for '${updatedProject.project_name}'.`,
+            'info',
+            `/projects/${updatedProject.id}`
+          );
+        } catch (notifErr) {
+          console.error('Project Reassignment Notification Error:', notifErr);
+        }
+      }
+
       res.json({ data: updatedProject });
     } catch (error) {
       console.error('Project Update Error:', error);
@@ -604,52 +633,68 @@ class ProjectController {
         return res.json({ timeline_months: [], phases: [], submitted_by: null, submitted_at: null });
       }
 
-      // Generate timeline months from project range
+      // Fetch Detailed Progress Data (Phases -> Milestones -> Tasks)
+      const progressData = await MilestoneService.getProjectMilestonesProgress(id);
+
+      // Generate timeline months from the full range (Project + Phases + Milestones)
+      let minDate = new Date(project.start_date);
+      let maxDate = new Date(project.end_date);
+
+      phases.forEach(p => {
+        if (p.start_date && new Date(p.start_date) < minDate) minDate = new Date(p.start_date);
+        if (p.end_date && new Date(p.end_date) > maxDate) maxDate = new Date(p.end_date);
+        
+        (p.milestones || []).forEach(ms => {
+          if (ms.start_date && new Date(ms.start_date) < minDate) minDate = new Date(ms.start_date);
+          if (ms.end_date && new Date(ms.end_date) > maxDate) maxDate = new Date(ms.end_date);
+        });
+      });
+
       const timeline_months = [];
-      let current = new Date(project.start_date);
-      const end = new Date(project.end_date);
+      let current = new Date(minDate);
+      current.setDate(1); 
+      const end = new Date(maxDate);
       
-      // Safety break for invalid dates
       let limit = 0;
       while (current <= end && limit < 120) {
         const key = current.toISOString().substring(0, 7);
-        const label = current.toLocaleString('default', { month: 'short' });
+        const label = current.toLocaleString('default', { month: 'long' });
         timeline_months.push({ key, label, year: current.getFullYear() });
         current.setMonth(current.getMonth() + 1);
         limit++;
       }
 
-      // Format phases and milestones for Gantt
-      const formattedPhases = phases.map(p => ({
-        id: p.id,
-        phase_title: p.phase_key.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' '),
-        weight_percentage: p.weight_percentage,
-        start_date: p.start_date,
-        end_date: p.end_date,
-        milestones: (p.milestones || []).map(ms => {
-          // Calculate month spans
-          const msStart = new Date(ms.start_date);
-          const msEnd = new Date(ms.end_date);
-          const monthSpans = [];
-          let mCurrent = new Date(msStart);
-          let mLimit = 0;
-          while (mCurrent <= msEnd && mLimit < 60) {
-            monthSpans.push(mCurrent.toISOString().substring(0, 7));
-            mCurrent.setMonth(mCurrent.getMonth() + 1);
-            mLimit++;
-          }
+      // Merge Progress Data with Gantt month_spans
+      const formattedPhases = progressData.phases.map(p => {
+        // Find the raw phase to get start/end dates for milestones
+        const rawPhase = phases.find(rp => rp.id === p.id);
+        
+        return {
+          ...p,
+          phase_title: p.name, // Ensure both property names exist for compatibility
+          milestones: p.milestones.map(ms => {
+            const rawMs = (rawPhase?.milestones || []).find(rm => rm.id === ms.id);
+            
+            // Calculate month spans for this milestone
+            const monthSpans = [];
+            if (rawMs?.start_date && rawMs?.end_date) {
+                let mCurrent = new Date(rawMs.start_date);
+                const mEnd = new Date(rawMs.end_date);
+                let mLimit = 0;
+                while (mCurrent <= mEnd && mLimit < 60) {
+                  monthSpans.push(mCurrent.toISOString().substring(0, 7));
+                  mCurrent.setMonth(mCurrent.getMonth() + 1);
+                  mLimit++;
+                }
+            }
 
-          return {
-            id: ms.id,
-            milestone_name: ms.milestone_name,
-            start_date: ms.start_date,
-            end_date: ms.end_date,
-            has_quantity: ms.has_quantity,
-            quantity_target: ms.target_quantity,
-            month_spans: monthSpans
-          };
-        })
-      }));
+            return {
+              ...ms,
+              month_spans: monthSpans
+            };
+          })
+        };
+      });
 
       // Extract submission details from the first phase
       const creator = phases[0].created_by_user;
@@ -775,6 +820,45 @@ class ProjectController {
     } catch (error) {
       console.error('Project Completion Error:', error);
       res.status(500).json({ message: 'Error completing project', error: error.message });
+    }
+  }
+
+  static async addTeamMember(req, res) {
+    try {
+      const { id } = req.params;
+      const { user_id, role_in_project } = req.body;
+      const supabase = ProjectController.getSupabaseWithAuth(req);
+
+      if (!user_id) {
+        return res.status(422).json({ message: 'User ID is required.' });
+      }
+
+      // Check if user is already a member
+      const { data: existing } = await supabase
+        .from('project_user')
+        .select('*')
+        .eq('project_id', id)
+        .eq('user_id', user_id)
+        .maybeSingle();
+
+      if (existing) {
+        return res.status(422).json({ message: 'User is already a member of this project.' });
+      }
+
+      const { error } = await supabase
+        .from('project_user')
+        .insert([{
+          project_id: id,
+          user_id,
+          role_in_project
+        }]);
+
+      if (error) throw error;
+
+      res.json({ message: 'Team member added successfully.' });
+    } catch (error) {
+      console.error('Add Team Member Error:', error);
+      res.status(500).json({ message: 'Error adding team member', error: error.message });
     }
   }
 }

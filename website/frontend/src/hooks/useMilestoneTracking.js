@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getMilestones } from '../services/projectApi';
+import { getMilestoneChart } from '../services/projectApi';
 import { supabase } from '../utils/supabase';
 
 /**
@@ -8,6 +8,7 @@ import { supabase } from '../utils/supabase';
  */
 export default function useMilestoneTracking(projectId) {
     const [phases, setPhases] = useState([]);
+    const [months, setMonths] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -15,11 +16,12 @@ export default function useMilestoneTracking(projectId) {
         if (!isBackground) setLoading(true);
         setError(null);
         try {
-            const response = await getMilestones(projectId);
-            const data = response.data.data || response.data;
+            const response = await getMilestoneChart(projectId);
+            const data = response.data;
             
-            // Data is already grouped by phase from the backend
-            setPhases(data);
+            // getMilestoneChart returns { phases, timeline_months, ... }
+            setPhases(data.phases || []);
+            setMonths(data.timeline_months || []);
         } catch (err) {
             console.error('Error fetching milestones:', err);
             setError(err.response?.data?.message || 'Failed to fetch milestone data.');
@@ -65,5 +67,5 @@ export default function useMilestoneTracking(projectId) {
         };
     }, [projectId]);
 
-    return { phases, loading, error };
+    return { phases, months, loading, error };
 }

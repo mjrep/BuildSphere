@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProject, getMilestonePlan, storeMilestonePlan } from '../services/projectApi';
 import MilestonePhaseCard from '../components/projects/MilestonePhaseCard';
 import { toast } from 'react-hot-toast';
+import DashboardLayout from '../layouts/DashboardLayout';
+import { ChevronLeft } from 'lucide-react';
 
 export default function EngineerMilestoneInputPage() {
     const { id } = useParams();
@@ -308,12 +310,22 @@ export default function EngineerMilestoneInputPage() {
     const parsedErrors = buildNestedErrorObject(errors);
 
     return (
-        <div className="flex-1 bg-white p-8 animate-in fade-in duration-500">
-            <div className="max-w-5xl mx-auto">
+        <DashboardLayout pageTitle={
+            <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => navigate(-1)} 
+                    className="p-2 -ml-2 rounded-lg text-[#1A1A1A] hover:bg-gray-100 transition-colors"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="font-bold">Manage Milestone Plan</span>
+            </div>
+        }>
+            <div className="max-w-5xl mx-auto pb-12">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-[#1A1A1A]">Project Milestones</h1>
-                    <p className="text-[#5A5A5A] mt-2 max-w-2xl text-sm leading-relaxed">
-                        Define project phases and their nested milestones. Each phase must have a unique title, and the total weight of all phases must equal 100%. Dates of milestones must be within the phase's timeframe.
+                    <h1 className="text-2xl font-bold text-[#1A1A1A]">Project Milestones</h1>
+                    <p className="text-[#5A5A5A] mt-1 max-w-2xl text-sm leading-relaxed">
+                        Define project phases and their nested milestones. Each phase must have a unique title, and the total weight of all phases must equal 100%.
                     </p>
                 </div>
 
@@ -380,6 +392,6 @@ export default function EngineerMilestoneInputPage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 }
