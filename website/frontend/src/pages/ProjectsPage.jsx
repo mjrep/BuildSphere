@@ -66,7 +66,7 @@ export default function ProjectsPage() {
     };
 
     const role = (user?.role || '').toLowerCase();
-    const canCreateProject = role === 'sales' || role === 'ceo' || role === 'coo';
+    const canCreateProject = role === 'sales';
 
     return (
         <DashboardLayout pageTitle="Projects">

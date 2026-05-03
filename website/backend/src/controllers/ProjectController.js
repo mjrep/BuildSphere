@@ -255,9 +255,9 @@ class ProjectController {
       const user = req.user;
       const role = (user.role || '');
       
-      // RBAC: Only Sales, Admin or Executives can propose new projects
-      if (!['Sales', 'Admin', 'CEO', 'COO'].includes(role)) {
-        return res.status(403).json({ message: 'Unauthorized. Only Sales or Executives can create projects.' });
+      // RBAC: Only Sales or Admin can propose new projects
+      if (!['Sales', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only Sales can create projects.' });
       }
 
       const supabaseWithAuth = ProjectController.getSupabaseWithAuth(req);
