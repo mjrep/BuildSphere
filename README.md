@@ -74,8 +74,3 @@ Once both servers are running:
 
 ---
 
-## 🔐 System Governance
-BuildSphere implements a granular RBAC system. Permissions for project approval, budget allocation, and task verification are strictly tied to user roles defined in the `users` table.
-
----
-© 2026 BuildSphere Construction Technologies. All rights reserved.
