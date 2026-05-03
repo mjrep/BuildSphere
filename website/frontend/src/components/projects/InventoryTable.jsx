@@ -3,7 +3,7 @@ import InventoryStatusBadge from './InventoryStatusBadge';
 import InventoryActionsDropdown from './InventoryActionsDropdown';
 import InventorySkeleton from './InventorySkeleton';
 
-export default function InventoryTable({ items, canManage, onEdit, onUpdateStock, onDelete, isLoading }) {
+export default function InventoryTable({ items, canManage, onEdit, onUpdateStock, onViewHistory, onDelete, isLoading }) {
     if (isLoading) {
         // Handled below in the tbody
     } else if (!items || items.length === 0) {
@@ -75,6 +75,7 @@ export default function InventoryTable({ items, canManage, onEdit, onUpdateStock
                                         item={item} 
                                         onEdit={onEdit} 
                                         onUpdateStock={onUpdateStock} 
+                                        onViewHistory={onViewHistory}
                                         onDelete={onDelete}
                                     />
                                 </td>

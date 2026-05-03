@@ -2,6 +2,7 @@ const MilestoneService = require('../services/MilestoneService');
 const EvmService = require('../services/EvmService');
 const AiAssessmentService = require('../services/AiAssessmentService');
 const { applyProjectVisibility } = require('../utils/visibility');
+const NotificationService = require('../services/NotificationService');
 const { createClient } = require('@supabase/supabase-js');
 
 class ProjectController {
@@ -300,6 +301,31 @@ class ProjectController {
         
       if (error) throw error;
 
+      // --- Notification Trigger: New Project Proposal ---
+      if (newProject.status === 'proposed' || newProject.status !== 'active') {
+        try {
+          const supabase = ProjectController.getSupabaseWithAuth(req);
+          const { data: execs } = await supabase
+            .from('users')
+            .select('id')
+            .in('role', ['CEO', 'COO']);
+          
+          if (execs) {
+            for (const exec of execs) {
+              await NotificationService.createNotification(
+                exec.id,
+                'New Project Proposal',
+                `A new project proposal '${newProject.project_name}' has been submitted and is awaiting approval.`,
+                'info',
+                `/projects/${newProject.id}`
+              );
+            }
+          }
+        } catch (notifErr) {
+          console.error('New Project Notification Error:', notifErr);
+        }
+      }
+
       res.status(201).json({ data: newProject });
     } catch (error) {
       console.error('Error creating project:', error);
@@ -521,31 +547,33 @@ class ProjectController {
 
           if (phaseError) throw phaseError;
 
-          if (phase.milestones && phase.milestones.length > 0) {
-            const msCount = phase.milestones.length;
-            const baseWeight = Math.floor(100 / msCount);
-            const remainder = 100 % msCount;
+            if (phase.milestones && phase.milestones.length > 0) {
+              const msTotalWeight = phase.milestones.reduce((sum, ms) => sum + parseFloat(ms.weight_percentage || 0), 0);
+              
+              if (Math.abs(msTotalWeight - 100) > 0.01) {
+                throw new Error(`The sum of milestone weights in phase "${phase.phase_key}" must equal exactly 100%. Current total: ${msTotalWeight}%`);
+              }
 
-            const milestonesPayload = phase.milestones.map((ms, msIdx) => ({
-              project_id: projectId,
-              project_phase_id: newPhase.id,
-              milestone_name: ms.milestone_name,
-              weight_percentage: msIdx === msCount - 1 ? (baseWeight + remainder) : baseWeight,
-              start_date: ms.start_date,
-              end_date: ms.end_date,
-              has_quantity: !!ms.has_quantity,
-              target_quantity: ms.quantity_target || 0,
-              current_quantity: 0,
-              sequence_no: msIdx,
-              created_by: user.id
-            }));
+              const milestonesPayload = phase.milestones.map((ms, msIdx) => ({
+                project_id: projectId,
+                project_phase_id: newPhase.id,
+                milestone_name: ms.milestone_name,
+                weight_percentage: parseFloat(ms.weight_percentage || 0),
+                start_date: ms.start_date,
+                end_date: ms.end_date,
+                has_quantity: !!ms.has_quantity,
+                target_quantity: ms.quantity_target || 0,
+                current_quantity: 0,
+                sequence_no: msIdx,
+                created_by: user.id
+              }));
 
-            const { error: msError } = await supabase
-              .from('project_milestones')
-              .insert(milestonesPayload);
+              const { error: msError } = await supabase
+                .from('project_milestones')
+                .insert(milestonesPayload);
 
-            if (msError) throw msError;
-          }
+              if (msError) throw msError;
+            }
         }
       }
 

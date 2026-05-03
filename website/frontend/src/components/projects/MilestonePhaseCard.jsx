@@ -90,6 +90,30 @@ export default function MilestonePhaseCard({
                         {phase.milestones.length}
                     </span>
                 </h3>
+                
+                {/* 100% Helper UI */}
+                <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-wider">Phase Weight Total:</span>
+                    <div className="flex items-center gap-2">
+                        <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                            <div 
+                                className={`h-full transition-all duration-300 ${
+                                    Math.abs(phase.milestones.reduce((sum, m) => sum + parseFloat(m.weight_percentage || 0), 0) - 100) < 0.01 
+                                        ? 'bg-emerald-500' 
+                                        : 'bg-red-400'
+                                }`}
+                                style={{ width: `${Math.min(100, phase.milestones.reduce((sum, m) => sum + parseFloat(m.weight_percentage || 0), 0))}%` }}
+                            />
+                        </div>
+                        <span className={`text-xs font-bold ${
+                            Math.abs(phase.milestones.reduce((sum, m) => sum + parseFloat(m.weight_percentage || 0), 0) - 100) < 0.01 
+                                ? 'text-emerald-600' 
+                                : 'text-red-500'
+                        }`}>
+                            {phase.milestones.reduce((sum, m) => sum + parseFloat(m.weight_percentage || 0), 0).toFixed(1)}% / 100%
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {/* Milestones List */}

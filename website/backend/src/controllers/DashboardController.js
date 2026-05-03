@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const { applyProjectVisibility } = require('../utils/visibility');
+const MilestoneService = require('../services/MilestoneService');
 
 dotenv.config();
 
@@ -65,30 +66,30 @@ class DashboardController {
       const avatarColors = ['#706BFF', '#EC4899', '#10B981', '#F59E0B'];
       const ongoingItems = visibleProjects.filter(p => (p.status || '').toLowerCase() === 'ongoing');
       
-      const projectTeams = ongoingItems.slice(0, 4).map(project => {
+      const projectTeams = await Promise.all(ongoingItems.slice(0, 4).map(async (project) => {
+        // Fetch hybrid progress data from MilestoneService
+        const progressData = await MilestoneService.getProjectMilestonesProgress(project.id);
         const tasksDone = project.tasks?.filter(t => t.status === 'completed').length || 0;
         const tasksTotal = project.tasks?.length || 0;
 
-        // Group tasks by milestone for the multi-colored progress bar
-        const tasksByMilestone = {};
-        (project.tasks || []).forEach(t => {
-          const mid = t.milestone_id || 'unassigned';
-          if (!tasksByMilestone[mid]) tasksByMilestone[mid] = { total: 0, completed: 0 };
-          tasksByMilestone[mid].total++;
-          if (t.status === 'completed') tasksByMilestone[mid].completed++;
+        // Map milestone progress to segments for the multi-colored progress bar
+        const totalProjectMilestones = progressData.phases.reduce((acc, p) => acc + p.milestones.length, 0);
+        const milestoneSegments = [];
+        
+        progressData.phases.forEach((phase) => {
+          phase.milestones.forEach((ms, idx) => {
+            if (ms.progress_percentage > 0) {
+              milestoneSegments.push({
+                milestone_id: ms.id,
+                color: colorPalette[milestoneSegments.length % colorPalette.length],
+                // In the dashboard bar, we represent progress relative to total project scope
+                // Since each milestone has a weight, we use the phase_weight * ms_weight
+                // However, for the UI segment width, we should use the weighted contribution to the total
+                percentage: (ms.progress_percentage * (ms.weight_percentage / 100) * (parseFloat(phase.weight_percentage || 0) / 100))
+              });
+            }
+          });
         });
-
-        const milestoneSegments = Object.keys(tasksByMilestone).map((mid, idx) => {
-          const mData = tasksByMilestone[mid];
-          // Each segment's width is (completed_tasks_in_milestone / total_tasks_in_project) * 100
-          const widthPercent = tasksTotal > 0 ? (mData.completed / tasksTotal) * 100 : 0;
-          
-          return {
-            milestone_id: mid,
-            color: colorPalette[idx % colorPalette.length],
-            percentage: widthPercent
-          };
-        }).filter(s => s.percentage > 0);
 
         let teamMembers = [];
         if (project.project_in_charge) {
@@ -114,24 +115,25 @@ class DashboardController {
           : 'Unassigned';
 
         return {
+          project_id: project.id,
           project_name: project.project_code ? `${project.project_code} / ${project.project_name}` : project.project_name,
           location: project.address || 'No Location',
           engr_name: picName,
           tasksDone,
           tasksTotal,
+          progress: progressData.project_progress,
           milestone_segments: milestoneSegments,
           memberCount: mappedMembers.length + (project.project_in_charge ? 1 : 0),
           members: formattedMembers
         };
-      });
+      }));
 
       // 3. Ongoing Projects details
-      const ongoingProjectsList = [...ongoingItems]
+      const ongoingProjectsList = await Promise.all([...ongoingItems]
         .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
-        .map(project => {
-          const tasksDone = project.tasks?.filter(t => t.status === 'completed').length || 0;
-          const tasksTotal = project.tasks?.length || 0;
-          const progress = tasksTotal > 0 ? Math.round((tasksDone / tasksTotal) * 100) : 0;
+        .map(async (project) => {
+          const progressData = await MilestoneService.getProjectMilestonesProgress(project.id);
+          const progress = progressData.project_progress;
           
           let daysLeft = 0;
           if (project.end_date) {
@@ -149,7 +151,7 @@ class DashboardController {
             daysLeft,
             status: displayStatus
           };
-        });
+        }));
 
       // 4. Project Updates Today
       const today = new Date().toISOString().split('T')[0];

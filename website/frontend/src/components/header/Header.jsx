@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 export default function Header({ pageTitle, user, loading }) {
     const initials = user
@@ -15,6 +16,7 @@ export default function Header({ pageTitle, user, loading }) {
             {loading ? (
                 /* Skeleton while user data loads */
                 <div className="flex items-center gap-3 animate-pulse">
+                    <div className="w-9 h-9 rounded-xl bg-[#F0F0F8]" />
                     <div className="hidden sm:flex flex-col items-end gap-1.5">
                         <div className="h-3 w-24 bg-[#E8E8FF] rounded-full" />
                         <div className="h-2.5 w-16 bg-[#F0F0F8] rounded-full" />
@@ -22,10 +24,15 @@ export default function Header({ pageTitle, user, loading }) {
                     <div className="w-9 h-9 rounded-full bg-[#E8E8FF]" />
                 </div>
             ) : (
-                <Link
-                    to="/profile"
-                    className="flex items-center gap-3 hover:opacity-75 transition-opacity"
-                >
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <NotificationBell user={user} />
+                    
+                    <div className="w-px h-6 bg-[#F0F0F8] mx-1 hidden sm:block" />
+
+                    <Link
+                        to="/profile"
+                        className="flex items-center gap-3 hover:opacity-75 transition-opacity"
+                    >
                     <div className="text-right hidden sm:block">
                         <p className="text-sm font-semibold text-[#1A1A1A]">
                             {user ? `${user.first_name} ${user.last_name}` : ''}
@@ -36,6 +43,7 @@ export default function Header({ pageTitle, user, loading }) {
                         {initials}
                     </div>
                 </Link>
+                </div>
             )}
         </header>
     );
