@@ -135,6 +135,17 @@ class ProjectController {
         .order('created_at', { ascending: false })
         .limit(10);
 
+      // 5. Fetch Project Files
+      const { data: projectFiles } = await supabase
+        .from('project_files')
+        .select(`
+          id, file_name, file_type, created_at,
+          uploader:users!uploaded_by(first_name, last_name)
+        `)
+        .eq('project_id', id)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
       // --- CALCULATIONS ---
 
       // A. Days Left & Status Metrics
@@ -184,10 +195,10 @@ class ProjectController {
         if (app.accounting_approved_at) {
           activities.push({
             id: `app-acc-${app.id}`,
-            user: app.approver ? `${app.approver.first_name} ${app.approver.last_name}` : 'Accounting',
+            user_name: app.approver ? `${app.approver.first_name} ${app.approver.last_name}` : 'Accounting',
             action: 'approved the project budget',
-            date: helperFormatDate(app.accounting_approved_at),
-            time: helperHumanTime(app.accounting_approved_at),
+            created_at_date: helperFormatDate(app.accounting_approved_at),
+            created_at_human: helperHumanTime(app.accounting_approved_at),
             type: 'approval'
           });
         }
@@ -195,10 +206,10 @@ class ProjectController {
       (rawLogs || []).forEach(log => {
         activities.push({
           id: `log-${log.id}`,
-          user: log.creator ? `${log.creator.first_name} ${log.creator.last_name}` : 'Engineer',
+          user_name: log.creator ? `${log.creator.first_name} ${log.creator.last_name}` : 'Engineer',
           action: `logged progress: ${log.remarks || 'No remarks'}`,
-          date: helperFormatDate(log.created_at),
-          time: helperHumanTime(log.created_at),
+          created_at_date: helperFormatDate(log.created_at),
+          created_at_human: helperHumanTime(log.created_at),
           type: 'update'
         });
       });
@@ -241,7 +252,13 @@ class ProjectController {
         project_in_charge: project.project_in_charge ? {
           id: project.project_in_charge.id,
           name: `${project.project_in_charge.first_name} ${project.project_in_charge.last_name}`
-        } : null
+        } : null,
+        recent_project_files: (projectFiles || []).map(f => ({
+          id: f.id,
+          file_name: f.file_name,
+          uploaded_by: f.uploader ? `${f.uploader.first_name} ${f.uploader.last_name}` : 'Unknown',
+          uploaded_at_human: helperHumanTime(f.created_at)
+        }))
       };
 
       res.json({ data: formatted });

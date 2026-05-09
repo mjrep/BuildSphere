@@ -101,28 +101,38 @@ A real-time notification system synchronized via Supabase Realtime and the `<Not
 
 ---
 
+## 📝 7. Implementation Notes (May 9, 2026)
+- **Advanced Excel Exports**: Fully implemented photographic evidence embedding in Excel reports. Uses `ExcelJS` with `Axios` buffers to map site photos directly into comparison view worksheets.
+- **Project Documentation System**: Launched the "Files" module. Includes a new `project_files` table and dedicated `ProjectFileController` for handling multi-part uploads to Supabase Storage.
+- **Activity Feed Revamp**: Redesigned the Activity Feed with a modern timeline UI, color-coded status markers, and fixed the "SYS" attribution error by standardizing backend response keys.
+- **Team Management UX**: Revised the "Add Team Member" modal to include a **Role Filter**. This allows managers to filter users by their system role (e.g., Foreman, Project Engineer) before assignment, improving discovery in large teams.
+- **UI Connectivity**: Eliminated layout gaps in the Report Preview mode by introducing a `noPadding` property to `DashboardLayout`, ensuring a seamless, edge-to-edge action bar.
+
 ## ✅ 4. Development Progress Verification
 
 ### Successfully Resolved
 - **Backend Migration**: Transitioned from Laravel to Express/Node.js with optimized query patterns.
-- **Reports Module (Phase 1)**: Completed the Multi-Project Reporting engine with interactive web previews and sticky action headers.
+- **Reports Module**: Completed the Multi-Project Reporting engine with interactive web previews and sticky action headers.
+- **Excel Export with Images**: Implemented binary-safe image embedding in ExcelJS for professional photographic reporting.
+- **Project Document Management**: Fully functional file upload and retrieval system at the project level.
 - **Interactive Document Engine**: Implemented centered document rendering with drop shadows and high-fidelity typography.
 - **Site Update Logic**: Fixed complex timezone/date-shift errors in the accomplishment calendar, ensuring accurate "indicator dots" for site activity.
 - **Inventory Synchronization**: Corrected stock level and pricing mapping for inventory summaries.
 
 ### The Current Frontier
-- **PDF/Excel Export**: Implementing the client-side generation logic using `jspdf` and `exceljs` for the "Export" buttons in the Preview view.
+- **PDF Export Polish**: Finalizing the Puppeteer-based PDF generation to match the high-fidelity web preview.
 - **AI Narrative Synthesis**: Integrating the Gemini-based health summaries into the final report document.
 - **Mobile Offline Sync**: Ensuring Foremen can log tasks in low-connectivity areas for later synchronization.
 
 ---
 
 **I have verified the system progress and internalized this architecture. I am ready to continue development based on these established realities.**
+
 ## 🔐 System Credentials (Development)
 The following credentials can be used for testing various role-based workflows:
 
 - **CEO**: `ceo@buildsphere.com` | `password123!`
-- **Project Engineer**: `projeng@buildsphere.com` | `password123!`
+- **Project Engineer**: `projeng@buildsphere.com" | "password123!`
 - **Project Coordinator**: `projcoor@buildsphere.com` | `password123!`
 - **Sales**: `sales@buildspere.com` | `password123!`
 - **Accounting**: `accounting@buildsphere.com` | `password123!`

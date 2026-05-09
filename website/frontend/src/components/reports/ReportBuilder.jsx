@@ -177,33 +177,61 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                 </div>
 
                 {/* Section Toggles - Clean Style */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                        { id: 'includeProgress', label: 'Progress Analysis', icon: TrendingUp },
-                        { id: 'includeInventory', label: 'Inventory Summary', icon: Package },
-                        { id: 'includeAccomplishments', label: 'Accomplishments', icon: ListChecks },
-                    ].map((section) => (
-                        <button
-                            key={section.id}
-                            type="button"
-                            onClick={() => setFormData({...formData, [section.id]: !formData[section.id]})}
-                            className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${
-                                formData[section.id] 
-                                    ? 'border-indigo-600 bg-indigo-50/30 text-indigo-600' 
-                                    : 'border-slate-100 bg-white text-slate-400'
-                            }`}
-                        >
-                            <div className="flex items-center gap-3">
-                                <section.icon size={20} />
-                                <span className="text-sm font-bold">{section.label}</span>
-                            </div>
-                            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                                formData[section.id] ? 'bg-indigo-600 border-indigo-600' : 'border-slate-200'
-                            }`}>
-                                {formData[section.id] && <CheckCircle size={12} className="text-white" />}
-                            </div>
-                        </button>
-                    ))}
+                <div className="space-y-6">
+                    <div className="text-center">
+                        <h2 className="text-xl font-bold text-slate-900">Report Content</h2>
+                        <p className="text-slate-500 text-sm">Choose the modules you want to include in this report.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            { 
+                                id: 'includeProgress', 
+                                label: 'Progress Analysis', 
+                                icon: TrendingUp,
+                                desc: 'Project status summary, completed tasks, and milestone tracking.'
+                            },
+                            { 
+                                id: 'includeInventory', 
+                                label: 'Inventory Summary', 
+                                icon: Package,
+                                desc: 'Stock levels, item categories, and total inventory valuation.'
+                            },
+                            { 
+                                id: 'includeAccomplishments', 
+                                label: 'Accomplishments', 
+                                icon: ListChecks,
+                                desc: 'Side-by-side site updates with before/after progress photos.'
+                            },
+                        ].map((section) => (
+                            <button
+                                key={section.id}
+                                type="button"
+                                onClick={() => setFormData({...formData, [section.id]: !formData[section.id]})}
+                                className={`flex flex-col text-left p-6 rounded-3xl border-2 transition-all relative group ${
+                                    formData[section.id] 
+                                        ? 'border-indigo-600 bg-indigo-50/30 ring-4 ring-indigo-600/5' 
+                                        : 'border-slate-100 bg-white hover:border-slate-200'
+                                }`}
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <div className={`p-3 rounded-2xl ${formData[section.id] ? 'bg-indigo-600 text-white' : 'bg-slate-50 text-slate-400 group-hover:bg-slate-100'}`}>
+                                        <section.icon size={24} />
+                                    </div>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                                        formData[section.id] ? 'bg-indigo-600 border-indigo-600 scale-110' : 'border-slate-200'
+                                    }`}>
+                                        {formData[section.id] && <CheckCircle size={14} className="text-white" />}
+                                    </div>
+                                </div>
+                                <span className={`text-base font-black mb-2 ${formData[section.id] ? 'text-indigo-600' : 'text-slate-900'}`}>
+                                    {section.label}
+                                </span>
+                                <p className={`text-[11px] leading-relaxed font-medium ${formData[section.id] ? 'text-indigo-600/70' : 'text-slate-400'}`}>
+                                    {section.desc}
+                                </p>
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {/* Generate Button from Mockup */}

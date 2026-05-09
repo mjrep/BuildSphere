@@ -6,8 +6,8 @@ import api from '../../services/api';
 /* ═══════════════════════════════════════════════════════════════════════════
    HELPERS for Calendar
    ═══════════════════════════════════════════════════════════════════════════ */
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const WEEKDAYS = ['S','M','T','W','T','F','S'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 function getDaysInMonth(year, month) { return new Date(year, month + 1, 0).getDate(); }
 function getFirstDayOfMonth(year, month) { return new Date(year, month, 1).getDay(); }
@@ -25,7 +25,7 @@ function toDateString(d) {
     }
     const date = (d instanceof Date) ? d : new Date(d);
     if (isNaN(date.getTime())) return null;
-    
+
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
@@ -51,11 +51,11 @@ function CustomMiniCalendar({ selectedDate, onSelectDate, updateDates }) {
     return (
         <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl w-72 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
-                <button type="button" onClick={() => viewMonth === 0 ? (setViewMonth(11), setViewYear(y => y-1)) : setViewMonth(m => m-1)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                <button type="button" onClick={() => viewMonth === 0 ? (setViewMonth(11), setViewYear(y => y - 1)) : setViewMonth(m => m - 1)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
                     <ChevronLeft size={18} className="text-slate-400" />
                 </button>
                 <span className="text-xs font-black uppercase tracking-widest text-slate-700">{MONTHS[viewMonth]} {viewYear}</span>
-                <button type="button" onClick={() => viewMonth === 11 ? (setViewMonth(0), setViewYear(y => y+1)) : setViewMonth(m => m+1)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
+                <button type="button" onClick={() => viewMonth === 11 ? (setViewMonth(0), setViewYear(y => y + 1)) : setViewMonth(m => m + 1)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
                     <ChevronRight size={18} className="text-slate-400" />
                 </button>
             </div>
@@ -68,22 +68,21 @@ function CustomMiniCalendar({ selectedDate, onSelectDate, updateDates }) {
                     const monthStr = String(viewMonth + 1).padStart(2, '0');
                     const dayStr = String(day).padStart(2, '0');
                     const dStr = `${viewYear}-${monthStr}-${dayStr}`;
-                    
+
                     const isSelected = toDateString(selectedDate) === dStr;
                     const logDatesOnThisDay = updateDates.includes(dStr);
-                    
+
                     return (
                         <button
                             key={day}
                             type="button"
                             onClick={() => onSelectDate(new Date(viewYear, viewMonth, day))}
-                            className={`h-9 w-full flex items-center justify-center text-xs font-bold rounded-xl relative transition-all ${
-                                isSelected 
-                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' 
-                                    : logDatesOnThisDay 
-                                        ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100' 
+                            className={`h-9 w-full flex items-center justify-center text-xs font-bold rounded-xl relative transition-all ${isSelected
+                                    ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                                    : logDatesOnThisDay
+                                        ? 'text-indigo-600 bg-indigo-50 hover:bg-indigo-100'
                                         : 'text-slate-500 hover:bg-slate-50'
-                            }`}
+                                }`}
                         >
                             {day}
                             {logDatesOnThisDay && !isSelected && (
@@ -101,31 +100,81 @@ function CustomMiniCalendar({ selectedDate, onSelectDate, updateDates }) {
  * ReportPreview - Document Preview UX.
  */
 export default function ReportPreview({ reportData, config, onBack }) {
-    const [activeTab, setActiveTab] = useState('Progress Analysis');
-    
-    // States for Accomplishments filtering
-    const [beforeDate, setBeforeDate] = useState(config?.startDate ? new Date(config.startDate) : new Date());
-    const [afterDate, setAfterDate] = useState(config?.endDate ? new Date(config.endDate) : new Date());
-    const [showBeforeCalendar, setShowBeforeCalendar] = useState(false);
-    const [showAfterCalendar, setShowAfterCalendar] = useState(false);
+    // Determine initial active tab based on what's included
+    const initialTab = config.includeProgress ? 'Progress Analysis'
+        : config.includeInventory ? 'Inventory Summary'
+            : 'Accomplishments';
+
+    const [activeTab, setActiveTab] = useState(initialTab);
+
+    // States for Accomplishments filtering - Array of comparison pairs
+    const [accomplishmentViews, setAccomplishmentViews] = useState([
+        {
+            id: Date.now(),
+            beforeDate: config?.startDate ? new Date(config.startDate) : new Date(),
+            afterDate: config?.endDate ? new Date(config.endDate) : new Date(),
+            showBeforeCalendar: false,
+            showAfterCalendar: false
+        }
+    ]);
+
     const [isExporting, setIsExporting] = useState(false);
     const [exportType, setExportType] = useState(null); // 'pdf' | 'excel'
+
+    const addComparisonView = () => {
+        setAccomplishmentViews([
+            ...accomplishmentViews,
+            {
+                id: Date.now(),
+                beforeDate: new Date(),
+                afterDate: new Date(),
+                showBeforeCalendar: false,
+                showAfterCalendar: false
+            }
+        ]);
+    };
+
+    const removeComparisonView = (id) => {
+        if (accomplishmentViews.length > 1) {
+            setAccomplishmentViews(accomplishmentViews.filter(v => v.id !== id));
+        }
+    };
+
+    const updateViewDate = (id, field, date) => {
+        setAccomplishmentViews(accomplishmentViews.map(v =>
+            v.id === id ? { ...v, [field]: date, [`show${field.charAt(0).toUpperCase() + field.slice(1)}Calendar`]: false } : v
+        ));
+    };
+
+    const toggleCalendar = (id, field) => {
+        setAccomplishmentViews(accomplishmentViews.map(v =>
+            v.id === id ? { ...v, [field]: !v[field] } : v
+        ));
+    };
 
     const handleExportPDF = async () => {
         try {
             setIsExporting(true);
             setExportType('pdf');
-            
-            const response = await api.post('/reports/export/pdf', { reportData, config }, {
+
+            // Format accomplishment views for backend
+            const formattedViews = accomplishmentViews.map(v => ({
+                beforeDate: toDateString(v.beforeDate),
+                afterDate: toDateString(v.afterDate)
+            }));
+
+            const response = await api.post('/reports/export/pdf', {
+                reportData,
+                config: { ...config, accomplishmentViews: formattedViews }
+            }, {
                 responseType: 'blob'
             });
 
-            const blob = response.data instanceof Blob 
-                ? response.data 
+            const blob = response.data instanceof Blob
+                ? response.data
                 : new Blob([response.data], { type: 'application/pdf' });
-            
+
             if (blob.size === 0) throw new Error('Generated PDF is empty');
-            console.log(`Downloaded PDF Size: ${blob.size} bytes`);
 
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -133,13 +182,12 @@ export default function ReportPreview({ reportData, config, onBack }) {
             link.setAttribute('download', `BuildSphere_Report_${new Date().toISOString().split('T')[0]}.pdf`);
             document.body.appendChild(link);
             link.click();
-            
-            // Cleanup
+
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
                 link.remove();
             }, 100);
-            
+
             toast.success('PDF report downloaded');
         } catch (err) {
             console.error('PDF Export Error:', err);
@@ -154,17 +202,25 @@ export default function ReportPreview({ reportData, config, onBack }) {
         try {
             setIsExporting(true);
             setExportType('excel');
-            
-            const response = await api.post('/reports/export/excel', { reportData, config }, {
+
+            // Format accomplishment views for backend
+            const formattedViews = accomplishmentViews.map(v => ({
+                beforeDate: toDateString(v.beforeDate),
+                afterDate: toDateString(v.afterDate)
+            }));
+
+            const response = await api.post('/reports/export/excel', { 
+                reportData, 
+                config: { ...config, accomplishmentViews: formattedViews } 
+            }, {
                 responseType: 'blob'
             });
 
-            const blob = response.data instanceof Blob 
-                ? response.data 
+            const blob = response.data instanceof Blob
+                ? response.data
                 : new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-            
+
             if (blob.size === 0) throw new Error('Generated Excel is empty');
-            console.log(`Downloaded Excel Size: ${blob.size} bytes`);
 
             const url = window.URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -173,7 +229,6 @@ export default function ReportPreview({ reportData, config, onBack }) {
             document.body.appendChild(link);
             link.click();
 
-            // Cleanup
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
                 link.remove();
@@ -205,17 +260,17 @@ export default function ReportPreview({ reportData, config, onBack }) {
     }
 
     const tabs = [
-        { name: 'Progress Analysis', icon: TrendingUp },
-        { name: 'Inventory Summary', icon: Package },
-        { name: 'Accomplishments', icon: ListChecks }
-    ];
+        { name: 'Progress Analysis', icon: TrendingUp, show: config.includeProgress },
+        { name: 'Inventory Summary', icon: Package, show: config.includeInventory },
+        { name: 'Accomplishments', icon: ListChecks, show: config.includeAccomplishments }
+    ].filter(t => t.show);
 
     return (
-        <div className="min-h-screen bg-slate-100 -m-6 pb-32">
-            
+        <div className="min-h-screen bg-slate-100 pb-32 relative">
+
             {/* Sticky Action Bar */}
-            <div className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
-                <button 
+            <div className="sticky top-0 z-[80] bg-white border-b border-slate-200 px-8 py-3 flex items-center justify-between shadow-sm">
+                <button
                     onClick={onBack}
                     className="flex items-center gap-2 text-sm font-black text-slate-600 hover:text-slate-900 group transition-all"
                 >
@@ -224,7 +279,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                 </button>
 
                 <div className="flex items-center gap-4 no-print">
-                    <button 
+                    <button
                         onClick={handleExportPDF}
                         disabled={isExporting}
                         className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50"
@@ -232,7 +287,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                         <FileText size={16} />
                         {isExporting && exportType === 'pdf' ? 'Generating PDF...' : 'Export to PDF'}
                     </button>
-                    <button 
+                    <button
                         onClick={handleExportExcel}
                         disabled={isExporting}
                         className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-95 disabled:opacity-50"
@@ -243,7 +298,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
                 </div>
             </div>
 
-            <style dangerouslySetInnerHTML={{ __html: `
+            <style dangerouslySetInnerHTML={{
+                __html: `
                 @media print {
                     .no-print { display: none !important; }
                     body { background: white !important; margin: 0; padding: 0; }
@@ -261,7 +317,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
 
             {/* Centered Document Page */}
             <div className="max-w-[1000px] mx-auto mt-12 bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200/50 animate-in fade-in slide-in-from-bottom-8 duration-700 min-h-[1400px]">
-                
+
                 {/* Document Header (Internal Tabs) */}
                 <div className="border-b border-slate-100 px-12 pt-10">
                     <div className="flex items-center justify-between mb-8">
@@ -282,9 +338,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
                             <button
                                 key={tab.name}
                                 onClick={() => setActiveTab(tab.name)}
-                                className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${
-                                    activeTab === tab.name ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
-                                }`}
+                                className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === tab.name ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                                    }`}
                             >
                                 {tab.name}
                                 {activeTab === tab.name && (
@@ -299,8 +354,6 @@ export default function ReportPreview({ reportData, config, onBack }) {
                 <div className="p-12 space-y-16">
                     {reportData.map((project) => {
                         const updateDates = Array.from(new Set(project.accomplishments.map(a => toDateString(a.date)))).filter(Boolean);
-                        const filteredBefore = project.accomplishments.filter(a => isSameDay(a.date, beforeDate));
-                        const filteredAfter = project.accomplishments.filter(a => isSameDay(a.date, afterDate));
 
                         return (
                             <div key={project.id} className="space-y-12">
@@ -311,7 +364,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 </div>
 
                                 {activeTab === 'Progress Analysis' && (
-                                    <div className="space-y-12">
+                                    <div className="space-y-12 animate-in fade-in duration-500">
                                         {/* Progress Status Summary Table */}
                                         <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
                                             <div className="bg-slate-50 py-3 px-8 text-center border-b border-slate-200">
@@ -330,7 +383,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                         <tr>
                                                             <td colSpan="3" className="px-8 py-8 text-center text-sm text-slate-400 italic">No completed milestones found.</td>
                                                         </tr>
-                                                    ) : project.progress.phases.flatMap(phase => 
+                                                    ) : project.progress.phases.flatMap(phase =>
                                                         phase.milestones.filter(m => m.progress_percentage === 100).map((m) => (
                                                             <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                                                                 <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{project.name}</td>
@@ -404,7 +457,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 )}
 
                                 {activeTab === 'Inventory Summary' && (
-                                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-8">
+                                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-8 animate-in fade-in duration-500">
                                         <div className="flex items-center justify-between mb-8">
                                             <h3 className="text-xl font-black text-slate-900 tracking-tight">Inventory Summary</h3>
                                         </div>
@@ -429,9 +482,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                         <tr key={i} className="hover:bg-slate-50/30 transition-colors">
                                                             <td className="px-6 py-4 text-xs font-bold text-slate-700">{item.item}</td>
                                                             <td className="px-6 py-4">
-                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
-                                                                    item.category === 'Materials' ? 'bg-yellow-100 text-yellow-700' : 'bg-pink-100 text-pink-700'
-                                                                }`}>
+                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.category === 'Materials' ? 'bg-yellow-100 text-yellow-700' : 'bg-pink-100 text-pink-700'
+                                                                    }`}>
                                                                     {item.category}
                                                                 </span>
                                                             </td>
@@ -439,9 +491,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                             <td className="px-6 py-4 text-xs font-bold text-slate-600 text-center">{item.minStock}</td>
                                                             <td className="px-6 py-4 text-xs font-bold text-slate-600">{item.price}</td>
                                                             <td className="px-6 py-4">
-                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${
-                                                                    item.status === 'In Stock' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'
-                                                                }`}>
+                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'In Stock' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'
+                                                                    }`}>
                                                                     {item.status}
                                                                 </span>
                                                             </td>
@@ -460,141 +511,172 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 )}
 
                                 {activeTab === 'Accomplishments' && (
-                                    <div className="space-y-12">
-                                        {/* Custom Date Filter with Calendar Highlights */}
-                                        <div className="flex gap-8 mb-4">
-                                            <div className="flex-1 space-y-3 relative">
-                                                <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Before Date</label>
-                                                <button 
-                                                    type="button"
-                                                    onClick={() => { setShowBeforeCalendar(!showBeforeCalendar); setShowAfterCalendar(false); }}
-                                                    className="w-full flex items-center justify-between pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group"
-                                                >
-                                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 w-5 h-5 group-hover:scale-110 transition-transform" />
-                                                    {toDateString(beforeDate)}
-                                                    <ChevronRight size={16} className={`text-slate-300 transition-transform ${showBeforeCalendar ? 'rotate-90' : ''}`} />
-                                                </button>
-                                                {showBeforeCalendar && (
-                                                    <div className="absolute top-[calc(100%+8px)] left-0 z-50">
-                                                        <CustomMiniCalendar 
-                                                            selectedDate={beforeDate} 
-                                                            onSelectDate={(d) => { setBeforeDate(d); setShowBeforeCalendar(false); }} 
-                                                            updateDates={updateDates} 
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="flex-1 space-y-3 relative">
-                                                <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest">After Date</label>
-                                                <button 
-                                                    type="button"
-                                                    onClick={() => { setShowAfterCalendar(!showAfterCalendar); setShowBeforeCalendar(false); }}
-                                                    className="w-full flex items-center justify-between pl-12 pr-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group"
-                                                >
-                                                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500 w-5 h-5 group-hover:scale-110 transition-transform" />
-                                                    {toDateString(afterDate)}
-                                                    <ChevronRight size={16} className={`text-slate-300 transition-transform ${showAfterCalendar ? 'rotate-90' : ''}`} />
-                                                </button>
-                                                {showAfterCalendar && (
-                                                    <div className="absolute top-[calc(100%+8px)] left-0 z-50">
-                                                        <CustomMiniCalendar 
-                                                            selectedDate={afterDate} 
-                                                            onSelectDate={(d) => { setAfterDate(d); setShowAfterCalendar(false); }} 
-                                                            updateDates={updateDates} 
-                                                        />
-                                                    </div>
-                                                )}
-                                            </div>
+                                    <div className="space-y-12 animate-in fade-in duration-500">
+                                        <div className="flex justify-between items-center no-print">
+                                            <p className="text-sm font-bold text-slate-500">Add side-by-side comparison views to show visual progress.</p>
+                                            <button
+                                                onClick={addComparisonView}
+                                                className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2"
+                                            >
+                                                <Clock size={14} />
+                                                Add Comparison View
+                                            </button>
                                         </div>
 
-                                        {/* Before/After View */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            {/* BEFORE CARD */}
-                                            <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px]">
-                                                <div className="flex justify-between items-start mb-6">
-                                                    <div>
-                                                        <h4 className="text-2xl font-black text-slate-900">Before</h4>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(beforeDate)}</p>
-                                                    </div>
-                                                    <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${
-                                                        filteredBefore.length > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'
-                                                    }`}>
-                                                        {filteredBefore.length} updates
-                                                    </span>
-                                                </div>
-                                                <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
-                                                    {filteredBefore.length > 0 ? (
-                                                        <img 
-                                                            src={filteredBefore[0].image_url} 
-                                                            alt="Before Progress" 
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="text-center p-8">
-                                                            <Camera size={32} className="text-slate-200 mx-auto mb-2" />
-                                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
-                                                        <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.taken_by || '—'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
-                                                        <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.time || '—'}</p>
-                                                    </div>
-                                                    <div className="col-span-2">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
-                                                        <p className="text-xs font-bold text-slate-900 leading-snug">{filteredBefore[0]?.notes || '—'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        {accomplishmentViews.map((view, idx) => {
+                                            const filteredBefore = project.accomplishments.filter(a => isSameDay(a.date, view.beforeDate));
+                                            const filteredAfter = project.accomplishments.filter(a => isSameDay(a.date, view.afterDate));
 
-                                            {/* AFTER CARD */}
-                                            <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px]">
-                                                <div className="flex justify-between items-start mb-6">
-                                                    <div>
-                                                        <h4 className="text-2xl font-black text-slate-900">After</h4>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(afterDate)}</p>
+                                            return (
+                                                <div key={view.id} className="space-y-8 relative group">
+                                                    {idx > 0 && <div className="border-t-2 border-dashed border-slate-100 pt-8" />}
+
+                                                    {/* Comparison View Header */}
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Visual Comparison #{idx + 1}</span>
+                                                        {accomplishmentViews.length > 1 && (
+                                                            <button
+                                                                onClick={() => removeComparisonView(view.id)}
+                                                                className="text-red-400 hover:text-red-600 text-[10px] font-bold uppercase no-print"
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        )}
                                                     </div>
-                                                    <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${
-                                                        filteredAfter.length > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
-                                                    }`}>
-                                                        {filteredAfter.length} updates
-                                                    </span>
-                                                </div>
-                                                <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
-                                                    {filteredAfter.length > 0 ? (
-                                                        <img 
-                                                            src={filteredAfter[0].image_url} 
-                                                            alt="After Progress" 
-                                                            className="w-full h-full object-cover"
-                                                        />
-                                                    ) : (
-                                                        <div className="text-center p-8">
-                                                            <Camera size={32} className="text-slate-200 mx-auto mb-2" />
-                                                            <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
+
+                                                    <div className="flex gap-8 mb-4 no-print">
+                                                        <div className="flex-1 space-y-3 relative">
+                                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest pl-4">Before Date</label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleCalendar(view.id, 'showBeforeCalendar')}
+                                                                className="w-full flex items-center gap-3 px-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group/btn"
+                                                            >
+                                                                <Calendar className="text-indigo-500 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                                                                {toDateString(view.beforeDate)}
+                                                                <ChevronRight size={16} className={`ml-auto text-slate-300 transition-transform ${view.showBeforeCalendar ? 'rotate-90' : ''}`} />
+                                                            </button>
+                                                            {view.showBeforeCalendar && (
+                                                                <div className="absolute top-[calc(100%+8px)] left-0 z-50">
+                                                                    <CustomMiniCalendar
+                                                                        selectedDate={view.beforeDate}
+                                                                        onSelectDate={(d) => updateViewDate(view.id, 'beforeDate', d)}
+                                                                        updateDates={updateDates}
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </div>
-                                                    )}
+                                                        <div className="flex-1 space-y-3 relative">
+                                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest pl-4">After Date</label>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => toggleCalendar(view.id, 'showAfterCalendar')}
+                                                                className="w-full flex items-center gap-3 px-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group/btn"
+                                                            >
+                                                                <Calendar className="text-indigo-500 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                                                                {toDateString(view.afterDate)}
+                                                                <ChevronRight size={16} className={`ml-auto text-slate-300 transition-transform ${view.showAfterCalendar ? 'rotate-90' : ''}`} />
+                                                            </button>
+                                                            {view.showAfterCalendar && (
+                                                                <div className="absolute top-[calc(100%+8px)] left-0 z-50">
+                                                                    <CustomMiniCalendar
+                                                                        selectedDate={view.afterDate}
+                                                                        onSelectDate={(d) => updateViewDate(view.id, 'afterDate', d)}
+                                                                        updateDates={updateDates}
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                        {/* BEFORE CARD */}
+                                                        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid">
+                                                            <div className="flex justify-between items-start mb-6">
+                                                                <div>
+                                                                    <h4 className="text-2xl font-black text-slate-900">Before</h4>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(view.beforeDate)}</p>
+                                                                </div>
+                                                                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${filteredBefore.length > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'
+                                                                    }`}>
+                                                                    {filteredBefore.length} updates
+                                                                </span>
+                                                            </div>
+                                                            <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
+                                                                {filteredBefore.length > 0 ? (
+                                                                    <img
+                                                                        src={filteredBefore[0].image_url}
+                                                                        alt="Before Progress"
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="text-center p-8">
+                                                                        <Camera size={32} className="text-slate-200 mx-auto mb-2" />
+                                                                        <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
+                                                                <div>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
+                                                                    <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.taken_by || '—'}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
+                                                                    <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.time || '—'}</p>
+                                                                </div>
+                                                                <div className="col-span-2">
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
+                                                                    <p className="text-xs font-bold text-slate-900 leading-snug">{filteredBefore[0]?.notes || '—'}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        {/* AFTER CARD */}
+                                                        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid">
+                                                            <div className="flex justify-between items-start mb-6">
+                                                                <div>
+                                                                    <h4 className="text-2xl font-black text-slate-900">After</h4>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(view.afterDate)}</p>
+                                                                </div>
+                                                                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${filteredAfter.length > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
+                                                                    }`}>
+                                                                    {filteredAfter.length} updates
+                                                                </span>
+                                                            </div>
+                                                            <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
+                                                                {filteredAfter.length > 0 ? (
+                                                                    <img
+                                                                        src={filteredAfter[0].image_url}
+                                                                        alt="After Progress"
+                                                                        className="w-full h-full object-cover"
+                                                                    />
+                                                                ) : (
+                                                                    <div className="text-center p-8">
+                                                                        <Camera size={32} className="text-slate-200 mx-auto mb-2" />
+                                                                        <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
+                                                                <div>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
+                                                                    <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.taken_by || '—'}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
+                                                                    <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.time || '—'}</p>
+                                                                </div>
+                                                                <div className="col-span-2">
+                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
+                                                                    <p className="text-xs font-bold text-slate-900 leading-snug">{filteredAfter[0]?.notes || '—'}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
-                                                        <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.taken_by || '—'}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
-                                                        <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.time || '—'}</p>
-                                                    </div>
-                                                    <div className="col-span-2">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
-                                                        <p className="text-xs font-bold text-slate-900 leading-snug">{filteredAfter[0]?.notes || '—'}</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

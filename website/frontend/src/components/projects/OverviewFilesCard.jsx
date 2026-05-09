@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import api from '../../services/api';
+import toast from 'react-hot-toast';
 
 // Generates an initial or simple dot style based on uploader name
 const getColorForString = (str) => {
@@ -11,20 +13,62 @@ const getColorForString = (str) => {
     return '#' + ('00000'.substring(0, 6 - c.length) + c);
 };
 
-export default function OverviewFilesCard({ project }) {
+export default function OverviewFilesCard({ project, onFileUploaded }) {
     const files = project.recent_project_files || [];
+    const fileInputRef = useRef(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleFileChange = async (e) => {
+        const selectedFiles = e.target.files;
+        if (!selectedFiles || selectedFiles.length === 0) return;
+
+        setIsUploading(true);
+        const formData = new FormData();
+        for (let i = 0; i < selectedFiles.length; i++) {
+            formData.append('files', selectedFiles[i]);
+        }
+
+        try {
+            await api.post(`/projects/${project.id}/files`, formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            toast.success('Files uploaded successfully');
+            if (onFileUploaded) onFileUploaded();
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to upload files');
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+    };
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col mt-4">
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-base font-bold text-[#1A1A1A]">Files</h3>
+                
+                <input 
+                    type="file" 
+                    multiple 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange}
+                />
+                
                 <button 
-                    className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 flex items-center justify-center transition-colors"
-                    title="Upload File (Coming soon)"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 flex items-center justify-center transition-colors disabled:opacity-50"
+                    title="Upload File"
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
-                    </svg>
+                    {isUploading ? (
+                        <div className="w-3 h-3 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
+                    ) : (
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
+                        </svg>
+                    )}
                 </button>
             </div>
             

@@ -10,51 +10,50 @@ const getColorForString = (str) => {
     return '#' + ('00000'.substring(0, 6 - c.length) + c);
 };
 
-// Formats action string nicely
-const formatAction = (action, description) => {
-    // Basic mapping, could be extended
-    if (action.includes('UPLOAD')) return 'uploaded a file.';
-    if (action.includes('COMPLETE')) return 'completed a task.';
-    if (action.includes('REVIEW')) return 'needs a task reviewed.';
-    if (description) return description.toLowerCase();
-    return 'updated the project.';
-};
-
+// Activity Feed Card with modern timeline UI
 export default function OverviewActivityCard({ project }) {
     const activities = project.recent_activities || [];
+
+    const getMarkerColor = (type) => {
+        if (type === 'approval') return 'bg-emerald-500';
+        if (type === 'update') return 'bg-amber-500';
+        return 'bg-blue-500';
+    };
 
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col mt-4">
             <h3 className="text-base font-bold text-[#1A1A1A] mb-6">Activity Feed</h3>
             
-            <div className="flex flex-col relative before:absolute before:inset-0 before:ml-[15px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-[#F0F0F8] before:to-transparent">
+            <div className="flex flex-col gap-6 relative">
+                {/* Vertical Line */}
+                {activities.length > 1 && (
+                    <div className="absolute left-4 top-2 bottom-2 w-px bg-slate-100 -translate-x-1/2"></div>
+                )}
+
                 {activities.length === 0 ? (
                     <p className="text-sm text-gray-400 italic">No recent activity.</p>
                 ) : (
-                    activities.map((activity, index) => (
-                        <div key={activity.id} className="relative flex items-start justify-between mb-6 group">
-                            {/* Icon */}
-                            <div 
-                                className="w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm ring-4 ring-white relative z-10 flex-shrink-0"
-                                style={{ backgroundColor: getColorForString(activity.user_name) }}
-                            >
+                    activities.map((activity) => (
+                        <div key={activity.id} className="relative flex gap-4 items-start group">
+                            {/* Marker Dot */}
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-[10px] font-black z-10 flex-shrink-0 shadow-sm ${getMarkerColor(activity.type)}`}>
                                 {activity.user_name ? activity.user_name.substring(0, 2).toUpperCase() : 'SYS'}
                             </div>
                             
                             {/* Content */}
-                            <div className="ml-4 flex-1 min-w-0 pr-2 pt-1">
-                                <p className="text-sm text-[#6B6B6B] truncate">
-                                    <span className="font-bold text-[#1A1A1A] mr-1">{activity.user_name}</span> 
-                                    {formatAction(activity.action, activity.description)}
-                                </p>
-                                <p className="text-[10px] sm:text-xs text-[#A1A1A1] mt-0.5">
+                            <div className="flex-1 min-w-0">
+                                <div className="flex justify-between items-start gap-2 mb-1">
+                                    <p className="text-sm text-slate-600 leading-tight">
+                                        <span className="font-bold text-slate-900">{activity.user_name}</span>
+                                        {" "}{activity.action}
+                                    </p>
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap pt-0.5">
+                                        {activity.created_at_human}
+                                    </span>
+                                </div>
+                                <p className="text-[11px] font-medium text-slate-400 uppercase tracking-tight">
                                     {activity.created_at_date}
                                 </p>
-                            </div>
-
-                            {/* Time badge */}
-                            <div className="text-xs font-medium text-[#1A1A1A] flex-shrink-0 pt-1">
-                                {activity.created_at_human}
                             </div>
                         </div>
                     ))

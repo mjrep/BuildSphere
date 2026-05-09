@@ -157,6 +157,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Material</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Action</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Qty</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Current Stock</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Linked Task</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Processed By</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Notes</th>
@@ -177,6 +178,9 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                         </td>
                                         <td className={`px-6 py-4 text-right font-bold text-xs ${['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? 'text-emerald-600' : 'text-red-600'}`}>
                                             {['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? '+' : '-'}{log.quantity}
+                                        </td>
+                                        <td className="px-6 py-4 text-right font-bold text-xs text-gray-600">
+                                            {log.current_stock !== null && log.current_stock !== undefined ? log.current_stock : '--'}
                                         </td>
                                         <td className="px-6 py-4">
                                             {log.task ? (

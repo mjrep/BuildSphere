@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
+import useAuth from '../../hooks/useAuth';
 
 const navItems = [
     {
@@ -39,9 +40,26 @@ const navItems = [
             </svg>
         ),
     },
+    {
+        label: 'Personnel',
+        to: '/personnel',
+        roles: ['CEO', 'COO', 'HR'],
+        icon: (
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        ),
+    },
 ];
 
 export default function Sidebar({ onLogout }) {
+    const { user } = useAuth();
+
+    const filteredItems = navItems.filter(item => {
+        if (!item.roles) return true;
+        return item.roles.includes(user?.role);
+    });
+
     return (
         <aside className="w-64 flex flex-col bg-white border-r border-[#F0F0F8] shadow-sm h-full shrink-0">
             {/* Logo */}
@@ -52,7 +70,7 @@ export default function Sidebar({ onLogout }) {
 
             {/* Nav links */}
             <nav className="flex-1 px-3 py-6 space-y-1">
-                {navItems.map((item) => (
+                {filteredItems.map((item) => (
                     <NavLink
                         key={item.to}
                         to={item.to}

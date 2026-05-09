@@ -14,43 +14,33 @@ BuildSphere has transitioned from a standard CRUD architecture to a **Reactive L
 
 ---
 
-## 📊 2. Progress Logic (The Source of Truth)
-Mobile implementations must adhere to the following mathematical constraints for progress rollups:
+## 📦 2. Inventory Ledger API Contract
+Direct updates to `current_stock` in `project_inventory_items` are strictly prohibited. All stock modifications must go through the transaction ledger.
 
-### Progress Formulas
-1. **Milestone Progress ($P_{ms}$)**:
-   For milestones with both quantities and tasks:
-   $$P_{ms} = \frac{\left( \frac{Q_{current}}{Q_{target}} \times 100 \right) + \text{avg}(T_{completion})}{2}$$
-   *Where $Q$ is quantity and $T$ is task completion percentage.*
+### Database Trigger Change (CRITICAL)
+The trigger `trg_update_inventory_stock` has been updated to **BEFORE INSERT**.
+- It now automatically calculates the running balance and populates the `current_stock` field in the `project_inventory_logs` record itself.
+- **Mobile Action**: When displaying history, include the `current_stock` column to show the running balance after each transaction.
 
-2. **Phase Progress ($P_{phase}$)**:
-   $$P_{phase} = \sum (P_{ms} \times W_{ms})$$
-   *Where $W_{ms}$ is the milestone's `weight_percentage` within the phase.*
+### Transaction Logic Updates
+1. **Remove ADJUSTMENT**: The `ADJUSTMENT` action type is deprecated and removed from the UI. Only `RECEIVING`, `CONSUMPTION`, and `SPOILAGE` are supported.
+2. **Mandatory Confirmation**: Mobile UI must implement a two-step confirmation process for logging transactions.
+3. **Irreversibility Warning**: Explicitly display a warning: *"This transaction is irreversible once logged. Ensure all data is accurate before finalizing."*
 
-### Strict Weighting Rule
-- **Normalization**: The sum of all $W_{ms}$ within a single Phase **MUST exactly equal 100%**.
-- **Enforcement**: Mobile UI must prevent submission if the total weight of child milestones $\neq 100\%$.
-
----
-
-## 📦 3. Inventory Ledger API Contract
-Direct updates to `current_stock` are strictly prohibited. All stock modifications must go through the transaction ledger.
-
-### Endpoint: `POST /api/projects/:projectId/inventory/:itemId/transaction`
+### Endpoint: `PATCH /api/projects/:projectId/inventory/:itemId/stock`
 **Required Payload (JSON)**:
 ```json
 {
-  "action_type": "RECEIVING" | "CONSUMPTION" | "SPOILAGE" | "ADJUSTMENT",
-  "quantity": number, // Must be > 0. Trigger handles the sign.
+  "action_type": "RECEIVING" | "CONSUMPTION" | "SPOILAGE",
+  "quantity": number, // Must be > 0.
   "reference_task_id": "UUID", // REQUIRED if action_type === 'CONSUMPTION'
   "notes": "string"
 }
 ```
-**Constraint**: The database trigger `trg_update_inventory_stock` automatically updates `project_inventory_items.current_stock` based on the `action_type`.
 
 ---
 
-## 🔔 4. Notification Realtime Specs
+## 🔔 3. Notification Realtime Specs
 Real-time alerts use Supabase Postgres Changes on the `notifications` table.
 
 ### Subscription Configuration
@@ -61,19 +51,20 @@ Real-time alerts use Supabase Postgres Changes on the `notifications` table.
 
 ---
 
-## 🔑 5. Global Constants (Enums)
+## 🔑 4. Global Constants (Enums)
 To ensure parity with the Express backend, use the following exact strings:
 
-- **Action Types**: `RECEIVING`, `CONSUMPTION`, `SPOILAGE`, `ADJUSTMENT`.
+- **Action Types**: `RECEIVING`, `CONSUMPTION`, `SPOILAGE`. (Note: `ADJUSTMENT` is removed).
 - **Project Status**: `proposed`, `active`, `completed`.
 - **Task Status**: `todo`, `in_progress`, `in_review`, `completed`.
 - **User Roles**: `CEO`, `COO`, `Project Engineer`, `Project Coordinator`, `Foreman`, `Procurement`, `Accounting`.
 
 ---
 
-## 🤖 Developer AI Instruction
-> **IMPORTANT**: Use the data above as the primary technical constraint for all implementation suggestions.
-> 1. **DO NOT** suggest direct stock updates to `current_stock`.
-> 2. **DO NOT** suggest unweighted progress averages for phases.
-> 3. **DO NOT** use native WebSockets; always use `supabase.channel()` for realtime.
-> 4. **DO** enforce task-linking for all material consumption.
+## 🤖 Developer AI Instruction (Mobile Update)
+> **IMPORTANT**: The inventory system has been tightened.
+> 1. **DO NOT** use `ADJUSTMENT` action types.
+> 2. **DO** add a "Current Stock" column to all inventory history lists (ledger).
+> 3. **DO** implement a confirmation modal/stage before calling the stock update API.
+> 4. **DO** show a transaction summary and the "irreversible" warning in the confirmation stage.
+> 5. **DO** remove status prefixes (like `[todo]`) from task selection labels in the inventory modal.

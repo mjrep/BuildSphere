@@ -37,7 +37,7 @@ export default function ReportsPage() {
     };
 
     return (
-        <DashboardLayout pageTitle="Reports">
+        <DashboardLayout pageTitle="Reports" noPadding={view === 'preview'}>
             <Toaster position="top-right" />
             <div className="min-h-full">
                 {view === 'builder' && (

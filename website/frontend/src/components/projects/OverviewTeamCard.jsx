@@ -20,7 +20,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [users, setUsers] = useState([]);
     const [selectedUserId, setSelectedUserId] = useState('');
-    const [roleInProject, setRoleInProject] = useState('');
+    const [filterRole, setFilterRole] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const members = project.team_members || [];
@@ -39,9 +39,10 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
         
         setIsSubmitting(true);
         try {
+            const selectedUser = users.find(u => u.id === selectedUserId);
             await api.post(`/projects/${project.id}/team`, {
                 user_id: selectedUserId,
-                role_in_project: roleInProject
+                role_in_project: selectedUser?.role || ''
             });
             toast.success('Team member added successfully');
             setIsModalOpen(false);
@@ -113,6 +114,22 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                         <h3 className="text-lg font-bold mb-4">Add Team Member</h3>
                         <form onSubmit={handleAddMember} className="space-y-4">
                             <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-1">User Role</label>
+                                <select 
+                                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] bg-gray-50"
+                                    value={filterRole}
+                                    onChange={(e) => {
+                                        setFilterRole(e.target.value);
+                                        setSelectedUserId('');
+                                    }}
+                                >
+                                    <option value="">All Roles</option>
+                                    {['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement', 'Accounting', 'HR', 'Sales'].map(r => (
+                                        <option key={r} value={r}>{r}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-1">Select User</label>
                                 <select 
                                     className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF]"
@@ -121,20 +138,16 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                                     required
                                 >
                                     <option value="" disabled>Select a user...</option>
-                                    {users.map(u => (
-                                        <option key={u.id} value={u.id}>{u.name} ({u.role})</option>
-                                    ))}
+                                    {users
+                                        .filter(u => !filterRole || u.role === filterRole)
+                                        .map(u => (
+                                            <option key={u.id} value={u.id}>{u.name}</option>
+                                        ))
+                                    }
                                 </select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Role in Project (Optional)</label>
-                                <input 
-                                    type="text"
-                                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF]"
-                                    placeholder="e.g. Lead Installer"
-                                    value={roleInProject}
-                                    onChange={(e) => setRoleInProject(e.target.value)}
-                                />
+                                {filterRole && users.filter(u => u.role === filterRole).length === 0 && (
+                                    <p className="mt-1 text-xs text-red-500 font-medium">No users found with this role.</p>
+                                )}
                             </div>
                             <div className="pt-2 flex justify-end gap-3">
                                 <button

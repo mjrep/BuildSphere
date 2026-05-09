@@ -114,6 +114,12 @@ class AuthController {
         .eq('email', email)
         .single();
         
+      if (userData && userData.is_active === false) {
+        return res.status(403).json({ 
+          message: 'This account has been deactivated. Please contact HR or your Administrator.' 
+        });
+      }
+
       // Flatten user metadata if we are using the Auth user object instead of the public DB record
       const userToReturn = userData || data.user;
       if (!userData && data.user?.user_metadata) {

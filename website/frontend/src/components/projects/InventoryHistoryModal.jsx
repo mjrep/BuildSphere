@@ -96,6 +96,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date & Time</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Quantity</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Current Stock</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Details</th>
                                 </tr>
                             </thead>
@@ -115,6 +116,9 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                         </td>
                                         <td className={`px-6 py-5 text-right font-bold text-sm ${getQuantityColor(log.action_type)}`}>
                                             {['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? '+' : '-'}{log.quantity}
+                                        </td>
+                                        <td className="px-6 py-5 text-right font-bold text-xs text-gray-600">
+                                            {log.current_stock !== null && log.current_stock !== undefined ? log.current_stock : '--'}
                                         </td>
                                         <td className="px-6 py-5">
                                             <div className="max-w-[180px]">

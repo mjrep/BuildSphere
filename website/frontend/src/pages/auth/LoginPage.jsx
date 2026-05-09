@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import api from '../../services/api';
+import useAuth from '../../hooks/useAuth';
 
 export default function LoginPage() {
     const navigate = useNavigate();
+    const { refreshUser } = useAuth();
 
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
@@ -22,6 +24,7 @@ export default function LoginPage() {
 
         try {
             await api.post('/login', form);
+            await refreshUser(); // Update global auth state
             navigate('/dashboard');
         } catch (err) {
             console.error('Login failed:', err);
@@ -44,9 +47,6 @@ export default function LoginPage() {
                     <h1 className="text-3xl font-bold text-[#1A1A1A] mb-2 text-center">
                         Log in to BuildSphere
                     </h1>
-                    <p className="text-[#A1A1A1] text-base">
-                        Don't have an account? <Link to="/signup" className="text-[#706BFF] font-medium hover:underline">Sign up</Link>
-                    </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-8">

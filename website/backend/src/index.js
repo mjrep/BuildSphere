@@ -32,15 +32,23 @@ const { TaskAttachmentController, uploadMiddleware } = require('./controllers/Ta
 const { TaskProgressLogController, progressUploadMiddleware } = require('./controllers/TaskProgressLogController');
 const ReportController = require('./controllers/ReportController');
 const NotificationController = require('./controllers/NotificationController');
+const AdminUserController = require('./controllers/AdminUserController');
+const { ProjectFileController, projectFileUploadMiddleware } = require('./controllers/ProjectFileController');
 
 const authenticateToken = require('./middleware/auth');
 const projectLock = require('./middleware/projectLock');
 
 // Auth Routes
 app.post('/api/login', authController.login);
-app.post('/api/register', authController.register);
+// app.post('/api/register', authController.register); // Public registration disabled
 app.post('/api/logout', authController.logout);
 app.get('/api/users', authenticateToken, authController.index);
+
+// Admin Personnel Management
+app.get('/api/admin/users', authenticateToken, AdminUserController.index);
+app.post('/api/admin/users/invite', authenticateToken, AdminUserController.invite);
+app.patch('/api/admin/users/:id/status', authenticateToken, AdminUserController.toggleStatus);
+app.patch('/api/admin/users/:id/role', authenticateToken, AdminUserController.updateRole);
 
 // Protected Core Routes
 app.get('/api/dashboard/stats', authenticateToken, dashboardController.stats);
@@ -70,6 +78,11 @@ app.put('/api/projects/:id', authenticateToken, projectLock('id'), projectContro
 app.patch('/api/projects/:id/complete', authenticateToken, projectController.complete);
 app.delete('/api/projects/:id', authenticateToken, projectLock('id'), projectController.destroy);
 app.post('/api/projects/:id/team', authenticateToken, projectLock('id'), projectController.addTeamMember);
+
+// Project Files
+app.get('/api/projects/:id/files', authenticateToken, ProjectFileController.index);
+app.post('/api/projects/:id/files', authenticateToken, projectLock('id'), projectFileUploadMiddleware, ProjectFileController.store);
+app.delete('/api/projects/:id/files/:file', authenticateToken, projectLock('id'), ProjectFileController.destroy);
 
 // Approvals
 app.post('/api/projects/:project/accounting-approval', authenticateToken, projectApprovalController.accountingApproval);

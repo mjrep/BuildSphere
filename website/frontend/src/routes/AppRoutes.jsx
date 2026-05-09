@@ -14,6 +14,7 @@ import ProjectApprovalPage from '../pages/ProjectApprovalPage';
 import TasksPage from '../pages/TasksPage';
 import ReportsPage from '../pages/ReportsPage';
 import ProfilePage from '../pages/ProfilePage';
+import UserManagementPage from '../pages/admin/UserManagementPage';
 import useAuth from '../hooks/useAuth';
 
 function ProtectedRoute({ children }) {
@@ -40,7 +41,7 @@ export default function AppRoutes() {
             <Routes>
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/signup" element={<Navigate to="/login" replace />} />
                 <Route
                     path="/dashboard"
                     element={
@@ -59,6 +60,7 @@ export default function AppRoutes() {
                 <Route path="/projects/:id/approval"  element={<ProtectedRoute><ProjectApprovalPage /></ProtectedRoute>} />
                 <Route path="/tasks"                  element={<ProtectedRoute><TasksPage /></ProtectedRoute>} />
                 <Route path="/reports"                element={<ProtectedRoute><ReportsPage /></ProtectedRoute>} />
+                <Route path="/personnel"              element={<ProtectedRoute><UserManagementPage /></ProtectedRoute>} />
                 <Route path="/profile"                element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             </Routes>
         </BrowserRouter>
