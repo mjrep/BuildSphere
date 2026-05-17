@@ -1,10 +1,16 @@
-const { applyTaskVisibility } = require('../utils/visibility');
+const { applyTaskVisibility, getAllVisibleProjectIds, getSalesProjectIds } = require('../utils/visibility');
 
 class TaskQueryService {
   /**
    * Build a base query with all eager loads for list/kanban view, enforcing visibility.
    */
-  static applyBaseQuery(query, user) {
+  static async applyBaseQuery(supabase, query, user) {
+    const allVisibleProjectIds = await getAllVisibleProjectIds(supabase, user);
+    let salesProjectIds = [];
+    if (user.role === 'Sales') {
+      salesProjectIds = await getSalesProjectIds(supabase, user.id);
+    }
+
     // Add relation selections
     let baseQuery = query.select(`
       *,
@@ -17,9 +23,9 @@ class TaskQueryService {
     `, { count: 'exact' });
 
     // Enforce visibility using the shared utility
-    baseQuery = applyTaskVisibility(baseQuery, user);
+    baseQuery = applyTaskVisibility(baseQuery, user, allVisibleProjectIds, salesProjectIds);
 
-    return baseQuery;
+    return { query: baseQuery };
   }
 
   /**

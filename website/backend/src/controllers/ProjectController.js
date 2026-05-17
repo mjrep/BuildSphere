@@ -1,7 +1,7 @@
 const MilestoneService = require('../services/MilestoneService');
 const EvmService = require('../services/EvmService');
 const AiAssessmentService = require('../services/AiAssessmentService');
-const { applyProjectVisibility } = require('../utils/visibility');
+const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
 const NotificationService = require('../services/NotificationService');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -31,7 +31,8 @@ class ProjectController {
         `, { count: 'exact' });
 
       // Apply granular visibility based on user role
-      query = applyProjectVisibility(query, req.user);
+      const memberProjectIds = await getMemberProjectIds(supabaseWithAuth, req.user.id);
+      query = applyProjectVisibility(query, req.user, memberProjectIds);
 
       // BuildSphere filters mappings
       if (search) {
@@ -105,7 +106,8 @@ class ProjectController {
         .eq('id', id);
 
       // Apply visibility check
-      query = applyProjectVisibility(query, req.user);
+      const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
+      query = applyProjectVisibility(query, req.user, memberProjectIds);
 
       const { data: project, error } = await query.single();
 
@@ -514,8 +516,9 @@ class ProjectController {
       const supabase = ProjectController.getSupabaseWithAuth(req);
 
       // Check visibility first
+      const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
       let visibleQuery = supabase.from('projects').select('id').eq('id', id);
-      visibleQuery = applyProjectVisibility(visibleQuery, req.user);
+      visibleQuery = applyProjectVisibility(visibleQuery, req.user, memberProjectIds);
       const { data: isVisible } = await visibleQuery.single();
 
       if (!isVisible) {
@@ -535,8 +538,9 @@ class ProjectController {
       const { id } = req.params;
 
       // Check visibility as a safety measure
+      const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
       let visibleQuery = supabase.from('projects').select('id').eq('id', id);
-      visibleQuery = applyProjectVisibility(visibleQuery, req.user);
+      visibleQuery = applyProjectVisibility(visibleQuery, req.user, memberProjectIds);
       const { data: isVisible } = await visibleQuery.single();
 
       if (!isVisible) {

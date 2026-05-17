@@ -158,9 +158,21 @@ export default function ProjectsPage() {
                     </div>
                 </form>
 
-                {/* Loading */}
+                {/* Loading Skeletons */}
                 {loading ? (
-                    <div className="text-center py-16 text-text-muted text-sm">Loading projects...</div>
+                    view === 'grid' ? (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 animate-pulse">
+                            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                                <div key={i} className="h-44 bg-bg-secondary rounded-2xl border border-border-primary/50" />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="space-y-3 animate-pulse">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div key={i} className="h-12 bg-bg-secondary rounded-xl" />
+                            ))}
+                        </div>
+                    )
                 ) : projects.length === 0 ? (
                     <div className="text-center py-16">
                         <p className="text-text-muted text-sm">No projects found.</p>

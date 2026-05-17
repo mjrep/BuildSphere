@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
-const { applyProjectVisibility } = require('../utils/visibility');
+const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
 const NotificationService = require('../services/NotificationService');
 
 dotenv.config();
@@ -32,7 +32,8 @@ class ProjectInventoryController {
 
       // 1. Check Visibility first
       let projectQuery = supabaseWithAuth.from('projects').select('id').eq('id', projectId);
-      projectQuery = applyProjectVisibility(projectQuery, req.user);
+      const memberProjectIds = await getMemberProjectIds(supabaseWithAuth, req.user.id);
+      projectQuery = applyProjectVisibility(projectQuery, req.user, memberProjectIds);
       const { data: isVisible } = await projectQuery.single();
 
       if (!isVisible) {

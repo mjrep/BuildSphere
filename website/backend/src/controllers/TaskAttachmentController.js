@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
-const { applyTaskVisibility } = require('../utils/visibility');
+const { applyTaskVisibility, getAllVisibleProjectIds, getSalesProjectIds } = require('../utils/visibility');
 
 // Configure multer for memory storage (we will bounce it straight up to Supabase)
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 50 * 1024 * 1024 } });
@@ -20,8 +20,12 @@ class TaskAttachmentController {
       const { task: taskId } = req.params;
 
       // 1. Check Task Visibility first
-      let taskQuery = supabase.from('tasks').select('id').eq('id', taskId);
-      taskQuery = applyTaskVisibility(taskQuery, req.user);
+      const allVisibleProjectIds = await getAllVisibleProjectIds(supabase, req.user);
+      let salesProjectIds = [];
+      if (req.user.role === 'Sales') {
+        salesProjectIds = await getSalesProjectIds(supabase, req.user.id);
+      }
+      taskQuery = applyTaskVisibility(taskQuery, req.user, allVisibleProjectIds, salesProjectIds);
       const { data: isVisible } = await taskQuery.single();
 
       if (!isVisible) {

@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const TaskQueryService = require('../services/TaskQueryService');
-const { applyProjectVisibility } = require('../utils/visibility');
+const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
 const NotificationService = require('../services/NotificationService');
 
 class TaskController {
@@ -25,7 +25,8 @@ class TaskController {
       const supabase = TaskController.getSupabaseWithAuth(req);
       
       let query = supabase.from('tasks');
-      query = TaskQueryService.applyBaseQuery(query, req.user);
+      const result = await TaskQueryService.applyBaseQuery(supabase, query, req.user);
+      query = result.query;
       query = TaskQueryService.applyFilters(query, req.query);
       query = TaskQueryService.applySort(query, req.query.sort);
 
@@ -61,7 +62,8 @@ class TaskController {
         .from('projects')
         .select('id, project_name, project_code');
       
-      query = applyProjectVisibility(query, req.user);
+      const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
+      query = applyProjectVisibility(query, req.user, memberProjectIds);
 
       const { data: projectsData, error } = await query.order('project_name', { ascending: true });
       if (error) throw error;

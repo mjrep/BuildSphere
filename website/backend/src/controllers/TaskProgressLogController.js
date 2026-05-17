@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
-const { applyProjectVisibility } = require('../utils/visibility');
+const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
 const NotificationService = require('../services/NotificationService');
 
 // Configure multer for single image upload
@@ -23,7 +23,8 @@ class TaskProgressLogController {
 
       // 1. Check Visibility first
       let projectQuery = supabase.from('projects').select('id').eq('id', projectId);
-      projectQuery = applyProjectVisibility(projectQuery, req.user);
+      const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
+      projectQuery = applyProjectVisibility(projectQuery, req.user, memberProjectIds);
       const { data: isVisible } = await projectQuery.single();
 
       if (!isVisible) {

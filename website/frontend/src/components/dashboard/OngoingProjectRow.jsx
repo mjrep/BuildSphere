@@ -9,11 +9,18 @@ const statusStyles = {
 export default function OngoingProjectRow({ project_name, status, progress, daysLeft }) {
     const badgeClass = statusStyles[status] ?? 'bg-gray-400 text-white';
 
+    const cleanProjectName = (name) => {
+        if (!name) return '';
+        return name.replace(/^PRJ-[A-Z0-9-]+\s*\/\s*/i, '');
+    };
+
     return (
         <div className="bg-bg-secondary rounded-2xl p-4 mb-3 flex flex-col justify-center min-h-[96px] transition-colors duration-200">
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                    <p className="text-sm font-bold text-text-primary max-w-[200px] truncate" title={project_name}>{project_name}</p>
+                    <p className="text-sm font-bold text-text-primary max-w-[200px] truncate" title={project_name}>
+                        {cleanProjectName(project_name)}
+                    </p>
                     <span className={`text-xs font-semibold px-3 py-1 rounded-full ${badgeClass}`}>
                         {status}
                     </span>
