@@ -18,7 +18,7 @@ export default function DeleteInventoryItemModal({ project, item, onClose, onSuc
 
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm relative p-8 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-sm relative p-8 flex flex-col items-center animate-in fade-in zoom-in-95 duration-200">
                 {/* Warning Icon */}
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-6">
                     <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center text-red-600">
@@ -28,9 +28,9 @@ export default function DeleteInventoryItemModal({ project, item, onClose, onSuc
                     </div>
                 </div>
                 
-                <h3 className="text-xl font-bold text-[#1A1A1A] mb-2 text-center">Delete this item?</h3>
+                <h3 className="text-xl font-bold text-text-primary mb-2 text-center">Delete this item?</h3>
                 <p className="text-sm text-gray-500 mb-8 text-center px-4">
-                    Are you sure you want to delete <span className="font-bold text-[#1A1A1A]">"{item.item_name}"</span>? This action cannot be undone.
+                    Are you sure you want to delete <span className="font-bold text-text-primary">"{item.item_name}"</span>? This action cannot be undone.
                 </p>
                 
                 <div className="grid grid-cols-2 gap-3 w-full">

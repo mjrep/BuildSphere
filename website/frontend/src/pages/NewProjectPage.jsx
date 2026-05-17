@@ -117,10 +117,10 @@ export default function NewProjectPage() {
     };
 
     const inputClass = (field) =>
-        `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-[#C1C1C1] ${
+        `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted ${
             errors[field]
                 ? 'border-red-400 focus:ring-red-200'
-                : 'border-[#E8E8FF] focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
+                : 'border-border-primary focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
         }`;
 
     return (
@@ -128,7 +128,7 @@ export default function NewProjectPage() {
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/projects')} 
-                    className="p-2 -ml-2 rounded-lg text-[#1A1A1A] hover:bg-gray-100 transition-colors"
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -136,9 +136,9 @@ export default function NewProjectPage() {
             </div>
         }>
             <div className="max-w-4xl mx-auto pb-12">
-                <div className="bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-[#F0F0F8] overflow-hidden">
+                <div className="bg-card rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-primary overflow-hidden">
                     {/* Header Banner */}
-                    <div className="bg-[#706BFF] px-8 py-10 text-white relative overflow-hidden">
+                    <div className="bg-accent px-8 py-10 text-white relative overflow-hidden">
                         <div className="relative z-10">
                             <h2 className="text-2xl font-bold mb-2">Create New Project</h2>
                             <p className="text-white/80 text-sm max-w-md">
@@ -146,21 +146,21 @@ export default function NewProjectPage() {
                             </p>
                         </div>
                         {/* Decorative circles */}
-                        <div className="absolute top-[-20px] right-[-20px] w-40 h-40 rounded-full bg-white/10 blur-3xl" />
-                        <div className="absolute bottom-[-40px] right-[40px] w-32 h-32 rounded-full bg-white/5 blur-2xl" />
+                        <div className="absolute top-[-20px] right-[-20px] w-40 h-40 rounded-full bg-card/10 blur-3xl" />
+                        <div className="absolute bottom-[-40px] right-[40px] w-32 h-32 rounded-full bg-card/5 blur-2xl" />
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-8 md:p-10 space-y-8">
                         {/* Section 1: Basic Info */}
                         <div className="space-y-6">
-                            <div className="flex items-center gap-2 pb-2 border-b border-[#F0F0F8]">
-                                <Briefcase className="w-4 h-4 text-[#706BFF]" />
-                                <h3 className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wider">Basic Information</h3>
+                            <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
+                                <Briefcase className="w-4 h-4 text-accent" />
+                                <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Basic Information</h3>
                             </div>
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Project Name</label>
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Project Name</label>
                                     <div className="relative">
                                         <input type="text" name="project_name" value={form.project_name} onChange={handleChange}
                                                placeholder="e.g., Sky Garden Condominium" className={inputClass('project_name')} />
@@ -168,7 +168,7 @@ export default function NewProjectPage() {
                                     {errors.project_name && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.project_name[0]}</p>}
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Client / Company</label>
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Client / Company</label>
                                     <div className="relative">
                                         <input type="text" name="client_name" value={form.client_name} onChange={handleChange}
                                                placeholder="Enter client name" className={inputClass('client_name')} />
@@ -178,8 +178,8 @@ export default function NewProjectPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-semibold text-[#4A4A4A] ml-1 flex items-center gap-1.5">
-                                    <MapPin className="w-3.5 h-3.5 text-[#A1A1A1]" />
+                                <label className="block text-sm font-semibold text-text-secondary ml-1 flex items-center gap-1.5">
+                                    <MapPin className="w-3.5 h-3.5 text-text-muted" />
                                     Address
                                 </label>
                                 <input type="text" name="address" value={form.address} onChange={handleChange}
@@ -188,8 +188,8 @@ export default function NewProjectPage() {
                             </div>
 
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-semibold text-[#4A4A4A] ml-1 flex items-center gap-1.5">
-                                    <AlignLeft className="w-3.5 h-3.5 text-[#A1A1A1]" />
+                                <label className="block text-sm font-semibold text-text-secondary ml-1 flex items-center gap-1.5">
+                                    <AlignLeft className="w-3.5 h-3.5 text-text-muted" />
                                     Project Description
                                 </label>
                                 <textarea name="description" value={form.description} onChange={handleChange} rows="4"
@@ -202,32 +202,32 @@ export default function NewProjectPage() {
                         {/* Section 2: Financials & Dates */}
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-4">
                             <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-[#F0F0F8]">
-                                    <DollarSign className="w-4 h-4 text-[#706BFF]" />
-                                    <h3 className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wider">Financials</h3>
+                                <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
+                                    <DollarSign className="w-4 h-4 text-accent" />
+                                    <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Financials</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Contract Price</label>
+                                        <label className="block text-sm font-semibold text-text-secondary ml-1">Contract Price</label>
                                         <div className="relative group">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                             <input type="text" name="contract_price" value={formatNumber(form.contract_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_price') + " pl-8"} />
                                         </div>
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Unit Price</label>
+                                        <label className="block text-sm font-semibold text-text-secondary ml-1">Unit Price</label>
                                         <div className="relative group">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                             <input type="text" name="contract_unit_price" value={formatNumber(form.contract_unit_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_unit_price') + " pl-8"} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Budget for Materials</label>
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Budget for Materials</label>
                                     <div className="relative group">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-[#706BFF] transition-colors">₱</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                         <input type="text" name="budget_for_materials" value={formatNumber(form.budget_for_materials)} onChange={handleChange}
                                                placeholder="0.00" className={inputClass('budget_for_materials') + " pl-8"} />
                                     </div>
@@ -235,38 +235,38 @@ export default function NewProjectPage() {
                             </div>
 
                             <div className="space-y-6">
-                                <div className="flex items-center gap-2 pb-2 border-b border-[#F0F0F8]">
-                                    <Calendar className="w-4 h-4 text-[#706BFF]" />
-                                    <h3 className="text-sm font-bold text-[#1A1A1A] uppercase tracking-wider">Timeline</h3>
+                                <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
+                                    <Calendar className="w-4 h-4 text-accent" />
+                                    <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Timeline</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">Start Date</label>
+                                        <label className="block text-sm font-semibold text-text-secondary ml-1">Start Date</label>
                                         <input type="date" name="start_date" value={form.start_date} onChange={handleChange}
                                                className={inputClass('start_date')} />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="block text-sm font-semibold text-[#4A4A4A] ml-1">End Date</label>
+                                        <label className="block text-sm font-semibold text-text-secondary ml-1">End Date</label>
                                         <input type="date" name="end_date" value={form.end_date} onChange={handleChange}
                                                className={inputClass('end_date')} />
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#4A4A4A] ml-1 flex items-center gap-1.5">
-                                        <User className="w-3.5 h-3.5 text-[#A1A1A1]" />
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1 flex items-center gap-1.5">
+                                        <User className="w-3.5 h-3.5 text-text-muted" />
                                         Project-in-Charge
                                     </label>
                                     <div className="relative">
                                         <select name="project_in_charge_id" value={form.project_in_charge_id} onChange={handleChange}
                                                 className={`${inputClass('project_in_charge_id')} appearance-none pr-10 ${
-                                                    form.project_in_charge_id ? 'text-[#1A1A1A]' : 'text-[#C1C1C1]'
+                                                    form.project_in_charge_id ? 'text-text-primary' : 'text-text-muted'
                                                 }`}>
                                             <option value="">Select an engineer</option>
                                             {users.map((u) => (
                                                 <option key={u.id} value={u.id}>{u.name}</option>
                                             ))}
                                         </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-[#A1A1A1]">
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-text-muted">
                                             <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
                                                 <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                             </svg>
@@ -278,20 +278,20 @@ export default function NewProjectPage() {
                         </div>
 
                         {/* Submit button */}
-                        <div className="pt-6 border-t border-[#F0F0F8] flex items-center justify-end gap-4">
+                        <div className="pt-6 border-t border-border-primary flex items-center justify-end gap-4">
                             <button
                                 type="button"
                                 onClick={() => navigate('/projects')}
-                                className="px-8 py-3.5 text-sm font-bold text-[#A1A1A1] hover:text-[#706BFF] transition-colors"
+                                className="px-8 py-3.5 text-sm font-bold text-text-muted hover:text-accent transition-colors"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="bg-[#706BFF] hover:bg-[#5B55E6] disabled:opacity-60 text-white
+                                className="bg-accent hover:opacity-90 disabled:opacity-60 text-white
                                            font-bold py-3.5 px-12 rounded-2xl transition-all flex items-center gap-2
-                                           shadow-[0_8px_25px_rgba(112,107,255,0.3)] active:scale-[0.98]"
+                                           shadow-lg shadow-accent/20 active:scale-[0.98]"
                             >
                                 {saving ? (
                                     <>

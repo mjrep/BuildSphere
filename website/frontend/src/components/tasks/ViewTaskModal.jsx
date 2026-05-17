@@ -16,8 +16,8 @@ import toast from 'react-hot-toast';
 
 function Section({ title, children }) {
     return (
-        <div className="border-t border-[#F0F0F8] pt-4 mt-4">
-            <p className="text-xs font-semibold text-[#9090A8] uppercase tracking-wider mb-3">{title}</p>
+        <div className="border-t border-border-primary pt-4 mt-4">
+            <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">{title}</p>
             {children}
         </div>
     );
@@ -27,7 +27,7 @@ function Detail({ label, value }) {
     return (
         <div className="flex gap-2 items-start">
             <span className="text-xs text-[#A0A0C0] w-24 flex-shrink-0 pt-0.5">{label}</span>
-            <span className="text-sm text-[#1A1A2E] font-medium flex-1">{value ?? '—'}</span>
+            <span className="text-sm text-text-primary font-medium flex-1">{value ?? '—'}</span>
         </div>
     );
 }
@@ -51,9 +51,9 @@ function ProgressVisualizer({ task, isQuantifiable }) {
         isComplete = current_quantity >= target_quantity;
         labelText = (
             <>
-                <span className="text-[#1A1A2E] font-bold">{current_quantity}</span>
+                <span className="text-text-primary font-bold">{current_quantity}</span>
                 {' out of '}
-                <span className="text-[#1A1A2E] font-bold">{target_quantity}</span>
+                <span className="text-text-primary font-bold">{target_quantity}</span>
                 {' '}{unit_of_measure || 'units'} completed
             </>
         );
@@ -75,20 +75,20 @@ function ProgressVisualizer({ task, isQuantifiable }) {
     }
 
     return (
-        <div className="bg-gradient-to-br from-[#F8F8FC] to-[#F0F0FF] rounded-xl p-4 mb-4 border border-[#E8E8FF]">
+        <div className="bg-bg-tertiary rounded-2xl p-5 mb-5 border border-border-primary/50 shadow-inner">
             {/* Header row */}
-            <div className="flex items-center justify-between mb-2.5">
-                <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center">
-                        <TrendingUp size={14} className="text-indigo-500" />
+            <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-xl bg-accent/20 flex items-center justify-center">
+                        <TrendingUp size={16} className="text-accent" />
                     </div>
-                    <span className="text-xs font-bold text-[#1A1A2E] uppercase tracking-wide">Task Progress</span>
+                    <span className="text-[11px] font-black text-text-primary uppercase tracking-widest">Task Progress</span>
                 </div>
                 <span className={`
-                    text-xs font-bold px-2.5 py-1 rounded-full
+                    text-xs font-black px-3 py-1 rounded-full
                     ${isComplete
-                        ? 'bg-emerald-100 text-emerald-600'
-                        : 'bg-indigo-100 text-indigo-600'
+                        ? 'bg-emerald-500/20 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
+                        : 'bg-accent/20 text-accent shadow-[0_0_10px_rgba(124,116,255,0.2)]'
                     }
                 `}>
                     {pct}%
@@ -96,19 +96,19 @@ function ProgressVisualizer({ task, isQuantifiable }) {
             </div>
 
             {/* Progress bar */}
-            <div className="w-full h-2.5 bg-white rounded-full overflow-hidden border border-[#E8E8FF] mb-2">
+            <div className="w-full h-3 bg-bg-primary rounded-full overflow-hidden border border-border-primary/50 mb-3 shadow-inner">
                 <div
-                    className={`h-full rounded-full transition-all duration-700 ease-out ${
+                    className={`h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(124,116,255,0.3)] ${
                         isComplete
                             ? 'bg-gradient-to-r from-emerald-400 to-emerald-500'
-                            : 'bg-gradient-to-r from-indigo-400 to-indigo-500'
+                            : 'bg-gradient-to-r from-accent to-indigo-400'
                     }`}
                     style={{ width: `${pct}%` }}
                 />
             </div>
 
             {/* Quantity text */}
-            <p className="text-xs text-[#6B6B8A] font-medium">
+            <p className="text-[11px] text-text-muted font-bold tracking-tight">
                 {labelText}
             </p>
         </div>
@@ -154,7 +154,7 @@ function EvidenceLightbox({ src, onClose }) {
             <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
                 <button
                     onClick={onClose}
-                    className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                    className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-card rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
                 >
                     <XIcon size={16} />
                 </button>
@@ -187,7 +187,7 @@ function ProgressHistory({ logs, unitOfMeasure }) {
                 {logs.map((log, idx) => (
                     <div
                         key={log.id}
-                        className="group flex items-start gap-3 p-3 rounded-xl bg-[#FAFAFC] hover:bg-[#F4F4FC] border border-transparent hover:border-[#E8E8FF] transition-all duration-150"
+                        className="group flex items-start gap-3 p-4 rounded-2xl bg-bg-secondary hover:bg-bg-hover border border-border-primary/30 transition-all duration-200"
                     >
                         {/* Timeline dot */}
                         <div className="flex flex-col items-center pt-1 flex-shrink-0">
@@ -208,7 +208,7 @@ function ProgressHistory({ logs, unitOfMeasure }) {
                                             {getUserInitials(log.user?.name ?? '?')}
                                         </span>
                                     </div>
-                                    <span className="text-xs font-semibold text-[#1A1A2E]">
+                                    <span className="text-xs font-semibold text-text-primary">
                                         {log.user?.name ?? 'Unknown'}
                                     </span>
                                 </div>
@@ -234,7 +234,7 @@ function ProgressHistory({ logs, unitOfMeasure }) {
                             {log.evidence_image_path && (
                                 <button
                                     onClick={() => setLightboxSrc(log.evidence_image_path)}
-                                    className="mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-[#E8E8FF] hover:border-indigo-300 hover:shadow-sm transition-all group/thumb"
+                                    className="mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border border-border-primary hover:border-indigo-300 hover:shadow-sm transition-all group/thumb"
                                 >
                                     <div className="w-8 h-8 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
                                         <img
@@ -317,9 +317,9 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
     if (loading) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-10 text-center">
-                    <div className="w-8 h-8 border-2 border-[#5B5BD6] border-t-transparent rounded-full animate-spin mx-auto" />
-                    <p className="text-sm text-[#9090A8] mt-3">Loading task…</p>
+                <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg p-10 text-center">
+                    <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin mx-auto" />
+                    <p className="text-sm text-text-muted mt-3">Loading task…</p>
                 </div>
             </div>
         );
@@ -349,12 +349,12 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
             onClick={e => { if (e.target === e.currentTarget) onClose(); }}
         >
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
+            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto">
                 {/* Modal header */}
-                <div className="sticky top-0 bg-white rounded-t-2xl flex items-center gap-3 px-6 py-4 border-b border-[#F0F0F8] z-10">
+                <div className="sticky top-0 bg-card rounded-t-2xl flex items-center gap-3 px-6 py-4 border-b border-border-primary z-10">
                     <div className="flex-1 min-w-0">
                         {breadcrumb && (
-                            <p className="text-[10px] font-medium text-[#9090A8] truncate mb-1">{breadcrumb}</p>
+                            <p className="text-[10px] font-medium text-text-muted truncate mb-1">{breadcrumb}</p>
                         )}
 
                         {/* Status select + context menu: visible on top bar */}
@@ -369,15 +369,15 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                                         className="flex items-center gap-1"
                                     >
                                         <StatusBadge status={task.status} />
-                                        <ChevronDown size={12} className="text-[#9090A8]" />
+                                        <ChevronDown size={12} className="text-text-muted" />
                                     </button>
                                     {showStatusMenu && (
-                                        <div className="absolute top-full mt-1 left-0 z-20 bg-white border border-[#E0E0F0] rounded-xl shadow-lg py-1 w-40">
+                                        <div className="absolute top-full mt-1 left-0 z-20 bg-card border border-border-primary rounded-xl shadow-lg py-1 w-40">
                                             {availableStatuses.map(([k, v]) => (
                                                 <button
                                                     key={k}
                                                     onClick={() => handleStatusChange(k)}
-                                                    className="w-full text-left px-3 py-1.5 text-xs text-[#3A3A5C] hover:bg-[#F8F8FC] flex items-center gap-2"
+                                                    className="w-full text-left px-3 py-1.5 text-xs text-text-primary hover:bg-bg-tertiary flex items-center gap-2"
                                                 >
                                                     <span className={`w-1.5 h-1.5 rounded-full ${v.dot}`} />
                                                     {v.label}
@@ -394,7 +394,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
 
                     <button
                         onClick={onClose}
-                        className="text-[#9090A8] hover:text-[#3A3A5C] p-1.5 rounded-lg hover:bg-[#F0F0F8] flex-shrink-0"
+                        className="text-text-muted hover:text-text-primary p-1.5 rounded-lg hover:bg-bg-secondary flex-shrink-0"
                     >
                         <XIcon size={20} />
                     </button>
@@ -407,7 +407,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                         {/* Title and priority */}
                         <div className="flex items-start gap-3 mb-3">
                             <div className="flex-1">
-                                <h2 className="text-xl font-bold text-[#1A1A2E] leading-tight">{task.title}</h2>
+                                <h2 className="text-xl font-bold text-text-primary leading-tight">{task.title}</h2>
                             </div>
                         </div>
 
@@ -419,7 +419,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                             <svg className="w-4 h-4 text-[#A0A0C0] flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
                             </svg>
-                            <p className="text-sm text-[#3A3A5C] leading-relaxed whitespace-pre-wrap">{task.description}</p>
+                            <p className="text-sm text-text-primary leading-relaxed whitespace-pre-wrap">{task.description}</p>
                         </div>
 
                         {/* Comments */}
@@ -457,7 +457,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                         <Detail label="Due Date"    value={formatDate(task.due_date)} />
                         <Detail label="Assigned by" value={
                             <div className="flex items-center gap-1.5">
-                                <div className="w-6 h-6 rounded-full bg-[#E8E8FF] text-[#5B5BD6] text-[9px] font-bold flex items-center justify-center">
+                                <div className="w-6 h-6 rounded-full bg-accent/10 text-accent text-[9px] font-bold flex items-center justify-center">
                                     {getUserInitials(assignedByName)}
                                 </div>
                                 <span className="text-xs">{assignedByName}</span>
@@ -475,9 +475,9 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                         {/* Milestone info for quantifiable tasks */}
                         {isQuantifiable && (
                             <>
-                                <div className="border-t border-[#F0F0F8] pt-3 mt-3">
-                                    <p className="text-[10px] font-semibold text-[#9090A8] uppercase tracking-wider mb-2">Milestone</p>
-                                    <p className="text-xs font-semibold text-[#1A1A2E] mb-1">
+                                <div className="border-t border-border-primary pt-3 mt-3">
+                                    <p className="text-[10px] font-semibold text-text-muted uppercase tracking-wider mb-2">Milestone</p>
+                                    <p className="text-xs font-semibold text-text-primary mb-1">
                                         {task.milestone.name}
                                     </p>
                                     <p className="text-[11px] text-[#6B6B8A]">

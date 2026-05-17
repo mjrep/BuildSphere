@@ -59,9 +59,9 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col max-h-[85vh]">
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col max-h-[85vh]">
                 {/* Header */}
-                <div className="bg-[#706BFF] p-6 text-white shrink-0">
+                <div className="bg-accent p-6 text-white shrink-0">
                     <div className="flex justify-between items-center">
                         <div>
                             <h3 className="text-xl font-bold">Inventory History</h3>
@@ -69,7 +69,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                         </div>
                         <button 
                             onClick={onClose}
-                            className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                            className="p-2 bg-card/10 hover:bg-card/20 rounded-xl text-white transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -91,7 +91,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
-                            <thead className="sticky top-0 bg-white border-b border-gray-100 z-10">
+                            <thead className="sticky top-0 bg-card border-b border-gray-100 z-10">
                                 <tr>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date & Time</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
@@ -104,7 +104,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                 {logs.map((log) => (
                                     <tr key={log.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
                                         <td className="px-6 py-5 whitespace-nowrap">
-                                            <div className="text-xs font-bold text-[#1A1A1A]">
+                                            <div className="text-xs font-bold text-text-primary">
                                                 {formatDate(log.created_at)}
                                             </div>
                                             <div className="text-[10px] text-gray-400 mt-0.5">
@@ -123,7 +123,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                         <td className="px-6 py-5">
                                             <div className="max-w-[180px]">
                                                 {log.task && (
-                                                    <div className="text-[10px] font-bold text-[#706BFF] bg-[#E8E8FF] px-2 py-0.5 rounded-lg mb-1.5 w-fit leading-tight">
+                                                    <div className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-lg mb-1.5 w-fit leading-tight">
                                                         Task: {log.task.title}
                                                     </div>
                                                 )}
@@ -151,7 +151,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                     </p>
                     <button 
                         onClick={onClose}
-                        className="px-6 py-2 bg-white border border-gray-200 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors"
+                        className="px-6 py-2 bg-card border border-gray-200 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors"
                     >
                         Close Ledger
                     </button>

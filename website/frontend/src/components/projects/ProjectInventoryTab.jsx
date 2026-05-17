@@ -97,16 +97,16 @@ export default function ProjectInventoryTab({ project }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] w-full flex flex-col">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary w-full flex flex-col">
             {/* Header - Always visible immediately */}
-            <div className="px-6 py-5 border-b border-[#F0F0F8] flex items-center justify-between">
-                <h3 className="text-base font-bold text-[#1A1A1A]">Inventory list</h3>
+            <div className="px-6 py-5 border-b border-border-primary flex items-center justify-between">
+                <h3 className="text-base font-bold text-text-primary">Inventory list</h3>
                 <div className="flex items-center gap-3">
                     <button 
                         onClick={() => setShowMasterLedger(true)}
-                        className="px-5 py-2 bg-white border border-[#E0E0E8] text-[#1A1A1A] text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
+                        className="px-5 py-2 bg-card border border-[#E0E0E8] text-text-primary text-sm font-bold rounded-xl hover:bg-gray-50 transition-colors shadow-sm flex items-center gap-2"
                     >
-                        <svg className="w-4 h-4 text-[#706BFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                         </svg>
                         View Master Ledger
@@ -114,7 +114,7 @@ export default function ProjectInventoryTab({ project }) {
                     {canManageInventory && (
                         <button 
                             onClick={() => setShowAddModal(true)}
-                            className="px-5 py-2 bg-[#706BFF] text-white text-sm font-bold rounded-xl hover:bg-[#5B55E6] transition-colors shadow-sm shadow-[#706BFF]/20"
+                            className="px-5 py-2 bg-accent text-white text-sm font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm shadow-[#706BFF]/20"
                         >
                             Add Item
                         </button>

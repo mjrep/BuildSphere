@@ -16,13 +16,13 @@ export default function OverviewTasksCard({ tasksSummary }) {
     const strokeDashoffset = circumference - percent * circumference;
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col h-full relative">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col h-full relative">
             <div className="flex justify-between items-start mb-4">
                 <div>
-                    <h3 className="text-base font-bold text-[#1A1A1A]">Tasks</h3>
-                    <p className="text-[10px] text-[#A1A1A1] mt-0.5">as of {new Date().toLocaleDateString('en-US', { month: '2-digit', day:'2-digit', year:'2-digit' })}</p>
+                    <h3 className="text-base font-bold text-text-primary">Tasks</h3>
+                    <p className="text-[10px] text-text-muted mt-0.5">as of {new Date().toLocaleDateString('en-US', { month: '2-digit', day:'2-digit', year:'2-digit' })}</p>
                 </div>
-                <div className="bg-[#F0F0F8] rounded py-1 px-3 text-xs font-semibold text-[#1A1A1A]">
+                <div className="bg-bg-secondary rounded py-1 px-3 text-xs font-semibold text-text-primary">
                     {total}
                 </div>
             </div>
@@ -70,11 +70,11 @@ export default function OverviewTasksCard({ tasksSummary }) {
             <div className="flex justify-between items-end mt-2">
                 <div className="text-center">
                     <p className="text-sm font-bold text-[#FF5A5F]">{completed}</p>
-                    <p className="text-[11px] text-[#1A1A1A] font-semibold mt-0.5">Completed</p>
+                    <p className="text-[11px] text-text-primary font-semibold mt-0.5">Completed</p>
                 </div>
                 <div className="text-center">
-                    <p className="text-sm font-bold text-[#1A1A1A]">{total}</p>
-                    <p className="text-[11px] text-[#1A1A1A] font-semibold mt-0.5">Planned</p>
+                    <p className="text-sm font-bold text-text-primary">{total}</p>
+                    <p className="text-[11px] text-text-primary font-semibold mt-0.5">Planned</p>
                 </div>
             </div>
         </div>

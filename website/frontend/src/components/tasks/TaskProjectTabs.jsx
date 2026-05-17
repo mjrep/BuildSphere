@@ -9,8 +9,8 @@ export default function TaskProjectTabs({ projects, selected, onSelect }) {
                 onClick={() => onSelect('all')}
                 className={`whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     selected === 'all'
-                        ? 'bg-[#5B5BD6] text-white shadow-sm'
-                        : 'bg-white border border-[#E0E0F0] text-[#6B6B8D] hover:bg-[#F8F8FC]'
+                        ? 'bg-accent text-white shadow-sm'
+                        : 'bg-card border border-border-primary text-text-muted hover:bg-bg-tertiary'
                 }`}
             >
                 All Projects
@@ -21,8 +21,8 @@ export default function TaskProjectTabs({ projects, selected, onSelect }) {
                     onClick={() => onSelect(project.id)}
                     className={`whitespace-nowrap flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                         selected === project.id
-                            ? 'bg-[#5B5BD6] text-white shadow-sm'
-                            : 'bg-white border border-[#E0E0F0] text-[#6B6B8D] hover:bg-[#F8F8FC]'
+                            ? 'bg-accent text-white shadow-sm'
+                            : 'bg-card border border-border-primary text-text-muted hover:bg-bg-tertiary'
                     }`}
                 >
                     {project.name}

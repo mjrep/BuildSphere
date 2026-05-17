@@ -68,9 +68,9 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300">
                 {/* Header */}
-                <div className="bg-[#706BFF] p-6 text-white relative">
+                <div className="bg-accent p-6 text-white relative">
                     <button 
                         onClick={onClose}
                         className="absolute top-6 right-6 text-white/70 hover:text-white transition-colors"
@@ -140,7 +140,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                             <button
                                 onClick={handleSubmit}
                                 disabled={submitting}
-                                className="flex-[2] py-3.5 text-sm font-bold text-white bg-[#706BFF] hover:bg-[#5B55E6] rounded-2xl shadow-lg shadow-[#706BFF]/20 transition-all flex items-center justify-center gap-2"
+                                className="flex-[2] py-3.5 text-sm font-bold text-white bg-accent hover:opacity-90 rounded-2xl shadow-lg shadow-[#706BFF]/20 transition-all flex items-center justify-center gap-2"
                             >
                                 {submitting ? 'Finalizing...' : 'Finalize Log'}
                             </button>
@@ -158,7 +158,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                     className={`flex items-center justify-center py-2.5 rounded-2xl border-2 text-xs font-bold transition-all ${
                                         actionType === opt.id 
                                             ? `${opt.bg} ${opt.border} ${opt.color} shadow-sm` 
-                                            : 'bg-white border-gray-100 text-gray-400 hover:border-gray-200'
+                                            : 'bg-card border-gray-100 text-gray-400 hover:border-gray-200'
                                     }`}
                                 >
                                     {opt.label}
@@ -179,7 +179,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                         min="0.01"
                                         step="any"
                                         placeholder="Enter amount..."
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-white transition-all outline-none"
+                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none"
                                     />
                                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">Units</span>
                                 </div>
@@ -193,14 +193,14 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                         value={taskId}
                                         onChange={(e) => setTaskId(e.target.value)}
                                         required
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-white transition-all outline-none appearance-none"
+                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none appearance-none"
                                     >
                                         <option value="">-- Select a Task --</option>
                                         {tasks.map(t => (
                                             <option key={t.id} value={t.id}>{t.title}</option>
                                         ))}
                                     </select>
-                                    {loadingTasks && <p className="text-[10px] text-[#706BFF] font-medium ml-1">Loading project tasks...</p>}
+                                    {loadingTasks && <p className="text-[10px] text-accent font-medium ml-1">Loading project tasks...</p>}
                                 </div>
                             )}
 
@@ -212,7 +212,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                     onChange={(e) => setNotes(e.target.value)}
                                     placeholder="Optional details..."
                                     rows="3"
-                                    className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-white transition-all outline-none resize-none"
+                                    className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none resize-none"
                                 />
                             </div>
                         </div>
@@ -224,7 +224,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                 className={`w-full py-4 text-sm font-bold text-white rounded-2xl transition-all shadow-lg flex items-center justify-center gap-2 ${
                                     submitting 
                                         ? 'bg-gray-400 cursor-not-allowed' 
-                                        : 'bg-[#706BFF] hover:bg-[#5B55E6] hover:-translate-y-0.5 active:translate-y-0'
+                                        : 'bg-accent hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0'
                                 }`}
                             >
                                 {submitting ? (

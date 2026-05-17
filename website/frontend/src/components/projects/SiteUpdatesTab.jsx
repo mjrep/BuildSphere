@@ -103,7 +103,7 @@ function MiniCalendar({ selectedDate, onSelectDate, logDates }) {
                 <button onClick={prevMonth} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
                     <ChevronLeft size={16} />
                 </button>
-                <span className="text-xs font-bold text-[#1A1A1A] tracking-wide uppercase">
+                <span className="text-xs font-bold text-text-primary tracking-wide uppercase">
                     {MONTHS[viewMonth]} {viewYear}
                 </span>
                 <button onClick={nextMonth} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
@@ -138,7 +138,7 @@ function MiniCalendar({ selectedDate, onSelectDate, logDates }) {
                                     : isToday
                                         ? 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200'
                                         : hasLogDay
-                                            ? 'text-[#1A1A1A] hover:bg-indigo-50'
+                                            ? 'text-text-primary hover:bg-indigo-50'
                                             : 'text-gray-400 hover:bg-gray-50'
                                 }
                             `}
@@ -280,7 +280,7 @@ export default function SiteUpdatesTab({ project }) {
     if (loading) {
         return (
             <div className="flex gap-5 w-full min-h-[560px]">
-                <div className="w-full bg-white rounded-2xl border border-[#F0F0F8] shadow-sm flex items-center justify-center">
+                <div className="w-full bg-card rounded-2xl border border-border-primary shadow-sm flex items-center justify-center">
                     <div className="text-center">
                         <Loader2 size={24} className="text-indigo-400 animate-spin mx-auto mb-2" />
                         <p className="text-xs text-gray-400 font-medium">Loading site updates…</p>
@@ -296,11 +296,11 @@ export default function SiteUpdatesTab({ project }) {
             {/* ════════════════════════════════════════════════════════════
                 LEFT COLUMN — Navigation (1/3 width)
                ════════════════════════════════════════════════════════════ */}
-            <div className="w-1/3 min-w-[260px] bg-white rounded-2xl border border-[#F0F0F8] shadow-sm flex flex-col">
+            <div className="w-1/3 min-w-[260px] bg-card rounded-2xl border border-border-primary shadow-sm flex flex-col">
 
                 {/* Header */}
                 <div className="px-5 pt-5 pb-3">
-                    <h3 className="text-base font-bold text-[#1A1A1A]">Site Updates</h3>
+                    <h3 className="text-base font-bold text-text-primary">Site Updates</h3>
                 </div>
 
                 {/* Period Tabs */}
@@ -341,7 +341,7 @@ export default function SiteUpdatesTab({ project }) {
                                             group relative flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-semibold transition-all duration-200
                                             ${isActive
                                                 ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30'
-                                                : 'bg-[#F8F8FC] text-[#6B6B6B] hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-100'
+                                                : 'bg-bg-tertiary text-[#6B6B6B] hover:bg-indigo-50 hover:text-indigo-600 border border-transparent hover:border-indigo-100'
                                             }
                                         `}
                                     >
@@ -349,7 +349,7 @@ export default function SiteUpdatesTab({ project }) {
                                         {blockLogs.length > 0 && (
                                             <span className={`
                                                 text-[10px] font-bold px-2 py-0.5 rounded-full
-                                                ${isActive ? 'bg-white/20 text-white' : 'bg-indigo-100 text-indigo-600'}
+                                                ${isActive ? 'bg-card/20 text-white' : 'bg-indigo-100 text-indigo-600'}
                                             `}>
                                                 {blockLogs.length}
                                             </span>
@@ -369,7 +369,7 @@ export default function SiteUpdatesTab({ project }) {
 
                     {/* ─── Log List (below time blocks / calendar) ─── */}
                     {filteredLogs.length > 1 && (
-                        <div className="mt-4 pt-3 border-t border-[#F0F0F8]">
+                        <div className="mt-4 pt-3 border-t border-border-primary">
                             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">
                                 {filteredLogs.length} Updates
                             </p>
@@ -402,7 +402,7 @@ export default function SiteUpdatesTab({ project }) {
                                             )}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-xs font-semibold text-[#1A1A1A] truncate">{log.created_by?.name ?? 'Unknown'}</p>
+                                            <p className="text-xs font-semibold text-text-primary truncate">{log.created_by?.name ?? 'Unknown'}</p>
                                             <p className="text-[10px] text-gray-400">
                                                 {log.quantity_accomplished} {UNIT_LABEL}
                                                 {log.task?.title && ` • ${log.task.title}`}
@@ -419,13 +419,13 @@ export default function SiteUpdatesTab({ project }) {
             {/* ════════════════════════════════════════════════════════════
                 RIGHT COLUMN — Log Details (2/3 width)
                ════════════════════════════════════════════════════════════ */}
-            <div className="flex-1 bg-white rounded-2xl border border-[#F0F0F8] shadow-sm flex flex-col">
+            <div className="flex-1 bg-card rounded-2xl border border-border-primary shadow-sm flex flex-col">
                 {activeLog ? (
                     <>
                         {/* Detail Header */}
                         <div className="px-6 pt-5 pb-4 flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <h3 className="text-base font-bold text-[#1A1A1A]">Site Photos</h3>
+                                <h3 className="text-base font-bold text-text-primary">Site Photos</h3>
                                 <VerificationBadge status={activeLog.ai_verification_status} />
                                 
                                 {isAuthorized && (
@@ -450,7 +450,7 @@ export default function SiteUpdatesTab({ project }) {
                             
                             <div className="flex items-center gap-2">
                                 {isEditingQuantity ? (
-                                    <div className="flex items-center gap-1 bg-white border border-indigo-200 rounded-full px-2 py-0.5 shadow-sm">
+                                    <div className="flex items-center gap-1 bg-card border border-indigo-200 rounded-full px-2 py-0.5 shadow-sm">
                                         <input 
                                             autoFocus
                                             type="number"
@@ -478,7 +478,7 @@ export default function SiteUpdatesTab({ project }) {
                                                     setEditingValue(activeLog.quantity_accomplished);
                                                     setIsEditingQuantity(true);
                                                 }}
-                                                className="opacity-0 group-hover:opacity-100 ml-1 p-0.5 hover:bg-white/20 rounded transition-all"
+                                                className="opacity-0 group-hover:opacity-100 ml-1 p-0.5 hover:bg-card/20 rounded transition-all"
                                             >
                                                 <Edit2 size={12} />
                                             </button>
@@ -490,7 +490,7 @@ export default function SiteUpdatesTab({ project }) {
 
                         {/* Evidence Image - 16:9 */}
                         <div className="px-6">
-                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-[#F0F0F8]">
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-border-primary">
                                 {activeLog.evidence_image_url ? (
                                     <img
                                         src={activeLog.evidence_image_url}
@@ -525,7 +525,7 @@ export default function SiteUpdatesTab({ project }) {
                                 {/* Date */}
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Date</p>
-                                    <p className="text-sm font-semibold text-[#1A1A1A]">{activeLog.work_date || formatDate(activeLog.created_at)}</p>
+                                    <p className="text-sm font-semibold text-text-primary">{activeLog.work_date || formatDate(activeLog.created_at)}</p>
                                 </div>
                                 {/* Taken By */}
                                 <div>
@@ -534,28 +534,28 @@ export default function SiteUpdatesTab({ project }) {
                                         <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
                                             <User size={10} className="text-white" />
                                         </div>
-                                        <p className="text-sm font-semibold text-[#1A1A1A]">{activeLog.created_by?.name ?? 'Unknown'}</p>
+                                        <p className="text-sm font-semibold text-text-primary">{activeLog.created_by?.name ?? 'Unknown'}</p>
                                     </div>
                                 </div>
                                 {/* Time */}
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Time</p>
-                                    <p className="text-sm font-semibold text-[#1A1A1A]">{activeLog.created_at ? formatTime(activeLog.created_at) : activeLog.shift}</p>
+                                    <p className="text-sm font-semibold text-text-primary">{activeLog.created_at ? formatTime(activeLog.created_at) : activeLog.shift}</p>
                                 </div>
                                 {/* Notes */}
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Notes</p>
-                                    <p className="text-sm font-semibold text-[#1A1A1A] leading-snug">{activeLog.remarks || '—'}</p>
+                                    <p className="text-sm font-semibold text-text-primary leading-snug">{activeLog.remarks || '—'}</p>
                                 </div>
                             </div>
                         </div>
 
                         {/* Divider */}
-                        <div className="mx-6 border-t border-[#F0F0F8]" />
+                        <div className="mx-6 border-t border-border-primary" />
 
                         {/* Comments Section */}
                         <div className="px-6 pt-3 pb-2 flex-1 flex flex-col min-h-0">
-                            <p className="text-xs font-bold text-[#1A1A1A] mb-3 flex items-center gap-1.5">
+                            <p className="text-xs font-bold text-text-primary mb-3 flex items-center gap-1.5">
                                 <MessageCircle size={14} className="text-gray-400" />
                                 Comments
                             </p>
@@ -568,13 +568,13 @@ export default function SiteUpdatesTab({ project }) {
 
                         {/* Comment Input */}
                         <div className="px-6 pb-5 pt-1">
-                            <div className="flex items-center gap-2 bg-[#F8F8FC] rounded-xl px-4 py-2.5 border border-[#F0F0F8] focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
+                            <div className="flex items-center gap-2 bg-bg-tertiary rounded-xl px-4 py-2.5 border border-border-primary focus-within:border-indigo-300 focus-within:ring-2 focus-within:ring-indigo-100 transition-all">
                                 <input
                                     type="text"
                                     value={commentText}
                                     onChange={(e) => setCommentText(e.target.value)}
                                     placeholder="Type Comment Here..."
-                                    className="flex-1 bg-transparent text-sm text-[#1A1A1A] placeholder-gray-400 outline-none"
+                                    className="flex-1 bg-transparent text-sm text-text-primary placeholder-gray-400 outline-none"
                                 />
                                 <button
                                     onClick={() => setCommentText('')}
@@ -591,7 +591,7 @@ export default function SiteUpdatesTab({ project }) {
                         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center mb-4">
                             <FileText size={28} className="text-indigo-400" />
                         </div>
-                        <p className="text-sm font-bold text-[#1A1A1A] mb-1">No updates found</p>
+                        <p className="text-sm font-bold text-text-primary mb-1">No updates found</p>
                         <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
                             {periodTab === 'Today'
                                 ? `No site updates logged for ${selectedBlock.toLowerCase()} today.`

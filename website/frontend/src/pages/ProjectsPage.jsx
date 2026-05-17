@@ -76,8 +76,8 @@ export default function ProjectsPage() {
                 {canCreateProject && (
                     <button
                         onClick={() => navigate('/projects/new')}
-                        className="px-5 py-2.5 bg-[#706BFF] text-white text-sm font-bold rounded-xl
-                                   hover:bg-[#5B55E6] transition-colors shadow-sm"
+                        className="px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl
+                                   hover:opacity-90 transition-colors shadow-sm"
                     >
                         New Project
                     </button>
@@ -85,9 +85,9 @@ export default function ProjectsPage() {
             </div>
 
             {/* Content card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6">
+            <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 p-8">
                 {/* Status tabs */}
-                <div className="flex items-center gap-6 border-b border-[#F0F0F8] mb-6">
+                <div className="flex items-center gap-8 border-b border-border-primary/50 mb-8">
                     {STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
                         const count = tab.key === ''
@@ -97,17 +97,17 @@ export default function ProjectsPage() {
                             <button
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key)}
-                                className={`pb-3 text-sm font-semibold transition-colors relative ${
+                                className={`pb-4 text-sm font-black transition-all relative ${
                                     isActive
-                                        ? 'text-[#706BFF]'
-                                        : 'text-[#A1A1A1] hover:text-[#6B6B6B]'
+                                        ? 'text-accent'
+                                        : 'text-text-muted hover:text-text-primary'
                                 }`}
                             >
-                                {tab.label}
+                                <span className="uppercase tracking-wider">{tab.label}</span>
                                 {isActive && (
                                     <>
-                                        <span className="ml-1.5 text-xs text-[#A1A1A1]">{count}</span>
-                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#706BFF] rounded-full" />
+                                        <span className="ml-2 text-[10px] bg-accent/10 px-2 py-0.5 rounded-full">{count}</span>
+                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full shadow-[0_-2px_10px_rgba(124,116,255,0.4)]" />
                                     </>
                                 )}
                             </button>
@@ -117,17 +117,17 @@ export default function ProjectsPage() {
 
                 {/* Sub-status filters for Proposed */}
                 {activeTab === 'proposed' && (
-                    <div className="flex items-center gap-2 mb-6 animate-in fade-in slide-in-from-top-1 duration-300">
+                    <div className="flex items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-2 duration-500">
                         {SUB_STATUS_TABS.map((tab) => {
                             const isActive = activeSubTab === tab.key;
                             return (
                                 <button
                                     key={tab.key}
                                     onClick={() => setActiveSubTab(tab.key)}
-                                    className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                                    className={`px-6 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
                                         isActive
-                                            ? 'bg-[#706BFF] text-white shadow-sm'
-                                            : 'bg-[#F0F0F8] text-[#A1A1A1] hover:bg-[#E8E8FF] hover:text-[#706BFF]'
+                                            ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-105'
+                                            : 'bg-bg-secondary text-text-muted hover:bg-bg-hover hover:text-text-primary'
                                     }`}
                                 >
                                     {tab.label}
@@ -138,20 +138,21 @@ export default function ProjectsPage() {
                 )}
 
                 {/* Search bar */}
-                <form onSubmit={handleSearch} className="mb-6">
-                    <div className="relative max-w-sm">
+                <form onSubmit={handleSearch} className="mb-8">
+                    <div className="relative max-w-md group">
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="Search projects..."
-                            className="w-full rounded-xl border border-[#E8E8FF] px-4 py-2.5 text-sm
-                                       placeholder:text-[#C1C1C1] focus:outline-none focus:ring-2
-                                       focus:ring-[#706BFF]/20 focus:border-[#706BFF]"
+                            className="w-full rounded-2xl border border-border-primary/50 px-6 py-4 text-sm
+                                       placeholder:text-text-muted focus:outline-none focus:ring-4
+                                       focus:ring-accent/10 focus:border-accent bg-bg-tertiary text-text-primary
+                                       transition-all duration-300 shadow-inner"
                         />
-                        <button type="submit" className="absolute right-3 top-1/2 -translate-y-1/2">
-                            <svg className="w-4 h-4 text-[#A1A1A1]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-bg-hover rounded-xl transition-colors">
+                            <svg className="w-5 h-5 text-text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                         </button>
                     </div>
@@ -159,14 +160,14 @@ export default function ProjectsPage() {
 
                 {/* Loading */}
                 {loading ? (
-                    <div className="text-center py-16 text-[#A1A1A1] text-sm">Loading projects...</div>
+                    <div className="text-center py-16 text-text-muted text-sm">Loading projects...</div>
                 ) : projects.length === 0 ? (
                     <div className="text-center py-16">
-                        <p className="text-[#A1A1A1] text-sm">No projects found.</p>
+                        <p className="text-text-muted text-sm">No projects found.</p>
                         {canCreateProject && (
                             <button
                                 onClick={() => navigate('/projects/new')}
-                                className="mt-4 text-[#706BFF] text-sm font-semibold hover:underline"
+                                className="mt-4 text-accent text-sm font-semibold hover:underline"
                             >
                                 Create your first project
                             </button>

@@ -137,21 +137,21 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
     };
 
     const inputCls = (field) =>
-        `w-full px-3 py-2.5 text-sm border rounded-xl bg-white focus:outline-none focus:ring-2
+        `w-full px-3 py-2.5 text-sm border rounded-xl bg-card focus:outline-none focus:ring-2
          focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8]
-         ${errors[field] ? 'border-red-400' : 'border-[#E0E0F0]'}`;
+         ${errors[field] ? 'border-red-400' : 'border-border-primary'}`;
 
     // Success screen
     if (success) {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                <div className="bg-white rounded-2xl shadow-2xl p-10 w-full max-w-sm text-center">
-                    <div className="w-16 h-16 rounded-full bg-[#5B5BD6] text-white flex items-center justify-center mx-auto mb-5 text-3xl">✓</div>
-                    <h3 className="text-xl font-bold text-[#1A1A2E] mb-2">Task {isEdit ? 'Updated' : 'Created'}!</h3>
-                    <p className="text-sm text-[#6B6B8D] mb-6">Task {isEdit ? 'updated' : 'created'} successfully and added to the project.</p>
+                <div className="bg-card rounded-2xl shadow-2xl p-10 w-full max-w-sm text-center">
+                    <div className="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center mx-auto mb-5 text-3xl">✓</div>
+                    <h3 className="text-xl font-bold text-text-primary mb-2">Task {isEdit ? 'Updated' : 'Created'}!</h3>
+                    <p className="text-sm text-text-muted mb-6">Task {isEdit ? 'updated' : 'created'} successfully and added to the project.</p>
                     <button
                         onClick={() => { onSuccess(); onClose(); }}
-                        className="w-full py-2.5 bg-[#5B5BD6] text-white font-semibold rounded-xl hover:bg-[#4747B8] transition-colors"
+                        className="w-full py-2.5 bg-accent text-white font-semibold rounded-xl hover:opacity-90 transition-colors"
                     >
                         Back to Tasks
                     </button>
@@ -162,11 +162,11 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                    <h2 className="text-lg font-bold text-[#5B5BD6]">{isEdit ? 'Update task' : 'Add a new task'}</h2>
-                    <button onClick={onClose} className="text-[#9090A8] hover:text-[#3A3A5C] p-1 rounded-lg hover:bg-[#F0F0F8]">
+                    <h2 className="text-lg font-bold text-accent">{isEdit ? 'Update task' : 'Add a new task'}</h2>
+                    <button onClick={onClose} className="text-text-muted hover:text-text-primary p-1 rounded-lg hover:bg-bg-secondary">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -177,7 +177,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                 <div className="flex items-center justify-center gap-2 px-6 pb-4">
                     {STEPS.map((s, i) => (
                         <div key={s} className="flex items-center gap-2">
-                            <div className={`w-6 h-2 rounded-full transition-colors ${i <= step ? 'bg-[#5B5BD6]' : 'bg-[#E0E0F0]'}`} />
+                            <div className={`w-6 h-2 rounded-full transition-colors ${i <= step ? 'bg-accent' : 'bg-[#E0E0F0]'}`} />
                         </div>
                     ))}
                 </div>
@@ -187,7 +187,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     {step === 0 && (
                         <>
                             <div>
-                                <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Task Title *</label>
+                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Title *</label>
                                 <input
                                     type="text"
                                     value={form.title}
@@ -199,7 +199,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             </div>
 
                             <div>
-                                <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Project *</label>
+                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project *</label>
                                 <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
                                     <option value="">Select</option>
                                     {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -209,14 +209,14 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Phase</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Phase</label>
                                     <select value={form.phase_id} onChange={e => set('phase_id', e.target.value)} className={inputCls('phase_id')}>
                                         <option value="">Select</option>
                                         {phases.map(p => <option key={p.id} value={p.id}>{p.phase_title ?? p.phase_key}</option>)}
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Milestone</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Milestone</label>
                                     <select value={form.milestone_id} onChange={e => set('milestone_id', e.target.value)} className={inputCls('milestone_id')}>
                                         <option value="">Select</option>
                                         {milestones.map(m => <option key={m.id} value={m.id}>{m.milestone_name}</option>)}
@@ -234,7 +234,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                                         if (Object.keys(e).length) { setErrors(e); return; }
                                         setStep(1);
                                     }}
-                                    className="px-6 py-2.5 bg-[#5B5BD6] text-white text-sm font-semibold rounded-xl hover:bg-[#4747B8] transition-colors"
+                                    className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-colors"
                                 >
                                     Next
                                 </button>
@@ -246,7 +246,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     {step === 1 && (
                         <>
                             <div>
-                                <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Task Description *</label>
+                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Description *</label>
                                 <textarea
                                     value={form.description}
                                     onChange={e => set('description', e.target.value)}
@@ -259,7 +259,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Assigned To *</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To *</label>
                                     <select value={form.assigned_to} onChange={e => set('assigned_to', e.target.value)} className={inputCls('assigned_to')}>
                                         <option value="">Select</option>
                                         {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
@@ -267,7 +267,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                                     {errors.assigned_to && <p className="text-red-500 text-xs mt-1">{errors.assigned_to}</p>}
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Priority Level *</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Priority Level *</label>
                                     <select value={form.priority} onChange={e => set('priority', e.target.value)} className={inputCls('priority')}>
                                         {Object.entries(TASK_PRIORITIES).map(([k, v]) => (
                                             <option key={k} value={k}>{v.label}</option>
@@ -278,7 +278,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                             <div className="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Task Start</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start</label>
                                     <input
                                         type="date" value={form.start_date}
                                         onChange={e => set('start_date', e.target.value)}
@@ -286,7 +286,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Task Until *</label>
+                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until *</label>
                                     <input
                                         type="date" value={form.due_date}
                                         min={form.start_date || undefined}
@@ -299,15 +299,15 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                             {/* Attachment */}
                             <div>
-                                <label className="text-xs font-semibold text-[#3A3A5C] mb-1.5 block">Attachments (optional)</label>
+                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Attachments (optional)</label>
                                 <input
                                     type="file" multiple
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                                     onChange={e => setFiles(Array.from(e.target.files))}
-                                    className="text-xs text-[#6B6B8D] file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-[#F0F0FE] file:text-[#5B5BD6] hover:file:bg-[#E0E0FE]"
+                                    className="text-xs text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-accent/10 file:text-accent hover:file:bg-[#E0E0FE]"
                                 />
                                 {files.length > 0 && (
-                                    <p className="text-xs text-[#6B6B8D] mt-1">{files.length} file(s) selected</p>
+                                    <p className="text-xs text-text-muted mt-1">{files.length} file(s) selected</p>
                                 )}
                             </div>
 
@@ -316,18 +316,18 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                                 <button
                                     type="button"
                                     onClick={() => setStep(0)}
-                                    className="text-sm text-[#6B6B8D] hover:text-[#3A3A5C] flex items-center gap-1"
+                                    className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1"
                                 >
                                     ‹ Back
                                 </button>
 
                                 <div className="flex items-center gap-2">
                                     {/* dot indicator */}
-                                    <span className="w-2 h-2 rounded-full bg-[#5B5BD6]" />
+                                    <span className="w-2 h-2 rounded-full bg-accent" />
                                     <button
                                         type="submit"
                                         disabled={submitting}
-                                        className="px-6 py-2.5 bg-[#5B5BD6] text-white text-sm font-semibold rounded-xl hover:bg-[#4747B8] disabled:opacity-50 transition-colors"
+                                        className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors"
                                     >
                                         {submitting ? 'Saving…' : 'Submit'}
                                     </button>

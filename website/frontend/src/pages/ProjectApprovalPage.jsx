@@ -73,7 +73,7 @@ export default function ProjectApprovalPage() {
     if (loading) {
         return (
             <DashboardLayout pageTitle="Review Project">
-                <div className="text-center py-16 text-[#A1A1A1] text-sm">Loading...</div>
+                <div className="text-center py-16 text-text-muted text-sm">Loading...</div>
             </DashboardLayout>
         );
     }
@@ -84,7 +84,7 @@ export default function ProjectApprovalPage() {
     return (
         <DashboardLayout pageTitle={
             <div className="flex items-center gap-3">
-                <button onClick={() => navigate(`/projects/${id}`)} className="text-[#1A1A1A] hover:text-[#706BFF] transition-colors">
+                <button onClick={() => navigate(`/projects/${id}`)} className="text-text-primary hover:text-accent transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -94,28 +94,28 @@ export default function ProjectApprovalPage() {
         }>
             <div className="max-w-4xl mx-auto space-y-6">
                 {/* Project summary */}
-                <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6">
+                <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6">
                     <div className="flex items-start justify-between mb-4">
                         <div>
-                            <h2 className="text-lg font-bold text-[#1A1A1A]">{project.project_name}</h2>
+                            <h2 className="text-lg font-bold text-text-primary">{project.project_name}</h2>
                             <p className="text-sm text-[#6B6B6B]">{project.client_name} · {project.project_code}</p>
                         </div>
                         <StatusBadge status={project.status} />
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
-                        <div><span className="text-[#A1A1A1]">Contract Price</span><p className="font-medium">{formatCurrency(project.contract_price)}</p></div>
-                        <div><span className="text-[#A1A1A1]">Budget</span><p className="font-medium">{formatCurrency(project.budget_for_materials)}</p></div>
-                        <div><span className="text-[#A1A1A1]">Duration</span><p className="font-medium">{project.start_date} to {project.end_date}</p></div>
+                        <div><span className="text-text-muted">Contract Price</span><p className="font-medium">{formatCurrency(project.contract_price)}</p></div>
+                        <div><span className="text-text-muted">Budget</span><p className="font-medium">{formatCurrency(project.budget_for_materials)}</p></div>
+                        <div><span className="text-text-muted">Duration</span><p className="font-medium">{project.start_date} to {project.end_date}</p></div>
                     </div>
                 </div>
 
                 {/* Milestone Chart */}
                 {chartData && (
-                    <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 overflow-hidden">
+                    <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 overflow-hidden">
                         <div className="flex justify-between items-end mb-4">
-                            <h3 className="text-sm font-bold text-[#706BFF]">Milestone Plan & Schedule</h3>
+                            <h3 className="text-sm font-bold text-accent">Milestone Plan & Schedule</h3>
                             <div className="text-xs text-[#6B6B6B] text-right">
-                                Submitted By: <span className="font-semibold text-[#1A1A1A]">{chartData.submitted_by || '—'}</span><br/>
+                                Submitted By: <span className="font-semibold text-text-primary">{chartData.submitted_by || '—'}</span><br/>
                                 {chartData.submitted_at ? new Date(chartData.submitted_at).toLocaleString('en-US') : '—'}
                             </div>
                         </div>
@@ -125,13 +125,13 @@ export default function ProjectApprovalPage() {
 
                 {/* Approval History */}
                 {chartData?.approval_history?.length > 0 && (
-                    <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6">
-                        <h3 className="text-sm font-bold text-[#706BFF] mb-4">Approval History</h3>
+                    <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6">
+                        <h3 className="text-sm font-bold text-accent mb-4">Approval History</h3>
                         <div className="space-y-4">
                             {chartData.approval_history.map((hist, idx) => (
                                 <div key={idx} className={`p-4 rounded-xl border ${hist.decision === 'APPROVED' ? 'bg-green-50 border-green-100' : 'bg-red-50 border-red-100'}`}>
                                     <div className="flex justify-between items-start mb-2">
-                                        <div className="font-semibold text-[#1A1A1A] text-sm">
+                                        <div className="font-semibold text-text-primary text-sm">
                                             {hist.stage} Review
                                             <span className={`ml-2 text-xs px-2 py-0.5 rounded-full ${hist.decision === 'APPROVED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                                 {hist.decision}
@@ -157,8 +157,8 @@ export default function ProjectApprovalPage() {
 
                 {/* Approval actions */}
                 {(isAccounting || isExecutive) && (
-                    <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6">
-                        <h3 className="text-sm font-bold text-[#706BFF] mb-4">Approval Decision</h3>
+                    <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6">
+                        <h3 className="text-sm font-bold text-accent mb-4">Approval Decision</h3>
 
                         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
@@ -180,7 +180,7 @@ export default function ProjectApprovalPage() {
                                     onChange={(e) => setComments(e.target.value)}
                                     placeholder="Please provide the reason for rejection..."
                                     rows="3"
-                                    className="w-full rounded-xl border border-[#E8E8FF] px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400"
+                                    className="w-full rounded-xl border border-border-primary px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-red-200 focus:border-red-400"
                                 />
                                 <div className="flex gap-3">
                                     <button onClick={handleReject} disabled={submitting}
@@ -188,7 +188,7 @@ export default function ProjectApprovalPage() {
                                         {submitting ? 'Rejecting...' : 'Confirm Rejection'}
                                     </button>
                                     <button onClick={() => { setShowRejectModal(false); setComments(''); }}
-                                            className="px-6 py-2.5 border border-[#E8E8FF] text-[#6B6B6B] text-sm font-semibold rounded-xl hover:bg-[#F5F5FA]">
+                                            className="px-6 py-2.5 border border-border-primary text-[#6B6B6B] text-sm font-semibold rounded-xl hover:bg-bg-secondary">
                                         Cancel
                                     </button>
                                 </div>

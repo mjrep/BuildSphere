@@ -11,7 +11,7 @@ export default function CircularProgress({
     percentage = 0, 
     size = 120, 
     strokeWidth = 10,
-    color = "text-[#706BFF]"
+    color = "text-accent"
 }) {
     const radius = (size - strokeWidth) / 2;
     const circumference = radius * 2 * Math.PI;
@@ -45,7 +45,7 @@ export default function CircularProgress({
                 />
             </svg>
             <div className="absolute flex flex-col items-center justify-center text-center">
-                <span className="text-xl font-bold text-[#1A1A1A]">{percentage}%</span>
+                <span className="text-xl font-bold text-text-primary">{percentage}%</span>
             </div>
         </div>
     );

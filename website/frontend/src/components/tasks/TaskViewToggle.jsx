@@ -2,11 +2,11 @@ import React from 'react';
 
 export default function TaskViewToggle({ view, onChange }) {
     const base    = 'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors';
-    const active  = 'bg-white border border-[#E0E0F0] text-[#5B5BD6] shadow-sm';
-    const inactive = 'text-[#9090A8] hover:text-[#5B5BD6]';
+    const active  = 'bg-card border border-border-primary text-accent shadow-sm';
+    const inactive = 'text-text-muted hover:text-accent';
 
     return (
-        <div className="flex items-center gap-1 bg-[#F3F3FB] rounded-xl p-1">
+        <div className="flex items-center gap-1 bg-bg-tertiary rounded-xl p-1">
             <button
                 id="task-list-view-btn"
                 onClick={() => onChange('list')}

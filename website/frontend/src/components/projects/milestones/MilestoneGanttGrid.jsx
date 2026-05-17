@@ -29,15 +29,15 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
     };
 
     return (
-        <div className="w-full bg-white rounded-3xl border border-[#F0F0F8] overflow-hidden shadow-sm">
+        <div className="w-full bg-card rounded-3xl border border-border-primary overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-[#FAFAFA]">
-                            <th className="px-6 py-6 text-sm font-bold text-[#706BFF] border-b border-r border-[#F0F0F8] w-[200px]">Phase</th>
-                            <th className="px-6 py-6 text-sm font-bold text-[#706BFF] border-b border-r border-[#F0F0F8] w-[200px]">Milestone</th>
+                        <tr className="bg-bg-secondary">
+                            <th className="px-6 py-6 text-sm font-bold text-accent border-b border-r border-border-primary w-[200px]">Phase</th>
+                            <th className="px-6 py-6 text-sm font-bold text-accent border-b border-r border-border-primary w-[200px]">Milestone</th>
                             {months.map(month => (
-                                <th key={month.key} className="px-4 py-6 text-xs font-semibold text-[#A1A1A1] border-b border-r border-[#F0F0F8] min-w-[120px]">
+                                <th key={month.key} className="px-4 py-6 text-xs font-semibold text-text-muted border-b border-r border-border-primary min-w-[120px]">
                                     {month.label}
                                 </th>
                             ))}
@@ -51,17 +51,17 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
                                         {mIdx === 0 && (
                                             <td 
                                                 rowSpan={phase.milestones.length} 
-                                                className="px-6 py-4 text-center border-b border-r border-[#F0F0F8] bg-white align-middle"
+                                                className="px-6 py-4 text-center border-b border-r border-border-primary bg-card align-middle"
                                             >
-                                                <span className="text-sm font-bold text-[#706BFF] leading-tight block">
+                                                <span className="text-sm font-bold text-accent leading-tight block">
                                                     {phase.phase_title}
                                                 </span>
                                             </td>
                                         )}
-                                        <td className="px-6 py-8 text-sm text-[#1A1A1A] font-bold border-b border-r border-[#F0F0F8]">
+                                        <td className="px-6 py-8 text-sm text-text-primary font-bold border-b border-r border-border-primary">
                                             <div className="flex flex-col gap-1">
                                                 <span>{ms.milestone_name}</span>
-                                                <span className="text-[10px] font-bold text-[#706BFF] bg-[#E8E8FF] px-2 py-0.5 rounded-full w-fit">
+                                                <span className="text-[10px] font-bold text-accent bg-accent/10 px-2 py-0.5 rounded-full w-fit">
                                                     Weight: {ms.weight_percentage}%
                                                 </span>
                                             </div>
@@ -69,14 +69,14 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
                                         {months.map((month) => {
                                             const progress = getProgressInMonth(ms, month.key);
                                             return (
-                                                <td key={month.key} className="p-0 border-b border-r border-[#F0F0F8] h-full relative min-h-[60px]">
+                                                <td key={month.key} className="p-0 border-b border-r border-border-primary h-full relative min-h-[60px]">
                                                     {progress !== null && (
-                                                        <div className="absolute inset-0.5 bg-[#706BFF]/5 rounded-lg overflow-hidden flex items-center justify-center">
+                                                        <div className="absolute inset-0.5 bg-accent/5 rounded-lg overflow-hidden flex items-center justify-center">
                                                             <div 
-                                                                className="absolute left-0 top-0 bottom-0 bg-[#706BFF]/20 transition-all duration-500"
+                                                                className="absolute left-0 top-0 bottom-0 bg-accent/20 transition-all duration-500"
                                                                 style={{ width: `${progress}%` }}
                                                             />
-                                                            <span className="text-[#706BFF] font-bold text-sm relative z-10">{progress}%</span>
+                                                            <span className="text-accent font-bold text-sm relative z-10">{progress}%</span>
                                                         </div>
                                                     )}
                                                 </td>
@@ -91,10 +91,10 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
             </div>
             
             {/* Action Footer */}
-            <div className="p-6 bg-white flex justify-center">
+            <div className="p-6 bg-card flex justify-center">
                 <button 
                     onClick={onViewProgress}
-                    className="w-full max-w-4xl py-4 bg-[#706BFF] hover:bg-[#5B55E6] text-white font-bold rounded-2xl transition-all shadow-lg shadow-[#706BFF]/20"
+                    className="w-full max-w-4xl py-4 bg-accent hover:opacity-90 text-white font-bold rounded-2xl transition-all shadow-lg shadow-[#706BFF]/20"
                 >
                     View Progress
                 </button>

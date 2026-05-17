@@ -98,9 +98,9 @@ export default function TasksPage() {
         <DashboardLayout pageTitle="Tasks">
             <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
 
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {/* Toolbar */}
-                <div className="bg-white rounded-2xl border border-[#F0F0F8] shadow-sm p-4">
+                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-6">
                     <TaskToolbar
                         view={view}
                         onViewChange={setView}
@@ -125,11 +125,11 @@ export default function TasksPage() {
                 />
 
                 {/* Content area */}
-                <div className="bg-white rounded-2xl border border-[#F0F0F8] shadow-sm p-4">
+                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-8">
                     {error ? (
-                        <div className="py-16 text-center">
-                            <p className="text-sm text-red-500">{error}</p>
-                            <button onClick={loadTasks} className="mt-2 text-xs text-[#5B5BD6] hover:underline">Retry</button>
+                        <div className="py-24 text-center">
+                            <p className="text-sm text-red-500 font-bold">{error}</p>
+                            <button onClick={loadTasks} className="mt-4 text-xs text-accent font-black uppercase tracking-widest hover:underline">Retry</button>
                         </div>
                     ) : loading ? (
                         <TaskLoadingState view={view} />
@@ -140,11 +140,14 @@ export default function TasksPage() {
                             onAdd={() => setShowAddModal(true)}
                         />
                     ) : view === 'list' ? (
-                        <div className="space-y-3">
-                            <div className="flex items-center justify-between px-1">
-                                <h2 className="text-sm font-bold text-[#1A1A2E]">Task List</h2>
+                        <div className="space-y-6">
+                            <div className="flex items-center justify-between px-2">
+                                <h2 className="text-lg font-black text-text-primary uppercase tracking-tight flex items-center gap-2">
+                                    <div className="w-2 h-6 bg-accent rounded-full" />
+                                    Task List
+                                </h2>
                                 {meta && (
-                                    <span className="text-xs text-[#9090A8]">{meta.total} task{meta.total !== 1 ? 's' : ''}</span>
+                                    <span className="text-[11px] font-bold text-text-muted bg-bg-secondary px-3 py-1 rounded-full">{meta.total} tasks total</span>
                                 )}
                             </div>
                              <TaskListTable 
@@ -156,8 +159,8 @@ export default function TasksPage() {
 
                             {/* Pagination */}
                             {meta && meta.last_page > 1 && (
-                                <div className="flex items-center justify-end gap-2 pt-2">
-                                    <span className="text-xs text-[#9090A8]">
+                                <div className="flex items-center justify-end gap-3 pt-4">
+                                    <span className="text-[11px] font-black text-text-muted uppercase tracking-widest">
                                         Page {meta.current_page} of {meta.last_page}
                                     </span>
                                 </div>

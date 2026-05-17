@@ -6,12 +6,12 @@ export default function ProjectUpdateCard({ projectName, count, index }) {
     const color = countColors[index % countColors.length];
 
     return (
-        <div className="bg-[#F8F8FF] rounded-2xl px-5 py-4 mb-3 flex items-center justify-between">
+        <div className="bg-bg-secondary rounded-2xl px-5 py-4 mb-3 flex items-center justify-between border border-border-primary/30">
             <div>
-                <p className="text-sm font-bold text-[#1A1A1A] max-w-[250px] truncate" title={projectName}>{projectName}</p>
-                <p className="text-xs text-[#A1A1A1] mt-0.5">{count} updates received today</p>
+                <p className="text-sm font-bold text-text-primary max-w-[250px] truncate" title={projectName}>{projectName}</p>
+                <p className="text-xs text-text-muted mt-0.5">{count} updates received today</p>
             </div>
-            <p className={`text-4xl font-extrabold ${color}`}>{count}</p>
+            <p className={`text-4xl font-black ${color}`}>{count}</p>
         </div>
     );
 }

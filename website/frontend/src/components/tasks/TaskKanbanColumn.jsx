@@ -14,12 +14,12 @@ export default function TaskKanbanColumn({ status, tasks, onTaskClick, onEdit, o
     const topColor = COLUMN_COLORS[status] ?? 'border-t-gray-300';
 
     return (
-        <div className={`bg-[#F8F8FC] rounded-xl p-3 flex flex-col border-t-[3px] ${topColor}`}>
+        <div className={`bg-bg-tertiary rounded-xl p-3 flex flex-col border-t-[3px] ${topColor}`}>
             {/* Column header */}
             <div className="flex items-center gap-2 mb-3 px-1">
                 <span className={`w-2 h-2 rounded-full ${cfg.dot ?? 'bg-gray-400'}`} />
-                <span className="text-sm font-bold text-[#1A1A2E]">{cfg.label}</span>
-                <span className="ml-auto text-xs font-medium text-[#9090A8] bg-white rounded-full px-2 py-0.5 border border-[#EBEBF5]">
+                <span className="text-sm font-bold text-text-primary">{cfg.label}</span>
+                <span className="ml-auto text-xs font-medium text-text-muted bg-card rounded-full px-2 py-0.5 border border-[#EBEBF5]">
                     {tasks.length}
                 </span>
             </div>

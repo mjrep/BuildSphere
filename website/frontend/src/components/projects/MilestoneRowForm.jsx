@@ -9,7 +9,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
         <div className="flex flex-col lg:flex-row gap-4 lg:items-end w-full">
             {/* Milestone Name */}
             <div className="flex-1 space-y-1">
-                <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                <label className="block text-xs font-semibold text-text-primary ml-1">
                     Milestone {index + 1} Name
                 </label>
                 <input
@@ -18,7 +18,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                     onChange={(e) => handleFieldChange('milestone_name', e.target.value)}
                     placeholder="e.g. Shop Drawings"
                     className={`w-full rounded-xl border px-4 py-3 text-sm ${
-                        error?.milestone_name ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                        error?.milestone_name ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
                 {error?.milestone_name && <p className="text-red-500 text-xs ml-1">{error.milestone_name}</p>}
@@ -26,7 +26,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
 
             {/* Start Date */}
             <div className="w-full lg:w-40 space-y-1">
-                <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                <label className="block text-xs font-semibold text-text-primary ml-1">
                     Milestone Start
                 </label>
                 <input
@@ -34,7 +34,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                     value={milestone.start_date}
                     onChange={(e) => handleFieldChange('start_date', e.target.value)}
                     className={`w-full rounded-xl border px-4 py-3 text-sm text-[#5A5A5A] ${
-                        error?.start_date ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                        error?.start_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
                 {error?.start_date && <p className="text-red-500 text-xs ml-1">{error.start_date}</p>}
@@ -42,7 +42,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
 
             {/* End Date */}
             <div className="w-full lg:w-40 space-y-1">
-                <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                <label className="block text-xs font-semibold text-text-primary ml-1">
                     Milestone End
                 </label>
                 <input
@@ -50,7 +50,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                     value={milestone.end_date}
                     onChange={(e) => handleFieldChange('end_date', e.target.value)}
                     className={`w-full rounded-xl border px-4 py-3 text-sm text-[#5A5A5A] ${
-                        error?.end_date ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                        error?.end_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
                 {error?.end_date && <p className="text-red-500 text-xs ml-1">{error.end_date}</p>}
@@ -58,7 +58,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
 
             {/* Weight Percentage */}
             <div className="w-full lg:w-24 space-y-1">
-                <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                <label className="block text-xs font-semibold text-text-primary ml-1">
                     Weight (%)
                 </label>
                 <div className="relative">
@@ -71,7 +71,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                         onChange={(e) => handleFieldChange('weight_percentage', e.target.value)}
                         placeholder="0"
                         className={`w-full rounded-xl border px-3 py-3 pr-6 text-sm ${
-                            error?.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                            error?.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                         } focus:outline-none focus:ring-2`}
                     />
                     <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">%</span>
@@ -83,12 +83,12 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
 
             {/* Has Quantity Toggle */}
             <div className="flex flex-col items-center justify-end pb-3 space-y-2">
-                <label className="block text-xs font-semibold text-[#1A1A1A]">Is quantifiable?</label>
+                <label className="block text-xs font-semibold text-text-primary">Is quantifiable?</label>
                 <input
                     type="checkbox"
                     checked={milestone.has_quantity}
                     onChange={(e) => handleFieldChange('has_quantity', e.target.checked)}
-                    className="w-5 h-5 rounded border-[#E8E8FF] text-[#706BFF] focus:ring-[#706BFF]/30"
+                    className="w-5 h-5 rounded border-border-primary text-accent focus:ring-[#706BFF]/30"
                 />
             </div>
 
@@ -96,7 +96,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
             {milestone.has_quantity && (
                 <div className="flex gap-4">
                     <div className="w-full lg:w-32 space-y-1">
-                        <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                        <label className="block text-xs font-semibold text-text-primary ml-1">
                             Target Quantity
                         </label>
                         <input
@@ -107,7 +107,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                             onChange={(e) => handleFieldChange('quantity_target', e.target.value ? parseInt(e.target.value, 10) : '')}
                             placeholder="e.g. 10"
                             className={`w-full rounded-xl border px-4 py-3 text-sm ${
-                                error?.quantity_target ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                                error?.quantity_target ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                             } focus:outline-none focus:ring-2`}
                         />
                         {error?.quantity_target && <p className="text-red-500 text-xs ml-1">{error.quantity_target}</p>}

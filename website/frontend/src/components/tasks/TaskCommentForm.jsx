@@ -20,7 +20,7 @@ export default function TaskCommentForm({ user, onSubmit, disabled }) {
 
     return (
         <form onSubmit={handleSubmit} className="flex gap-3 items-start mt-3">
-            <div className="w-7 h-7 rounded-full bg-[#E8E8FF] text-[#5B5BD6] text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-7 h-7 rounded-full bg-accent/10 text-accent text-[10px] font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
                 {initials}
             </div>
             <div className="flex-1 flex gap-2">
@@ -30,12 +30,12 @@ export default function TaskCommentForm({ user, onSubmit, disabled }) {
                     onChange={e => setText(e.target.value)}
                     placeholder="Add a comment…"
                     disabled={disabled || loading}
-                    className="flex-1 text-sm px-3 py-2 border border-[#E0E0F0] rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8] disabled:opacity-50"
+                    className="flex-1 text-sm px-3 py-2 border border-border-primary rounded-xl bg-card focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8] disabled:opacity-50"
                 />
                 <button
                     type="submit"
                     disabled={!text.trim() || loading || disabled}
-                    className="px-3 py-2 bg-[#5B5BD6] text-white text-xs font-medium rounded-xl hover:bg-[#4747B8] disabled:opacity-40 transition-colors flex-shrink-0"
+                    className="px-3 py-2 bg-accent text-white text-xs font-medium rounded-xl hover:opacity-90 disabled:opacity-40 transition-colors flex-shrink-0"
                 >
                     {loading ? '…' : 'Post'}
                 </button>

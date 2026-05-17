@@ -55,9 +55,9 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
-                <h3 className="text-base font-bold text-[#1A1A1A]">Team</h3>
+                <h3 className="text-base font-bold text-text-primary">Team</h3>
                 {canManageTeam && (
                     <button 
                         onClick={() => setIsModalOpen(true)}
@@ -71,8 +71,8 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
             </div>
             
             <div className="flex items-center gap-2 mb-4">
-                <span className="text-sm font-semibold text-[#A1A1A1]">Members</span>
-                <span className="bg-[#F0F0F8] rounded py-0.5 px-2 text-xs font-semibold text-[#1A1A1A]">
+                <span className="text-sm font-semibold text-text-muted">Members</span>
+                <span className="bg-bg-secondary rounded py-0.5 px-2 text-xs font-semibold text-text-primary">
                     {members.length}
                 </span>
             </div>
@@ -104,7 +104,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
             {/* Add Member Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-white rounded-2xl p-6 shadow-xl w-full max-w-sm relative pointer-events-auto">
+                    <div className="bg-card rounded-2xl p-6 shadow-xl w-full max-w-sm relative pointer-events-auto">
                         <button 
                             onClick={() => setIsModalOpen(false)}
                             className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
@@ -160,7 +160,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                                 <button
                                     type="submit"
                                     disabled={isSubmitting || !selectedUserId}
-                                    className="px-4 py-2 text-sm font-semibold text-white bg-[#706BFF] hover:bg-[#5B55E6] rounded-lg disabled:opacity-50"
+                                    className="px-4 py-2 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-lg disabled:opacity-50"
                                 >
                                     {isSubmitting ? 'Adding...' : 'Add Member'}
                                 </button>

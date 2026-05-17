@@ -21,8 +21,8 @@ export default function OverviewActivityCard({ project }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col mt-4">
-            <h3 className="text-base font-bold text-[#1A1A1A] mb-6">Activity Feed</h3>
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col mt-4">
+            <h3 className="text-base font-bold text-text-primary mb-6">Activity Feed</h3>
             
             <div className="flex flex-col gap-6 relative">
                 {/* Vertical Line */}

@@ -49,7 +49,7 @@ function CustomMiniCalendar({ selectedDate, onSelectDate, updateDates }) {
     const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
     return (
-        <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl w-72 animate-in fade-in zoom-in-95 duration-200">
+        <div className="bg-card border border-slate-200 rounded-2xl p-4 shadow-2xl w-72 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-4">
                 <button type="button" onClick={() => viewMonth === 0 ? (setViewMonth(11), setViewYear(y => y - 1)) : setViewMonth(m => m - 1)} className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors">
                     <ChevronLeft size={18} className="text-slate-400" />
@@ -266,13 +266,13 @@ export default function ReportPreview({ reportData, config, onBack }) {
     ].filter(t => t.show);
 
     return (
-        <div className="min-h-screen bg-slate-100 pb-32 relative">
+        <div className="min-h-screen bg-bg-primary pb-32 relative">
 
             {/* Sticky Action Bar */}
-            <div className="sticky top-0 z-[80] bg-white border-b border-slate-200 px-8 py-3 flex items-center justify-between shadow-sm">
+            <div className="sticky top-0 z-[80] bg-card/80 backdrop-blur-md border-b border-border-primary px-8 py-3 flex items-center justify-between shadow-sm">
                 <button
                     onClick={onBack}
-                    className="flex items-center gap-2 text-sm font-black text-slate-600 hover:text-slate-900 group transition-all"
+                    className="flex items-center gap-2 text-sm font-black text-text-muted hover:text-text-primary group transition-all"
                 >
                     <ChevronLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                     Back to Builder
@@ -282,18 +282,18 @@ export default function ReportPreview({ reportData, config, onBack }) {
                     <button
                         onClick={handleExportPDF}
                         disabled={isExporting}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-600/20 active:scale-95 disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-accent text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-accent/20 active:scale-95 disabled:opacity-50"
                     >
                         <FileText size={16} />
-                        {isExporting && exportType === 'pdf' ? 'Generating PDF...' : 'Export to PDF'}
+                        {isExporting && exportType === 'pdf' ? 'Compiling PDF...' : 'Export to PDF'}
                     </button>
                     <button
                         onClick={handleExportExcel}
                         disabled={isExporting}
-                        className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-600/20 active:scale-95 disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-2.5 bg-emerald-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:opacity-90 transition-all shadow-lg shadow-emerald-500/20 active:scale-95 disabled:opacity-50"
                     >
                         <FileSpreadsheet size={16} />
-                        {isExporting && exportType === 'excel' ? 'Generating Excel...' : 'Export to Excel'}
+                        {isExporting && exportType === 'excel' ? 'Compiling Excel...' : 'Export to Excel'}
                     </button>
                 </div>
             </div>
@@ -316,18 +316,18 @@ export default function ReportPreview({ reportData, config, onBack }) {
             `}} />
 
             {/* Centered Document Page */}
-            <div className="max-w-[1000px] mx-auto mt-12 bg-white shadow-2xl rounded-3xl overflow-hidden border border-slate-200/50 animate-in fade-in slide-in-from-bottom-8 duration-700 min-h-[1400px]">
+            <div className="max-w-[1000px] mx-auto mt-12 bg-card shadow-2xl rounded-[40px] overflow-hidden border border-border-primary/50 animate-in fade-in slide-in-from-bottom-8 duration-700 min-h-[1400px]">
 
                 {/* Document Header (Internal Tabs) */}
-                <div className="border-b border-slate-100 px-12 pt-10">
+                <div className="border-b border-border-primary/50 px-12 pt-10">
                     <div className="flex items-center justify-between mb-8">
                         <div>
-                            <h2 className="text-3xl font-black text-slate-900 tracking-tighter">Project Report Preview</h2>
-                            <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">
+                            <h2 className="text-3xl font-black text-text-primary tracking-tighter">Project Report Preview</h2>
+                            <p className="text-[11px] font-black text-text-muted uppercase tracking-widest mt-1">
                                 {config?.startDate} — {config?.endDate}
                             </p>
                         </div>
-                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-tighter">
+                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-bg-secondary text-[10px] font-black text-text-muted uppercase tracking-tighter border border-border-primary">
                             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                             Live Preview
                         </div>
@@ -338,12 +338,12 @@ export default function ReportPreview({ reportData, config, onBack }) {
                             <button
                                 key={tab.name}
                                 onClick={() => setActiveTab(tab.name)}
-                                className={`pb-4 px-2 text-xs font-black uppercase tracking-widest transition-all relative ${activeTab === tab.name ? 'text-indigo-600' : 'text-slate-400 hover:text-slate-600'
+                                className={`pb-4 px-2 text-[11px] font-black uppercase tracking-widest transition-all relative ${activeTab === tab.name ? 'text-accent' : 'text-text-muted hover:text-text-primary'
                                     }`}
                             >
                                 {tab.name}
                                 {activeTab === tab.name && (
-                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-indigo-600 rounded-full" />
+                                    <div className="absolute bottom-0 left-0 w-full h-1 bg-accent rounded-full shadow-[0_0_10px_rgba(124,116,255,0.4)]" />
                                 )}
                             </button>
                         ))}
@@ -359,36 +359,36 @@ export default function ReportPreview({ reportData, config, onBack }) {
                             <div key={project.id} className="space-y-12">
                                 {/* Project Title Marker */}
                                 <div className="flex items-center gap-4 mb-8">
-                                    <div className="h-10 w-2 bg-indigo-600 rounded-full" />
-                                    <h3 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{project.name}</h3>
+                                    <div className="h-10 w-2 bg-accent rounded-full shadow-[0_0_12px_rgba(124,116,255,0.4)]" />
+                                    <h3 className="text-2xl font-black text-text-primary tracking-tight uppercase">{project.name}</h3>
                                 </div>
 
                                 {activeTab === 'Progress Analysis' && (
                                     <div className="space-y-12 animate-in fade-in duration-500">
                                         {/* Progress Status Summary Table */}
-                                        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                                            <div className="bg-slate-50 py-3 px-8 text-center border-b border-slate-200">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Progress Status Summary</span>
+                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
+                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
+                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Progress Status Summary</span>
                                             </div>
                                             <table className="w-full text-left">
-                                                <thead className="bg-white border-b border-slate-200">
+                                                <thead className="bg-card border-b border-border-primary">
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Milestone</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Date finished</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Milestone</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Date finished</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100">
+                                                <tbody className="divide-y divide-border-primary/30">
                                                     {(!project.progress?.phases || project.progress.phases.flatMap(p => p.milestones.filter(m => m.progress_percentage === 100)).length === 0) ? (
                                                         <tr>
-                                                            <td colSpan="3" className="px-8 py-8 text-center text-sm text-slate-400 italic">No completed milestones found.</td>
+                                                            <td colSpan="3" className="px-8 py-8 text-center text-sm text-text-muted italic">No completed milestones found.</td>
                                                         </tr>
                                                     ) : project.progress.phases.flatMap(phase =>
                                                         phase.milestones.filter(m => m.progress_percentage === 100).map((m) => (
-                                                            <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
-                                                                <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{project.name}</td>
-                                                                <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{m.milestone_name}</td>
-                                                                <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{m.end_date || 'N/A'}</td>
+                                                            <tr key={m.id} className="hover:bg-bg-hover transition-colors">
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{m.milestone_name}</td>
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{m.end_date || 'N/A'}</td>
                                                             </tr>
                                                         ))
                                                     )}
@@ -397,30 +397,30 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                         </div>
 
                                         {/* Progress Report Table */}
-                                        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                                            <div className="bg-slate-50 py-3 px-8 text-center border-b border-slate-200">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Completed Works</span>
+                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
+                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
+                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Completed Works</span>
                                             </div>
                                             <table className="w-full text-left">
-                                                <thead className="bg-white border-b border-slate-200">
+                                                <thead className="bg-card border-b border-border-primary">
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Task</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Task Owner</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Date finished</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Task</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Task Owner</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Date finished</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100">
+                                                <tbody className="divide-y divide-border-primary/30">
                                                     {(!project.completedTasks || project.completedTasks.length === 0) ? (
                                                         <tr>
-                                                            <td colSpan="4" className="px-8 py-8 text-center text-sm text-slate-400 italic">No completed tasks found.</td>
+                                                            <td colSpan="4" className="px-8 py-8 text-center text-sm text-text-muted italic">No completed tasks found.</td>
                                                         </tr>
                                                     ) : project.completedTasks.map((task, i) => (
-                                                        <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                                                            <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{project.name}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{task.title}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{task.taken_by}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{task.date}</td>
+                                                        <tr key={i} className="hover:bg-bg-hover transition-colors">
+                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
+                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.title}</td>
+                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.taken_by}</td>
+                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.date}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -428,26 +428,26 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                         </div>
 
                                         {/* Summary Table */}
-                                        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                                            <div className="bg-slate-50 py-3 px-8 text-center border-b border-slate-200">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500">Summary</span>
+                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
+                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
+                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Summary</span>
                                             </div>
                                             <table className="w-full text-left">
-                                                <thead className="bg-white border-b border-slate-200">
+                                                <thead className="bg-card border-b border-border-primary">
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Accomplishments</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Tasks Completed</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Progress %</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Accomplishments</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Tasks Completed</th>
+                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Progress %</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-100">
-                                                    <tr className="hover:bg-slate-50/50 transition-colors">
-                                                        <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{project.name}</td>
-                                                        <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">
+                                                <tbody className="divide-y divide-border-primary/30">
+                                                    <tr className="hover:bg-bg-hover transition-colors">
+                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
+                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">
                                                             {project.progress?.phases?.reduce((acc, p) => acc + (p.milestones?.filter(m => m.progress_percentage === 100).length || 0), 0) || 0}
                                                         </td>
-                                                        <td className="px-8 py-4 text-xs font-bold text-slate-700 text-center">{project.completedTasks?.length || 0}</td>
+                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.completedTasks?.length || 0}</td>
                                                         <td className="px-8 py-4 text-sm font-black text-emerald-500 text-center">{project.progress?.project_progress || 0}%</td>
                                                     </tr>
                                                 </tbody>
@@ -457,41 +457,41 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 )}
 
                                 {activeTab === 'Inventory Summary' && (
-                                    <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-8 animate-in fade-in duration-500">
+                                    <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden p-8 animate-in fade-in duration-500">
                                         <div className="flex items-center justify-between mb-8">
-                                            <h3 className="text-xl font-black text-slate-900 tracking-tight">Inventory Summary</h3>
+                                            <h3 className="text-xl font-black text-text-primary tracking-tight">Inventory Summary</h3>
                                         </div>
-                                        <div className="overflow-hidden border border-slate-100 rounded-2xl">
+                                        <div className="overflow-hidden border border-border-primary/50 rounded-2xl">
                                             <table className="w-full text-left">
-                                                <thead className="bg-slate-50/50">
+                                                <thead className="bg-bg-secondary/30">
                                                     <tr>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Item Name</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Category</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">In Stock</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider text-center">Min. Stock</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Price</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-wider">Status</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Item Name</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Category</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">In Stock</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Min. Stock</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Price</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Status</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-slate-50">
+                                                <tbody className="divide-y divide-border-primary/20">
                                                     {(!project.inventory || project.inventory.length === 0) ? (
                                                         <tr>
-                                                            <td colSpan="6" className="px-6 py-10 text-center text-sm text-slate-400 italic">No inventory items found.</td>
+                                                            <td colSpan="6" className="px-6 py-10 text-center text-sm text-text-muted italic">No inventory items found.</td>
                                                         </tr>
                                                     ) : project.inventory.map((item, i) => (
-                                                        <tr key={i} className="hover:bg-slate-50/30 transition-colors">
-                                                            <td className="px-6 py-4 text-xs font-bold text-slate-700">{item.item}</td>
+                                                        <tr key={i} className="hover:bg-bg-hover transition-colors">
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-primary">{item.item}</td>
                                                             <td className="px-6 py-4">
-                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.category === 'Materials' ? 'bg-yellow-100 text-yellow-700' : 'bg-pink-100 text-pink-700'
+                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.category === 'Materials' ? 'bg-yellow-500/10 text-yellow-600' : 'bg-pink-500/10 text-pink-600'
                                                                     }`}>
                                                                     {item.category}
                                                                 </span>
                                                             </td>
-                                                            <td className="px-6 py-4 text-xs font-bold text-slate-600 text-center">{item.stock}</td>
-                                                            <td className="px-6 py-4 text-xs font-bold text-slate-600 text-center">{item.minStock}</td>
-                                                            <td className="px-6 py-4 text-xs font-bold text-slate-600">{item.price}</td>
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary text-center">{item.stock}</td>
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary text-center">{item.minStock}</td>
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary">{item.price}</td>
                                                             <td className="px-6 py-4">
-                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'In Stock' ? 'bg-emerald-100 text-emerald-700' : 'bg-orange-100 text-orange-700'
+                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'In Stock' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-orange-500/10 text-orange-600'
                                                                     }`}>
                                                                     {item.status}
                                                                 </span>
@@ -502,8 +502,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                             </table>
                                         </div>
                                         <div className="mt-8 flex justify-between items-center px-4">
-                                            <span className="text-xl font-black text-slate-900 uppercase">Total Inventory Value</span>
-                                            <span className="text-2xl font-black text-slate-900">
+                                            <span className="text-xl font-black text-text-primary uppercase tracking-tight">Total Inventory Value</span>
+                                            <span className="text-2xl font-black text-text-primary">
                                                 ₱{project.inventory?.reduce((sum, item) => sum + (parseFloat(item.price.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()}
                                             </span>
                                         </div>
@@ -513,10 +513,10 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 {activeTab === 'Accomplishments' && (
                                     <div className="space-y-12 animate-in fade-in duration-500">
                                         <div className="flex justify-between items-center no-print">
-                                            <p className="text-sm font-bold text-slate-500">Add side-by-side comparison views to show visual progress.</p>
+                                            <p className="text-sm font-bold text-text-muted">Add side-by-side comparison views to show visual progress.</p>
                                             <button
                                                 onClick={addComparisonView}
-                                                className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2"
+                                                className="bg-accent text-white hover:opacity-90 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-accent/20"
                                             >
                                                 <Clock size={14} />
                                                 Add Comparison View
@@ -529,15 +529,15 @@ export default function ReportPreview({ reportData, config, onBack }) {
 
                                             return (
                                                 <div key={view.id} className="space-y-8 relative group">
-                                                    {idx > 0 && <div className="border-t-2 border-dashed border-slate-100 pt-8" />}
+                                                    {idx > 0 && <div className="border-t border-border-primary/50 pt-8" />}
 
                                                     {/* Comparison View Header */}
                                                     <div className="flex justify-between items-center">
-                                                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em]">Visual Comparison #{idx + 1}</span>
+                                                        <span className="text-[10px] font-black text-accent uppercase tracking-[0.2em]">Visual Comparison #{idx + 1}</span>
                                                         {accomplishmentViews.length > 1 && (
                                                             <button
                                                                 onClick={() => removeComparisonView(view.id)}
-                                                                className="text-red-400 hover:text-red-600 text-[10px] font-bold uppercase no-print"
+                                                                className="text-red-500 hover:text-red-600 text-[10px] font-black uppercase tracking-widest no-print"
                                                             >
                                                                 Remove
                                                             </button>
@@ -546,15 +546,15 @@ export default function ReportPreview({ reportData, config, onBack }) {
 
                                                     <div className="flex gap-8 mb-4 no-print">
                                                         <div className="flex-1 space-y-3 relative">
-                                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest pl-4">Before Date</label>
+                                                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest pl-4">Before Date</label>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => toggleCalendar(view.id, 'showBeforeCalendar')}
-                                                                className="w-full flex items-center gap-3 px-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group/btn"
+                                                                className={`w-full flex items-center gap-3 px-4 py-4 bg-bg-secondary/50 border rounded-2xl text-[11px] font-black text-text-primary transition-all shadow-sm group/btn ${view.showBeforeCalendar ? 'border-accent ring-4 ring-accent/5' : 'border-border-primary hover:border-accent/50'}`}
                                                             >
-                                                                <Calendar className="text-indigo-500 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                                                                <Calendar className="text-accent w-5 h-5 group-hover/btn:scale-110 transition-transform" />
                                                                 {toDateString(view.beforeDate)}
-                                                                <ChevronRight size={16} className={`ml-auto text-slate-300 transition-transform ${view.showBeforeCalendar ? 'rotate-90' : ''}`} />
+                                                                <ChevronRight size={16} className={`ml-auto text-text-muted transition-transform ${view.showBeforeCalendar ? 'rotate-90' : ''}`} />
                                                             </button>
                                                             {view.showBeforeCalendar && (
                                                                 <div className="absolute top-[calc(100%+8px)] left-0 z-50">
@@ -567,15 +567,15 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                             )}
                                                         </div>
                                                         <div className="flex-1 space-y-3 relative">
-                                                            <label className="text-[10px] font-black text-slate-900 uppercase tracking-widest pl-4">After Date</label>
+                                                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest pl-4">After Date</label>
                                                             <button
                                                                 type="button"
                                                                 onClick={() => toggleCalendar(view.id, 'showAfterCalendar')}
-                                                                className="w-full flex items-center gap-3 px-4 py-4 bg-white border border-slate-200 rounded-2xl text-xs font-black text-slate-700 hover:border-indigo-300 transition-all shadow-sm group/btn"
+                                                                className={`w-full flex items-center gap-3 px-4 py-4 bg-bg-secondary/50 border rounded-2xl text-[11px] font-black text-text-primary transition-all shadow-sm group/btn ${view.showAfterCalendar ? 'border-accent ring-4 ring-accent/5' : 'border-border-primary hover:border-accent/50'}`}
                                                             >
-                                                                <Calendar className="text-indigo-500 w-5 h-5 group-hover/btn:scale-110 transition-transform" />
+                                                                <Calendar className="text-accent w-5 h-5 group-hover/btn:scale-110 transition-transform" />
                                                                 {toDateString(view.afterDate)}
-                                                                <ChevronRight size={16} className={`ml-auto text-slate-300 transition-transform ${view.showAfterCalendar ? 'rotate-90' : ''}`} />
+                                                                <ChevronRight size={16} className={`ml-auto text-text-muted transition-transform ${view.showAfterCalendar ? 'rotate-90' : ''}`} />
                                                             </button>
                                                             {view.showAfterCalendar && (
                                                                 <div className="absolute top-[calc(100%+8px)] left-0 z-50">
@@ -591,18 +591,18 @@ export default function ReportPreview({ reportData, config, onBack }) {
 
                                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                         {/* BEFORE CARD */}
-                                                        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid">
+                                                        <div className="bg-bg-secondary/30 rounded-[40px] border border-border-primary shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid group/card hover:bg-bg-secondary/50 transition-all duration-500">
                                                             <div className="flex justify-between items-start mb-6">
                                                                 <div>
-                                                                    <h4 className="text-2xl font-black text-slate-900">Before</h4>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(view.beforeDate)}</p>
+                                                                    <h4 className="text-2xl font-black text-text-primary tracking-tight">Before</h4>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{toDateString(view.beforeDate)}</p>
                                                                 </div>
-                                                                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${filteredBefore.length > 0 ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-100 text-slate-400'
+                                                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider ${filteredBefore.length > 0 ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-bg-tertiary text-text-muted border border-border-primary'
                                                                     }`}>
                                                                     {filteredBefore.length} updates
                                                                 </span>
                                                             </div>
-                                                            <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
+                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-accent/30 transition-all">
                                                                 {filteredBefore.length > 0 ? (
                                                                     <img
                                                                         src={filteredBefore[0].image_url}
@@ -611,40 +611,40 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     />
                                                                 ) : (
                                                                     <div className="text-center p-8">
-                                                                        <Camera size={32} className="text-slate-200 mx-auto mb-2" />
-                                                                        <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
+                                                                        <Camera size={32} className="text-text-muted/30 mx-auto mb-2" />
+                                                                        <p className="text-[9px] text-text-muted font-black uppercase tracking-widest">No photo available</p>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
-                                                                    <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.taken_by || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Taken By</p>
+                                                                    <p className="text-xs font-bold text-text-primary">{filteredBefore[0]?.taken_by || '—'}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
-                                                                    <p className="text-xs font-bold text-slate-900">{filteredBefore[0]?.time || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Time</p>
+                                                                    <p className="text-xs font-bold text-text-primary">{filteredBefore[0]?.time || '—'}</p>
                                                                 </div>
                                                                 <div className="col-span-2">
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
-                                                                    <p className="text-xs font-bold text-slate-900 leading-snug">{filteredBefore[0]?.notes || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Notes</p>
+                                                                    <p className="text-xs font-bold text-text-primary leading-snug">{filteredBefore[0]?.notes || '—'}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
 
                                                         {/* AFTER CARD */}
-                                                        <div className="bg-white rounded-[40px] border border-slate-100 shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid">
+                                                        <div className="bg-bg-secondary/30 rounded-[40px] border border-border-primary shadow-xl overflow-hidden p-8 flex flex-col min-h-[500px] page-break-inside-avoid group/card hover:bg-bg-secondary/50 transition-all duration-500">
                                                             <div className="flex justify-between items-start mb-6">
                                                                 <div>
-                                                                    <h4 className="text-2xl font-black text-slate-900">After</h4>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{toDateString(view.afterDate)}</p>
+                                                                    <h4 className="text-2xl font-black text-text-primary tracking-tight">After</h4>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest">{toDateString(view.afterDate)}</p>
                                                                 </div>
-                                                                <span className={`px-4 py-1 rounded-full text-[10px] font-black uppercase ${filteredAfter.length > 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
+                                                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider ${filteredAfter.length > 0 ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 'bg-bg-tertiary text-text-muted border border-border-primary'
                                                                     }`}>
                                                                     {filteredAfter.length} updates
                                                                 </span>
                                                             </div>
-                                                            <div className="aspect-video bg-slate-50 rounded-3xl overflow-hidden mb-8 border border-slate-100 flex items-center justify-center relative shadow-inner">
+                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-emerald-500/30 transition-all">
                                                                 {filteredAfter.length > 0 ? (
                                                                     <img
                                                                         src={filteredAfter[0].image_url}
@@ -653,23 +653,23 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     />
                                                                 ) : (
                                                                     <div className="text-center p-8">
-                                                                        <Camera size={32} className="text-slate-200 mx-auto mb-2" />
-                                                                        <p className="text-[9px] text-slate-400 font-black uppercase tracking-widest">No photo on this date</p>
+                                                                        <Camera size={32} className="text-text-muted/30 mx-auto mb-2" />
+                                                                        <p className="text-[9px] text-text-muted font-black uppercase tracking-widest">No photo available</p>
                                                                     </div>
                                                                 )}
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-x-8 gap-y-6 flex-1">
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Taken By</p>
-                                                                    <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.taken_by || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Taken By</p>
+                                                                    <p className="text-xs font-bold text-text-primary">{filteredAfter[0]?.taken_by || '—'}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Time</p>
-                                                                    <p className="text-xs font-bold text-slate-900">{filteredAfter[0]?.time || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Time</p>
+                                                                    <p className="text-xs font-bold text-text-primary">{filteredAfter[0]?.time || '—'}</p>
                                                                 </div>
                                                                 <div className="col-span-2">
-                                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Notes</p>
-                                                                    <p className="text-xs font-bold text-slate-900 leading-snug">{filteredAfter[0]?.notes || '—'}</p>
+                                                                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Notes</p>
+                                                                    <p className="text-xs font-bold text-text-primary leading-snug">{filteredAfter[0]?.notes || '—'}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -685,9 +685,9 @@ export default function ReportPreview({ reportData, config, onBack }) {
                 </div>
 
                 {/* Document Footer */}
-                <div className="bg-slate-50 border-t border-slate-100 px-12 py-10 flex flex-col items-center justify-center text-center">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] mb-4">End of Report Preview</p>
-                    <div className="h-1 w-12 bg-indigo-600 rounded-full" />
+                <div className="bg-bg-secondary/50 border-t border-border-primary px-12 py-10 flex flex-col items-center justify-center text-center">
+                    <p className="text-[10px] font-black text-text-muted uppercase tracking-[0.4em] mb-4">End of Report Preview</p>
+                    <div className="h-1.5 w-16 bg-accent rounded-full shadow-[0_0_10px_rgba(124,116,255,0.3)]" />
                 </div>
             </div>
         </div>

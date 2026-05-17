@@ -29,13 +29,13 @@ export default function ProjectMilestonesTab({ project }) {
 
     if (phases.length === 0) {
         return (
-            <div className="w-full h-80 flex flex-col items-center justify-center bg-white rounded-3xl border border-[#F0F0F8] text-[#A1A1A1] text-center p-12 shadow-sm">
-                <div className="w-20 h-20 bg-[#F0F0F8] rounded-full flex items-center justify-center mb-6">
+            <div className="w-full h-80 flex flex-col items-center justify-center bg-card rounded-3xl border border-border-primary text-text-muted text-center p-12 shadow-sm">
+                <div className="w-20 h-20 bg-bg-secondary rounded-full flex items-center justify-center mb-6">
                     <svg className="w-10 h-10 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                 </div>
-                <p className="font-bold text-[#1A1A1A] text-xl mb-2">No milestones set for this project.</p>
+                <p className="font-bold text-text-primary text-xl mb-2">No milestones set for this project.</p>
                 <p className="text-sm max-w-sm">Defining project phases and milestones is required to track progress here.</p>
             </div>
         );
@@ -54,19 +54,19 @@ export default function ProjectMilestonesTab({ project }) {
             ) : (
                 <div className="animate-in fade-in slide-in-from-right-8 duration-700 space-y-12">
                     {/* Header with Navigation Back */}
-                    <div className="flex items-center justify-between mb-10 sticky top-0 bg-white/80 backdrop-blur-md z-10 py-4 px-2 -mx-2 rounded-xl">
+                    <div className="flex items-center justify-between mb-10 sticky top-0 bg-card/80 backdrop-blur-md z-10 py-4 px-2 -mx-2 rounded-xl">
                         <div className="flex items-center gap-5">
                             <button 
                                 onClick={() => setView('grid')}
-                                className="p-3 bg-[#F0F0F8] hover:bg-[#E8E8FF] transition-all rounded-2xl text-[#1A1A1A] group"
+                                className="p-3 bg-bg-secondary hover:bg-accent/10 transition-all rounded-2xl text-text-primary group"
                             >
                                 <svg className="w-6 h-6 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
-                            <h2 className="text-3xl font-bold text-[#1A1A1A]">Project Detailed Progress</h2>
+                            <h2 className="text-3xl font-bold text-text-primary">Project Detailed Progress</h2>
                         </div>
-                        <div className="text-sm font-semibold text-[#A1A1A1] bg-[#F0F0F8] px-4 py-2 rounded-full">
+                        <div className="text-sm font-semibold text-text-muted bg-bg-secondary px-4 py-2 rounded-full">
                             Project ID: {project.project_code}
                         </div>
                     </div>
@@ -76,7 +76,7 @@ export default function ProjectMilestonesTab({ project }) {
 
                     {/* Vertical Scrollable Phase Tables */}
                     <div className="space-y-6">
-                        <h3 className="text-xl font-bold text-[#1A1A1A] px-2 mb-4">Phase Details</h3>
+                        <h3 className="text-xl font-bold text-text-primary px-2 mb-4">Phase Details</h3>
                         {phases.map((phase) => (
                             <MilestoneTaskTable 
                                 key={phase.id} 
@@ -87,10 +87,10 @@ export default function ProjectMilestonesTab({ project }) {
                     </div>
 
                     {/* Footer Nav */}
-                    <div className="flex justify-center pt-8 border-t border-[#F0F0F8]">
+                    <div className="flex justify-center pt-8 border-t border-border-primary">
                         <button 
                             onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                            className="flex items-center gap-2 text-[#706BFF] font-bold hover:underline"
+                            className="flex items-center gap-2 text-accent font-bold hover:underline"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 15l7-7 7 7" />

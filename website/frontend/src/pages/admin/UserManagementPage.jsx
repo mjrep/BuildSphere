@@ -17,7 +17,7 @@ export default function UserManagementPage() {
 
     const roles = [
         'CEO', 'COO', 'Project Engineer', 'Project Coordinator', 
-        'Foreman', 'Procurement', 'Accounting', 'HR'
+        'Procurement', 'Sales', 'Accounting', 'HR', 'Foreman', 'Staff'
     ];
 
     useEffect(() => {
@@ -64,106 +64,191 @@ export default function UserManagementPage() {
         }
     };
 
-    const updateRole = async (userId, newRole) => {
+    const [editingUserId, setEditingUserId] = useState(null);
+    const [editForm, setEditForm] = useState({ first_name: '', last_name: '', email: '', role: '' });
+
+    const handleEditClick = (user) => {
+        setEditingUserId(user.id);
+        setEditForm({
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            role: user.role
+        });
+    };
+
+    const handleSaveEdit = async () => {
         try {
-            await api.patch(`/admin/users/${userId}/role`, { role: newRole });
-            toast.success('Role updated successfully');
+            await api.patch(`/admin/users/${editingUserId}`, editForm);
+            toast.success('Personnel details updated');
+            setEditingUserId(null);
             fetchUsers();
         } catch (err) {
-            toast.error('Failed to update role');
+            toast.error(err.response?.data?.message || 'Update failed');
         }
     };
 
     return (
         <DashboardLayout pageTitle="Personnel Management">
-            <div className="space-y-8 animate-in fade-in duration-500">
-                {/* Header Section Removed (Layout has Header) - Keeping description/button row */}
-                <div className="flex justify-between items-center bg-white p-6 rounded-[2rem] shadow-sm border border-[#F0F0F8]">
-                    <div>
-                        <p className="text-[#6B7280] text-sm">Manage company accounts, roles, and system access.</p>
+            <div className="space-y-5 animate-in fade-in duration-500 pb-10">
+                
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row justify-between items-center bg-card p-6 rounded-2xl shadow-sm border border-border-primary gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center text-accent">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 className="text-lg font-black text-text-primary tracking-tight">Active Directory</h2>
+                            <p className="text-xs font-bold text-text-muted">Directly access and manage personnel designations and credentials.</p>
+                        </div>
                     </div>
                     <button 
                         onClick={() => setShowInviteModal(true)}
-                        className="bg-[#706BFF] hover:bg-[#5B55E6] text-white px-8 py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-[#706BFF]/20 flex items-center gap-2 active:scale-95"
+                        className="w-full md:w-auto bg-accent hover:opacity-90 text-white px-6 py-2.5 rounded-xl font-bold uppercase tracking-widest text-[11px] transition-all shadow-md shadow-accent/20 flex items-center justify-center gap-2 active:scale-95"
                     >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4v16m8-8H4" />
-                        </svg>
-                        Invite New Personnel
+                        <span className="text-lg">+</span>
+                        Add Personnel
                     </button>
                 </div>
 
                 {/* Users Table */}
-                <div className="bg-white rounded-[2rem] shadow-sm border border-[#F0F0F8] overflow-hidden">
+                <div className="bg-card rounded-2xl shadow-sm border border-border-primary overflow-hidden">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="bg-[#F9FAFB] border-b border-[#F0F0F8]">
-                                    <th className="px-8 py-5 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Name</th>
-                                    <th className="px-8 py-5 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Email</th>
-                                    <th className="px-8 py-5 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Role</th>
-                                    <th className="px-8 py-5 text-xs font-bold text-[#6B7280] uppercase tracking-wider">Status</th>
-                                    <th className="px-8 py-5 text-xs font-bold text-[#6B7280] uppercase tracking-wider text-right">Actions</th>
+                                <tr className="bg-bg-secondary/50 border-b border-border-primary">
+                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Personnel</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Email Address</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Designation</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#F0F0F8]">
+                            <tbody className="divide-y divide-border-primary/50">
                                 {loading ? (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-20 text-center text-[#6B7280]">
+                                        <td colSpan="5" className="px-6 py-20 text-center">
                                             <div className="flex flex-col items-center gap-3">
-                                                <div className="w-10 h-10 border-4 border-[#706BFF]/20 border-t-[#706BFF] rounded-full animate-spin"></div>
-                                                <span className="text-sm font-medium">Fetching personnel list...</span>
+                                                <div className="w-8 h-8 border-[4px] border-accent/10 border-t-accent rounded-full animate-spin"></div>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">Synchronizing Directory...</span>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : users.length === 0 ? (
                                     <tr>
-                                        <td colSpan="5" className="px-8 py-20 text-center text-[#6B7280]">No personnel accounts found.</td>
+                                        <td colSpan="5" className="px-6 py-20 text-center text-text-muted font-bold italic">No personnel records found.</td>
                                     </tr>
                                 ) : (
-                                    users.map((user) => (
-                                        <tr key={user.id} className={`hover:bg-[#F9FAFB] transition-colors ${!user.is_active ? 'opacity-60 bg-gray-50' : ''}`}>
-                                            <td className="px-8 py-5">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm ${user.is_active ? 'bg-[#706BFF]/10 text-[#706BFF]' : 'bg-gray-200 text-gray-500'}`}>
-                                                        {user.first_name[0]}{user.last_name[0]}
+                                    users.map((user) => {
+                                        const isEditing = editingUserId === user.id;
+                                        return (
+                                            <tr key={user.id} className={`group hover:bg-bg-hover transition-colors ${!user.is_active && !isEditing ? 'opacity-50' : ''}`}>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-[10px] shadow-sm transition-transform group-hover:scale-105 ${user.is_active ? 'bg-accent/10 text-accent' : 'bg-bg-tertiary text-text-muted'}`}>
+                                                            {user.first_name[0]}{user.last_name[0]}
+                                                        </div>
+                                                        {isEditing ? (
+                                                            <div className="flex gap-2">
+                                                                <input 
+                                                                    value={editForm.first_name}
+                                                                    onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
+                                                                    className="bg-bg-tertiary border border-border-primary rounded px-2 py-1 text-sm font-bold w-24 outline-none focus:border-accent"
+                                                                />
+                                                                <input 
+                                                                    value={editForm.last_name}
+                                                                    onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
+                                                                    className="bg-bg-tertiary border border-border-primary rounded px-2 py-1 text-sm font-bold w-24 outline-none focus:border-accent"
+                                                                />
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                <span className="block font-bold text-text-primary text-[15px] leading-tight">{user.first_name} {user.last_name}</span>
+                                                                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-0.5 block">{user.role}</span>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <span className="font-bold text-[#1A1A1A]">{user.first_name} {user.last_name}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-8 py-5 text-sm text-[#4B5563]">{user.email}</td>
-                                            <td className="px-8 py-5">
-                                                <select 
-                                                    value={user.role} 
-                                                    onChange={(e) => updateRole(user.id, e.target.value)}
-                                                    className="bg-white border border-[#E5E7EB] rounded-lg text-xs font-medium px-2 py-1 focus:ring-2 focus:ring-[#706BFF]/20 outline-none"
-                                                >
-                                                    {roles.map(r => <option key={r} value={r}>{r}</option>)}
-                                                </select>
-                                            </td>
-                                            <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                                    user.is_active 
-                                                        ? 'bg-emerald-50 text-emerald-600' 
-                                                        : 'bg-red-50 text-red-600'
-                                                }`}>
-                                                    {user.is_active ? 'Active' : 'Deactivated'}
-                                                </span>
-                                            </td>
-                                            <td className="px-8 py-5 text-right">
-                                                <button 
-                                                    onClick={() => toggleUserStatus(user.id, user.is_active)}
-                                                    className={`text-xs font-bold px-4 py-2 rounded-xl transition-all ${
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    {isEditing ? (
+                                                        <input 
+                                                            value={editForm.email}
+                                                            onChange={(e) => setEditForm({...editForm, email: e.target.value})}
+                                                            className="bg-bg-tertiary border border-border-primary rounded px-3 py-1 text-sm font-semibold w-full outline-none focus:border-accent"
+                                                        />
+                                                    ) : (
+                                                        <span className="text-sm font-semibold text-text-muted">{user.email}</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <div className="relative group min-w-[160px]">
+                                                        <select 
+                                                            value={isEditing ? editForm.role : (roles.find(r => r.toLowerCase() === user.role.toLowerCase()) || user.role)} 
+                                                            onChange={(e) => isEditing ? setEditForm({...editForm, role: e.target.value}) : updateRole(user.id, e.target.value)}
+                                                            className="w-full bg-bg-tertiary border border-border-primary rounded-lg text-xs font-bold tracking-tight px-3 py-2 pr-8 focus:ring-2 focus:ring-accent/10 focus:border-accent outline-none appearance-none cursor-pointer text-text-primary transition-all shadow-sm"
+                                                        >
+                                                            {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                                                        </select>
+                                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
+                                                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                                            </svg>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-4">
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
                                                         user.is_active 
-                                                            ? 'text-red-500 hover:bg-red-50' 
-                                                            : 'text-emerald-500 hover:bg-emerald-50'
-                                                    }`}
-                                                >
-                                                    {user.is_active ? 'Deactivate' : 'Activate Account'}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
+                                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
+                                                            : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                    }`}>
+                                                        <span className={`w-1 h-1 rounded-full mr-2 ${user.is_active ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
+                                                        {user.is_active ? 'Active' : 'Offline'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 text-right space-x-2">
+                                                    {isEditing ? (
+                                                        <>
+                                                            <button 
+                                                                onClick={handleSaveEdit}
+                                                                className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 transition-all shadow-sm"
+                                                            >
+                                                                Save
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => setEditingUserId(null)}
+                                                                className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg bg-bg-tertiary text-text-muted hover:bg-bg-hover transition-all border border-border-primary"
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <button 
+                                                                onClick={() => handleEditClick(user)}
+                                                                className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg text-accent hover:bg-accent/10 transition-all border border-accent/20"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => toggleUserStatus(user.id, user.is_active)}
+                                                                className={`text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all border ${
+                                                                    user.is_active 
+                                                                        ? 'text-red-500 border-red-500/20 hover:bg-red-500/10' 
+                                                                        : 'text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/10'
+                                                                }`}
+                                                            >
+                                                                {user.is_active ? 'Deactivate' : 'Activate'}
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })
                                 )}
                             </tbody>
                         </table>
@@ -172,71 +257,78 @@ export default function UserManagementPage() {
 
                 {/* Invite Modal */}
                 {showInviteModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                        <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="bg-[#706BFF] p-8 text-white">
-                                <h3 className="text-2xl font-bold">Invite Personnel</h3>
-                                <p className="text-white/70 text-sm mt-1">Send a registration invite to a new member.</p>
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md border border-border-primary overflow-hidden animate-in zoom-in-95 duration-300">
+                            <div className="bg-accent px-8 py-10 text-white relative">
+                                <h3 className="text-2xl font-black tracking-tight">Add Personnel</h3>
+                                <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest mt-1">Directory Invitation</p>
                             </div>
                             
                             <form onSubmit={handleInviteSubmit} className="p-8 space-y-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">First Name</label>
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">First Name</label>
                                         <input 
                                             required
                                             value={inviteForm.first_name}
                                             onChange={(e) => setInviteForm({...inviteForm, first_name: e.target.value})}
-                                            className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-[#706BFF]/20 outline-none transition-all"
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-xs font-bold text-gray-500 uppercase ml-1">Last Name</label>
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Last Name</label>
                                         <input 
                                             required
                                             value={inviteForm.last_name}
                                             onChange={(e) => setInviteForm({...inviteForm, last_name: e.target.value})}
-                                            className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-[#706BFF]/20 outline-none transition-all"
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Email Address</label>
+                                    <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
                                     <input 
                                         required
                                         type="email"
                                         value={inviteForm.email}
                                         onChange={(e) => setInviteForm({...inviteForm, email: e.target.value})}
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-[#706BFF]/20 outline-none transition-all"
+                                        className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
                                     />
                                 </div>
 
                                 <div className="space-y-1.5">
-                                    <label className="text-xs font-bold text-gray-500 uppercase ml-1">Designated Role</label>
-                                    <select 
-                                        value={inviteForm.role}
-                                        onChange={(e) => setInviteForm({...inviteForm, role: e.target.value})}
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50 px-4 py-3 text-sm focus:ring-2 focus:ring-[#706BFF]/20 outline-none transition-all appearance-none"
-                                    >
-                                        {roles.map(r => <option key={r} value={r}>{r}</option>)}
-                                    </select>
+                                    <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Role</label>
+                                    <div className="relative group">
+                                        <select 
+                                            value={inviteForm.role}
+                                            onChange={(e) => setInviteForm({...inviteForm, role: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 pr-10 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all appearance-none cursor-pointer text-text-primary"
+                                        >
+                                            {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                                        </select>
+                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
 
-                                <div className="flex gap-4 pt-2">
+                                <div className="flex gap-3 pt-2">
                                     <button 
                                         type="button"
                                         onClick={() => setShowInviteModal(false)}
-                                        className="flex-1 py-4 text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-all"
+                                        className="flex-1 py-3 text-[10px] font-black text-text-muted bg-bg-tertiary hover:bg-bg-hover rounded-xl transition-all uppercase tracking-widest border border-border-primary"
                                     >
                                         Cancel
                                     </button>
                                     <button 
                                         type="submit"
                                         disabled={inviting}
-                                        className="flex-[2] py-4 text-sm font-bold text-white bg-[#706BFF] hover:bg-[#5B55E6] rounded-2xl shadow-lg transition-all disabled:opacity-50"
+                                        className="flex-[2] py-3 text-[10px] font-black text-white bg-accent hover:opacity-90 rounded-xl shadow-lg transition-all disabled:opacity-50 uppercase tracking-widest"
                                     >
-                                        {inviting ? 'Sending Invite...' : 'Send Invitation'}
+                                        {inviting ? 'Adding...' : 'Add Personnel'}
                                     </button>
                                 </div>
                             </form>

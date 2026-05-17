@@ -11,14 +11,16 @@ export default function TaskCard({ task, onClick, onEdit, onDelete }) {
     return (
         <div
             onClick={() => onClick(task)}
-            className="bg-white rounded-xl border border-[#F0F0F8] p-4 cursor-pointer
+            className="bg-card rounded-xl border border-border-primary p-4 cursor-pointer
                        hover:shadow-md hover:border-[#D8D8F0] transition-all group"
         >
-            {/* Priority if high/urgent */}
             <div className="flex items-start justify-between mb-2">
-                <div>
-                    {(task.priority === 'high' || task.priority === 'urgent') && (
+                <div className="flex flex-wrap gap-2">
+                    {task.priority && (
                         <PriorityBadge priority={task.priority} />
+                    )}
+                    {task.status && (
+                        <StatusBadge status={task.status} />
                     )}
                 </div>
                 <TaskActionsDropdown 
@@ -31,13 +33,13 @@ export default function TaskCard({ task, onClick, onEdit, onDelete }) {
 
             {/* Project label */}
             {task.project && (
-                <p className="text-[10px] font-medium text-[#5B5BD6] mb-1 truncate">
+                <p className="text-[10px] font-medium text-accent mb-1 truncate">
                     {task.project.name}
                 </p>
             )}
 
             {/* Title */}
-            <p className="text-sm font-semibold text-[#1A1A2E] mb-3 line-clamp-2 leading-snug">
+            <p className="text-sm font-semibold text-text-primary mb-3 line-clamp-2 leading-snug">
                 {task.title}
             </p>
 
@@ -45,14 +47,14 @@ export default function TaskCard({ task, onClick, onEdit, onDelete }) {
             <div className="flex items-center justify-between mt-auto">
                 {/* Assignee avatar */}
                 <div className="flex items-center gap-1.5">
-                    <div className="w-6 h-6 rounded-full bg-[#E8E8FF] text-[#5B5BD6] text-[9px] font-bold flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-accent/10 text-accent text-[9px] font-bold flex items-center justify-center">
                         {initials}
                     </div>
-                    <span className="text-[10px] text-[#9090A8] truncate max-w-[80px]">{assignee}</span>
+                    <span className="text-[10px] text-text-muted truncate max-w-[80px]">{assignee}</span>
                 </div>
 
                 {/* Due date + comment count */}
-                <div className="flex items-center gap-2 text-[10px] text-[#9090A8]">
+                <div className="flex items-center gap-2 text-[10px] text-text-muted">
                     <span>{formatDate(task.due_date)}</span>
                     {task.comments_count > 0 && (
                         <span className="flex items-center gap-0.5">

@@ -314,7 +314,7 @@ export default function EngineerMilestoneInputPage() {
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(-1)} 
-                    className="p-2 -ml-2 rounded-lg text-[#1A1A1A] hover:bg-gray-100 transition-colors"
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -323,25 +323,25 @@ export default function EngineerMilestoneInputPage() {
         }>
             <div className="max-w-5xl mx-auto pb-12">
                 <div className="mb-8">
-                    <h1 className="text-2xl font-bold text-[#1A1A1A]">Project Milestones</h1>
+                    <h1 className="text-2xl font-bold text-text-primary">Project Milestones</h1>
                     <p className="text-[#5A5A5A] mt-1 max-w-2xl text-sm leading-relaxed">
                         Define project phases and their nested milestones. Each phase must have a unique title, and the total weight of all phases must equal 100%.
                     </p>
                 </div>
 
-                <div className="bg-[#FAFAFA] rounded-2xl p-6 mb-8 border border-[#E8E8FF]">
+                <div className="bg-bg-secondary rounded-2xl p-6 mb-8 border border-border-primary">
                     <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <div>
-                            <h2 className="text-lg font-bold text-[#1A1A1A]">{project.project_code}</h2>
+                            <h2 className="text-lg font-bold text-text-primary">{project.project_code}</h2>
                             <p className="text-[#5A5A5A] text-sm">{project.project_name}</p>
                         </div>
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-3">
-                                <label className="text-sm font-semibold text-[#1A1A1A]">Phases:</label>
+                                <label className="text-sm font-semibold text-text-primary">Phases:</label>
                                 <select 
                                     value={numPhases} 
                                     onChange={handleNumPhasesChange}
-                                    className="rounded-xl border border-[#E8E8FF] px-4 py-2 text-sm focus:border-[#706BFF] focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20 bg-white"
+                                    className="rounded-xl border border-border-primary px-4 py-2 text-sm focus:border-[#706BFF] focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20 bg-card"
                                 >
                                     {[1,2,3,4,5,6,7,8,9,10].map(n => (
                                         <option key={n} value={n}>{n}</option>
@@ -351,7 +351,7 @@ export default function EngineerMilestoneInputPage() {
                             <button
                                 type="button"
                                 onClick={distributePhaseWeights}
-                                className="text-xs font-bold text-[#706BFF] hover:text-[#5C57E6] px-3 py-2 rounded-lg bg-[#E8E8FF] transition-colors"
+                                className="text-xs font-bold text-accent hover:text-[#5C57E6] px-3 py-2 rounded-lg bg-accent/10 transition-colors"
                             >
                                 Distribute Evenly
                             </button>
@@ -378,7 +378,7 @@ export default function EngineerMilestoneInputPage() {
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
-                        className="px-6 py-3 rounded-xl border border-[#E8E8FF] text-[#1A1A1A] font-medium hover:bg-gray-50 transition-colors"
+                        className="px-6 py-3 rounded-xl border border-border-primary text-text-primary font-medium hover:bg-gray-50 transition-colors"
                     >
                         Back
                     </button>
@@ -386,7 +386,7 @@ export default function EngineerMilestoneInputPage() {
                         type="button"
                         onClick={handleNext}
                         disabled={saving}
-                        className="px-8 py-3 rounded-xl bg-[#706BFF] text-white font-medium hover:bg-[#5C57E6] transition-colors disabled:opacity-70 flex items-center gap-2"
+                        className="px-8 py-3 rounded-xl bg-accent text-white font-medium hover:opacity-90 transition-colors disabled:opacity-70 flex items-center gap-2"
                     >
                         {saving ? 'Saving...' : 'Next'}
                     </button>

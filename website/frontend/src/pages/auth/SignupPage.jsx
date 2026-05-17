@@ -44,22 +44,22 @@ export default function SignupPage() {
     };
 
     const inputClass = (field) =>
-        `w-full rounded-2xl border px-5 py-3 text-base transition-all focus:outline-none focus:ring-2 placeholder:text-[#C1C1C1] ${
+        `w-full rounded-2xl border px-5 py-3 text-base transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted ${
             errors[field]
                 ? 'border-red-400 focus:ring-red-200'
-                : 'border-[#E8E8FF] focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
+                : 'border-border-primary focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
         }`;
 
     return (
-        <div className="min-h-screen bg-[#FDFDFF] flex items-center justify-center px-4 py-4 md:py-6">
-            <div className="w-full max-w-[540px] bg-white rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-6 md:p-10">
+        <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-4 md:py-6">
+            <div className="w-full max-w-[540px] bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-6 md:p-10">
                 <div className="flex flex-col items-center mb-6">
                     <img src={logo} alt="BuildSphere Logo" className="w-12 h-12 mb-4 object-contain" />
-                    <h1 className="text-2xl md:text-3xl font-bold text-[#1A1A1A] mb-1 text-center">
+                    <h1 className="text-2xl md:text-3xl font-bold text-text-primary mb-1 text-center">
                         Sign up to BuildSphere
                     </h1>
-                    <p className="text-[#A1A1A1] text-sm md:text-base">
-                        Already have an account? <Link to="/login" className="text-[#706BFF] font-medium hover:underline">Log In</Link>
+                    <p className="text-text-muted text-sm md:text-base">
+                        Already have an account? <Link to="/login" className="text-accent font-medium hover:underline">Log In</Link>
                     </p>
                 </div>
 
@@ -67,7 +67,7 @@ export default function SignupPage() {
                     {/* First Name & Last Name */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">First Name</label>
+                            <label className="block text-sm font-semibold text-text-primary ml-1">First Name</label>
                             <input
                                 type="text"
                                 name="first_name"
@@ -79,7 +79,7 @@ export default function SignupPage() {
                             {errors.first_name && <p className="text-red-500 text-xs ml-1">{errors.first_name[0]}</p>}
                         </div>
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Last Name</label>
+                            <label className="block text-sm font-semibold text-text-primary ml-1">Last Name</label>
                             <input
                                 type="text"
                                 name="last_name"
@@ -94,7 +94,7 @@ export default function SignupPage() {
 
                     {/* Email */}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Email</label>
+                        <label className="block text-sm font-semibold text-text-primary ml-1">Email</label>
                         <input
                             type="email"
                             name="email"
@@ -108,7 +108,7 @@ export default function SignupPage() {
 
                     {/* Company Role */}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Company Role</label>
+                        <label className="block text-sm font-semibold text-text-primary ml-1">Company Role</label>
                         <div className="relative">
                             <select
                                 name="role"
@@ -117,8 +117,8 @@ export default function SignupPage() {
                                 className={`w-full appearance-none rounded-2xl border px-6 py-3 text-base transition-all focus:outline-none focus:ring-2 ${
                                     errors.role
                                         ? 'border-red-400 focus:ring-red-200 text-red-400'
-                                        : 'border-[#E8E8FF] focus:ring-[#706BFF]/20 focus:border-[#706BFF] text-[#C1C1C1] focus:text-[#1A1A1A]'
-                                } ${form.role ? 'text-[#1A1A1A]' : ''}`}
+                                        : 'border-border-primary focus:ring-[#706BFF]/20 focus:border-[#706BFF] text-text-muted focus:text-text-primary'
+                                } ${form.role ? 'text-text-primary' : ''}`}
                             >
                                 <option value="" disabled>Select</option>
                                 <option value="CEO">CEO</option>
@@ -132,7 +132,7 @@ export default function SignupPage() {
                                 <option value="Procurement">Procurement</option>
                                 <option value="Staff">Staff</option>
                             </select>
-                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-[#1A1A1A]">
+                            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-6 text-text-primary">
                                 <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
                                     <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
                                 </svg>
@@ -143,7 +143,7 @@ export default function SignupPage() {
 
                     {/* Password */}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Password</label>
+                        <label className="block text-sm font-semibold text-text-primary ml-1">Password</label>
                         <input
                             type="password"
                             name="password"
@@ -157,7 +157,7 @@ export default function SignupPage() {
 
                     {/* Confirm Password */}
                     <div className="space-y-1.5">
-                        <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Confirm Password</label>
+                        <label className="block text-sm font-semibold text-text-primary ml-1">Confirm Password</label>
                         <input
                             type="password"
                             name="password_confirmation"
@@ -173,7 +173,7 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-[#706BFF] hover:bg-[#5B55E6] disabled:opacity-60 text-white font-bold py-3.5 rounded-2xl transition-all shadow-[0_8px_25px_rgba(112,107,255,0.3)] active:scale-[0.98]"
+                            className="w-full bg-accent hover:opacity-90 disabled:opacity-60 text-white font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-accent/20 active:scale-[0.98]"
                         >
                             {loading ? 'Creating account...' : 'Sign Up'}
                         </button>

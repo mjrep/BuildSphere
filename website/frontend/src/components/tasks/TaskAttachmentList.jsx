@@ -29,17 +29,17 @@ export default function TaskAttachmentList({ attachments, canUpload, onUpload })
             {/* File list */}
             <div className="space-y-2">
                 {attachments?.map(a => (
-                    <div key={a.id} className="flex items-center gap-3 p-2.5 bg-[#F8F8FC] rounded-lg border border-[#F0F0F8]">
+                    <div key={a.id} className="flex items-center gap-3 p-2.5 bg-bg-tertiary rounded-lg border border-border-primary">
                         <span className="text-lg">{fileIcon(a.file_type)}</span>
                         <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-[#1A1A2E] truncate">{a.file_name}</p>
+                            <p className="text-xs font-medium text-text-primary truncate">{a.file_name}</p>
                             <p className="text-[10px] text-[#A0A0C0]">{fileSizeLabel(a.file_size)}</p>
                         </div>
                         {a.download_url && (
                             <a
                                 href={a.download_url}
                                 download
-                                className="text-[#5B5BD6] hover:text-[#4747B8] text-xs font-medium flex-shrink-0"
+                                className="text-accent hover:text-[#4747B8] text-xs font-medium flex-shrink-0"
                             >
                                 ↓
                             </a>
@@ -59,7 +59,7 @@ export default function TaskAttachmentList({ attachments, canUpload, onUpload })
                     <button
                         onClick={() => fileRef.current?.click()}
                         disabled={uploading}
-                        className="flex items-center gap-1.5 text-xs text-[#5B5BD6] font-medium hover:underline disabled:opacity-50"
+                        className="flex items-center gap-1.5 text-xs text-accent font-medium hover:underline disabled:opacity-50"
                     >
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />

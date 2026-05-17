@@ -29,7 +29,7 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-card rounded-2xl shadow-xl w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
                 <button 
                     onClick={onClose}
                     className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
@@ -39,11 +39,11 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
                     </svg>
                 </button>
                 
-                <h3 className="text-lg font-bold text-center text-[#706BFF] pt-6 pb-2 border-b border-[#F0F0F8]">Add a new item</h3>
+                <h3 className="text-lg font-bold text-center text-accent pt-6 pb-2 border-b border-border-primary">Add a new item</h3>
                 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Item Name</label>
+                        <label className="block text-sm font-bold text-text-primary mb-1">Item Name</label>
                         <input 
                             name="item_name"
                             value={formData.item_name}
@@ -56,13 +56,13 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Category</label>
+                        <label className="block text-sm font-bold text-text-primary mb-1">Category</label>
                         <select 
                             name="category"
                             value={formData.category}
                             onChange={handleChange}
                             required
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent text-[#1A1A1A]"
+                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent text-text-primary"
                         >
                             <option value="materials">Materials</option>
                             <option value="equipment">Equipment</option>
@@ -71,7 +71,7 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Minimum Stock</label>
+                        <label className="block text-sm font-bold text-text-primary mb-1">Minimum Stock</label>
                         <input 
                             name="critical_level"
                             value={formData.critical_level}
@@ -86,7 +86,7 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold text-[#1A1A1A] mb-1">Price</label>
+                        <label className="block text-sm font-bold text-text-primary mb-1">Price</label>
                         <input 
                             name="price"
                             value={formData.price}
@@ -104,7 +104,7 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="w-full py-2.5 text-sm font-bold text-white bg-[#706BFF] hover:bg-[#5B55E6] rounded-xl transition-colors disabled:opacity-50"
+                            className="w-full py-2.5 text-sm font-bold text-white bg-accent hover:opacity-90 rounded-xl transition-colors disabled:opacity-50"
                         >
                             {submitting ? 'Saving...' : 'Save'}
                         </button>

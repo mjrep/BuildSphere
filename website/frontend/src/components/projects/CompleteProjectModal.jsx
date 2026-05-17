@@ -17,25 +17,25 @@ export default function CompleteProjectModal({ project, onConfirm, onClose, isSu
             />
             
             {/* Modal Content - Glassmorphism style */}
-            <div className="relative bg-white w-full max-w-md rounded-[32px] border border-[#F0F0F8] shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in zoom-in duration-300">
+            <div className="relative bg-card w-full max-w-md rounded-[32px] border border-border-primary shadow-[0_20px_50px_rgba(0,0,0,0.1)] overflow-hidden animate-in fade-in zoom-in duration-300">
                 <div className="p-8">
                     {/* Header */}
                     <div className="flex items-center gap-5 mb-8">
-                        <div className="w-14 h-14 rounded-2xl bg-[#706BFF]/10 flex items-center justify-center text-[#706BFF]">
+                        <div className="w-14 h-14 rounded-2xl bg-accent/10 flex items-center justify-center text-accent">
                             <CheckCircle2 size={28} />
                         </div>
                         <div>
-                            <h3 className="text-2xl font-bold text-[#1A1A1A] font-display">Finalize Project</h3>
-                            <p className="text-sm text-[#A1A1A1] font-medium">Archiving project data</p>
+                            <h3 className="text-2xl font-bold text-text-primary font-display">Finalize Project</h3>
+                            <p className="text-sm text-text-muted font-medium">Archiving project data</p>
                         </div>
                     </div>
 
                     {/* Warning Message */}
-                    <div className="bg-[#706BFF]/5 border border-[#706BFF]/10 rounded-2xl p-5 mb-8">
+                    <div className="bg-accent/5 border border-[#706BFF]/10 rounded-2xl p-5 mb-8">
                         <div className="flex gap-3">
-                            <AlertTriangle className="text-[#706BFF] shrink-0" size={18} />
-                            <p className="text-sm text-[#4A4A4A] leading-relaxed">
-                                You are about to mark <span className="font-bold text-[#1A1A1A]">{project.project_name}</span> as completed. 
+                            <AlertTriangle className="text-accent shrink-0" size={18} />
+                            <p className="text-sm text-text-secondary leading-relaxed">
+                                You are about to mark <span className="font-bold text-text-primary">{project.project_name}</span> as completed. 
                                 This will <strong>lock all project modules</strong> to a read-only state.
                             </p>
                         </div>
@@ -44,10 +44,10 @@ export default function CompleteProjectModal({ project, onConfirm, onClose, isSu
                     {/* Verification Input */}
                     <div className="space-y-3 mb-10">
                         <div className="flex justify-between items-end px-1">
-                            <label className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-widest">
+                            <label className="text-[10px] font-bold text-text-muted uppercase tracking-widest">
                                 Verification Step
                             </label>
-                            <span className="text-[10px] font-bold text-[#706BFF] uppercase tracking-widest">
+                            <span className="text-[10px] font-bold text-accent uppercase tracking-widest">
                                 Type COMPLETE
                             </span>
                         </div>
@@ -56,7 +56,7 @@ export default function CompleteProjectModal({ project, onConfirm, onClose, isSu
                             value={verificationText}
                             onChange={(e) => setVerificationText(e.target.value)}
                             placeholder="Type here..."
-                            className="w-full bg-[#F8F8FC] border border-[#E8E8FF] rounded-xl px-5 py-4 text-[#1A1A1A] font-bold tracking-widest text-center focus:ring-4 focus:ring-[#706BFF]/10 focus:border-[#706BFF] outline-none transition-all placeholder:text-gray-300 placeholder:font-normal placeholder:tracking-normal"
+                            className="w-full bg-bg-tertiary border border-border-primary rounded-xl px-5 py-4 text-text-primary font-bold tracking-widest text-center focus:ring-4 focus:ring-[#706BFF]/10 focus:border-[#706BFF] outline-none transition-all placeholder:text-gray-300 placeholder:font-normal placeholder:tracking-normal"
                             autoFocus
                         />
                     </div>
@@ -80,7 +80,7 @@ export default function CompleteProjectModal({ project, onConfirm, onClose, isSu
                         </button>
                         <button
                             onClick={onClose}
-                            className="w-full py-3 text-sm font-bold text-[#A1A1A1] hover:text-[#706BFF] transition-colors rounded-xl"
+                            className="w-full py-3 text-sm font-bold text-text-muted hover:text-accent transition-colors rounded-xl"
                         >
                             Back to Dashboard
                         </button>

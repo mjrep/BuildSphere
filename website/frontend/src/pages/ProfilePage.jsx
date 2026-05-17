@@ -70,17 +70,17 @@ export default function ProfilePage() {
         : '?';
 
     const inputClass = (field) =>
-        `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-[#C1C1C1] bg-white ${
+        `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted bg-bg-input text-text-primary ${
             errors[field]
                 ? 'border-red-400 focus:ring-red-200'
-                : 'border-[#E8E8FF] focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
+                : 'border-border-primary focus:ring-accent/20 focus:border-accent'
         }`;
 
     if (loading) {
         return (
             <DashboardLayout pageTitle="Profile">
                 <div className="flex items-center justify-center h-48">
-                    <p className="text-[#A1A1A1] text-sm">Loading profile…</p>
+                    <p className="text-text-muted text-sm">Loading profile…</p>
                 </div>
             </DashboardLayout>
         );
@@ -88,41 +88,51 @@ export default function ProfilePage() {
 
     return (
         <DashboardLayout pageTitle="Profile">
-            <div className="max-w-2xl mx-auto space-y-5">
+            <div className="max-w-3xl mx-auto space-y-6 pb-12">
 
                 {/* Account card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 flex items-center gap-5">
+                <div className="bg-card rounded-[2.5rem] shadow-xl border border-border-primary/50 p-10 flex flex-col md:flex-row items-center gap-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-accent/5 rounded-full -mr-16 -mt-16" />
                     {/* Avatar */}
-                    <div className="w-16 h-16 rounded-full bg-[#706BFF] flex items-center justify-center text-white text-xl font-bold shrink-0">
+                    <div className="w-24 h-24 rounded-3xl bg-accent flex items-center justify-center text-white text-3xl font-black shrink-0 shadow-[0_10px_30px_rgba(124,116,255,0.4)]">
                         {initials}
                     </div>
-                    <div>
-                        <p className="text-lg font-bold text-[#1A1A1A]">
+                    <div className="text-center md:text-left flex-1">
+                        <h2 className="text-2xl font-black text-text-primary tracking-tight">
                             {form.first_name} {form.last_name}
-                        </p>
-                        <p className="text-sm text-[#A1A1A1] mt-0.5">{form.email}</p>
-                        <span className="inline-block mt-2 text-xs font-semibold bg-[#706BFF]/10 text-[#706BFF] px-3 py-1 rounded-full">
-                            {form.role}
-                        </span>
+                        </h2>
+                        <p className="text-sm font-bold text-text-muted mt-1 uppercase tracking-wider">{form.email}</p>
+                        <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
+                            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-accent/10 text-accent uppercase tracking-widest border border-accent/20">
+                                {form.role}
+                            </span>
+                            <span className="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-black bg-emerald-500/10 text-emerald-400 uppercase tracking-widest border border-emerald-500/20">
+                                Active Account
+                            </span>
+                        </div>
                     </div>
                 </div>
 
                 {/* Form card */}
-                <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6">
-                    <h2 className="text-base font-bold text-[#1A1A1A] mb-5">Edit Profile</h2>
+                <div className="bg-card rounded-[2.5rem] shadow-xl border border-border-primary/50 p-10">
+                    <h3 className="text-xl font-black text-text-primary mb-8 tracking-tight flex items-center gap-2">
+                        <div className="w-2 h-6 bg-accent rounded-full" />
+                        Edit Profile
+                    </h3>
 
                     {/* Success banner */}
                     {success && (
-                        <div className="mb-5 px-4 py-3 bg-green-50 border border-green-200 rounded-2xl text-green-700 text-sm font-medium">
-                            ✓ Profile updated successfully.
+                        <div className="mb-8 px-6 py-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 text-sm font-bold flex items-center gap-3 animate-in zoom-in-95 duration-300">
+                            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black">✓</div>
+                            Profile updated successfully.
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Name row */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">First Name</label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">First Name</label>
                                 <input
                                     type="text"
                                     name="first_name"
@@ -131,10 +141,10 @@ export default function ProfilePage() {
                                     className={inputClass('first_name')}
                                     placeholder="First name"
                                 />
-                                {errors.first_name && <p className="text-red-500 text-xs ml-1">{errors.first_name[0]}</p>}
+                                {errors.first_name && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.first_name[0]}</p>}
                             </div>
-                            <div className="space-y-1.5">
-                                <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Last Name</label>
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Last Name</label>
                                 <input
                                     type="text"
                                     name="last_name"
@@ -143,13 +153,13 @@ export default function ProfilePage() {
                                     className={inputClass('last_name')}
                                     placeholder="Last name"
                                 />
-                                {errors.last_name && <p className="text-red-500 text-xs ml-1">{errors.last_name[0]}</p>}
+                                {errors.last_name && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.last_name[0]}</p>}
                             </div>
                         </div>
 
                         {/* Email */}
-                        <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Email</label>
+                        <div className="space-y-2.5">
+                            <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
                             <input
                                 type="email"
                                 name="email"
@@ -158,57 +168,57 @@ export default function ProfilePage() {
                                 className={inputClass('email')}
                                 placeholder="Email address"
                             />
-                            {errors.email && <p className="text-red-500 text-xs ml-1">{errors.email[0]}</p>}
+                            {errors.email && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.email[0]}</p>}
                         </div>
 
                         {/* Role — read only */}
-                        <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Company Role</label>
-                            <div className="w-full rounded-2xl border border-[#E8E8FF] bg-[#F8F8FF] px-5 py-3 text-sm text-[#A1A1A1]">
+                        <div className="space-y-2.5">
+                            <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Company Role</label>
+                            <div className="w-full rounded-2xl border border-border-primary/50 bg-bg-tertiary px-6 py-4 text-sm text-text-muted font-bold italic shadow-inner">
                                 {form.role}
                             </div>
-                            <p className="text-xs text-[#C1C1C1] ml-1">Role cannot be changed.</p>
+                            <p className="text-[10px] text-text-muted font-bold italic ml-1">* Role cannot be changed manually. Contact HR for updates.</p>
                         </div>
 
                         {/* Divider */}
-                        <div className="border-t border-[#F0F0F8] pt-4">
-                            <p className="text-sm font-semibold text-[#1A1A1A] mb-4">Change Password <span className="text-[#A1A1A1] font-normal">(optional)</span></p>
+                        <div className="pt-6 border-t border-border-primary/50">
+                            <h4 className="text-sm font-black text-text-primary uppercase tracking-widest mb-6">Security Settings</h4>
 
-                            <div className="space-y-4">
-                                <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">New Password</label>
+                            <div className="space-y-6">
+                                <div className="space-y-2.5">
+                                    <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
                                     <input
                                         type="password"
                                         name="password"
                                         value={form.password}
                                         onChange={handleChange}
                                         className={inputClass('password')}
-                                        placeholder="Leave blank to keep current password"
+                                        placeholder="Leave blank to keep current"
                                     />
-                                    {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
+                                    {errors.password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.password[0]}</p>}
                                 </div>
-                                <div className="space-y-1.5">
-                                    <label className="block text-sm font-semibold text-[#1A1A1A] ml-1">Confirm New Password</label>
+                                <div className="space-y-2.5">
+                                    <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Confirm New Password</label>
                                     <input
                                         type="password"
                                         name="password_confirmation"
                                         value={form.password_confirmation}
                                         onChange={handleChange}
                                         className={inputClass('password_confirmation')}
-                                        placeholder="Repeat new password"
+                                        placeholder="Confirm new password"
                                     />
                                 </div>
                             </div>
                         </div>
 
                         {/* Submit */}
-                        <div className="pt-2">
+                        <div className="pt-8">
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="w-full bg-[#706BFF] hover:bg-[#5B55E6] disabled:opacity-60 text-white font-bold py-3.5 rounded-2xl transition-all shadow-[0_8px_25px_rgba(112,107,255,0.3)] active:scale-[0.98]"
+                                className="w-full bg-accent hover:opacity-90 disabled:opacity-60 text-white font-black uppercase tracking-widest py-5 rounded-[1.5rem] transition-all shadow-xl shadow-accent/20 active:scale-[0.98] focus:ring-4 focus:ring-accent/30 outline-none"
                             >
-                                {saving ? 'Saving…' : 'Save Changes'}
+                                {saving ? 'Processing…' : 'Update Profile'}
                             </button>
                         </div>
                     </form>

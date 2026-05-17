@@ -89,17 +89,17 @@ export default function ProjectMilestonesPage() {
     if (loading) {
         return (
             <DashboardLayout pageTitle="Milestones">
-                <div className="text-center py-16 text-[#A1A1A1] text-sm">Loading...</div>
+                <div className="text-center py-16 text-text-muted text-sm">Loading...</div>
             </DashboardLayout>
         );
     }
 
-    const inputClass = 'w-full rounded-xl border border-[#E8E8FF] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] placeholder:text-[#C1C1C1]';
+    const inputClass = 'w-full rounded-xl border border-border-primary px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] placeholder:text-text-muted';
 
     return (
         <DashboardLayout pageTitle={
             <div className="flex items-center gap-3">
-                <button onClick={() => navigate(`/projects/${id}`)} className="text-[#1A1A1A] hover:text-[#706BFF] transition-colors">
+                <button onClick={() => navigate(`/projects/${id}`)} className="text-text-primary hover:text-accent transition-colors">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                     </svg>
@@ -107,10 +107,10 @@ export default function ProjectMilestonesPage() {
                 <span>Milestones</span>
             </div>
         }>
-            <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-8">
+            <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-8">
                 <div className="mb-6">
-                    <h2 className="text-lg font-bold text-[#706BFF]">Manage Milestones</h2>
-                    <p className="text-sm text-[#A1A1A1]">{project?.project_name} — Define project milestones (total weight must equal 100%)</p>
+                    <h2 className="text-lg font-bold text-accent">Manage Milestones</h2>
+                    <p className="text-sm text-text-muted">{project?.project_name} — Define project milestones (total weight must equal 100%)</p>
                 </div>
 
                 {errors.milestones && (
@@ -122,9 +122,9 @@ export default function ProjectMilestonesPage() {
                 <form onSubmit={handleSubmit}>
                     <div className="space-y-4">
                         {milestones.map((m, i) => (
-                            <div key={i} className="border border-[#F0F0F8] rounded-xl p-4 relative">
+                            <div key={i} className="border border-border-primary rounded-xl p-4 relative">
                                 <div className="flex items-center justify-between mb-3">
-                                    <span className="text-sm font-semibold text-[#706BFF]">Milestone {i + 1}</span>
+                                    <span className="text-sm font-semibold text-accent">Milestone {i + 1}</span>
                                     {milestones.length > 1 && (
                                         <button type="button" onClick={() => removeRow(i)} className="text-red-400 hover:text-red-600 text-xs">Remove</button>
                                     )}
@@ -165,7 +165,7 @@ export default function ProjectMilestonesPage() {
 
                     <div className="flex items-center justify-between mt-6">
                         <button type="button" onClick={addRow}
-                                className="text-[#706BFF] text-sm font-semibold hover:underline">
+                                className="text-accent text-sm font-semibold hover:underline">
                             + Add Milestone
                         </button>
                         <span className={`text-sm font-semibold ${Math.abs(totalWeight - 100) < 0.01 ? 'text-green-600' : 'text-red-500'}`}>
@@ -174,8 +174,8 @@ export default function ProjectMilestonesPage() {
                     </div>
 
                     <button type="submit" disabled={saving}
-                            className="w-full mt-6 bg-[#706BFF] hover:bg-[#5B55E6] disabled:opacity-60 text-white
-                                       font-bold py-3.5 rounded-2xl transition-all shadow-[0_8px_25px_rgba(112,107,255,0.3)]">
+                            className="w-full mt-6 bg-accent hover:opacity-90 disabled:opacity-60 text-white
+                                       font-bold py-3.5 rounded-2xl transition-all shadow-lg shadow-accent/20">
                         {saving ? 'Submitting...' : 'Submit Milestones'}
                     </button>
                 </form>

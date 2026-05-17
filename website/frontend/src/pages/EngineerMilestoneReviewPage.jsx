@@ -50,18 +50,18 @@ export default function EngineerMilestoneReviewPage() {
     if (!project || !chartData) return <div className="p-8 text-center text-red-500">Data not found.</div>;
 
     return (
-        <div className="flex-1 bg-white p-8">
+        <div className="flex-1 bg-card p-8">
             <div className="max-w-7xl mx-auto">
                 <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-[#1A1A1A]">Review Milestones</h1>
+                        <h1 className="text-3xl font-bold text-text-primary">Review Milestones</h1>
                         <p className="text-[#5A5A5A] mt-2">
                             Review the Gantt chart for <span className="font-semibold">{project.project_code} ({project.project_name})</span>.
                         </p>
                     </div>
                 </div>
 
-                <div className="bg-white rounded-2xl p-6 border border-[#E8E8FF] mb-8 shadow-sm">
+                <div className="bg-card rounded-2xl p-6 border border-border-primary mb-8 shadow-sm">
                     <MilestoneReviewChart data={chartData} />
                 </div>
 
@@ -69,7 +69,7 @@ export default function EngineerMilestoneReviewPage() {
                     <button
                         type="button"
                         onClick={() => navigate(`/projects/${id}/milestone-input`)}
-                        className="text-[#706BFF] font-medium hover:underline px-4 py-2"
+                        className="text-accent font-medium hover:underline px-4 py-2"
                     >
                         &larr; Back to Edit
                     </button>
@@ -77,7 +77,7 @@ export default function EngineerMilestoneReviewPage() {
                         type="button"
                         onClick={handleSubmit}
                         disabled={submitting}
-                        className="px-8 py-3 rounded-xl bg-[#706BFF] text-white font-medium hover:bg-[#5C57E6] transition-colors disabled:opacity-70 shadow-sm"
+                        className="px-8 py-3 rounded-xl bg-accent text-white font-medium hover:opacity-90 transition-colors disabled:opacity-70 shadow-sm"
                     >
                         {submitting ? 'Submitting...' : 'Submit for Review'}
                     </button>

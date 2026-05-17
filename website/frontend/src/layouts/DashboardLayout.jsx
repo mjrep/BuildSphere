@@ -19,14 +19,14 @@ export default function DashboardLayout({ children, pageTitle, noPadding = false
     };
 
     return (
-        <div className="flex h-screen bg-[#F5F5FA] overflow-hidden">
+        <div className="flex h-screen bg-bg-secondary overflow-hidden transition-colors duration-200">
             {/* Sidebar */}
             <Sidebar onLogout={handleLogout} />
 
             {/* Right side: Header + Content */}
             <div className="flex flex-col flex-1 overflow-hidden">
                 <Header pageTitle={pageTitle} user={user} loading={loading} />
-                <main className={`flex-1 overflow-y-auto ${noPadding ? 'p-0' : 'p-6'}`}>
+                <main className={`flex-1 overflow-y-auto bg-bg-primary ${noPadding ? 'p-0' : 'p-6'}`}>
                     {children}
                 </main>
             </div>

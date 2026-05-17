@@ -22,15 +22,15 @@ export default function TaskToolbar({
     };
 
     return (
-        <div className="space-y-3">
+        <div className="space-y-4">
             {/* Top row */}
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-center gap-4">
                 <TaskViewToggle view={view} onChange={onViewChange} />
 
                 {/* Search */}
-                <div className="relative flex-1 min-w-[180px] max-w-xs">
-                    <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A0A0C0]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <div className="relative flex-1 min-w-[200px] max-w-sm group">
+                    <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     <input
                         id="task-search-input"
@@ -38,7 +38,7 @@ export default function TaskToolbar({
                         defaultValue={search}
                         onChange={handleSearch}
                         placeholder="Search tasks…"
-                        className="w-full pl-9 pr-3 py-2 text-sm rounded-xl border border-[#E0E0F0] bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8]"
+                        className="w-full pl-11 pr-4 py-2.5 text-sm rounded-2xl border border-border-primary/50 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary placeholder:text-text-muted transition-all shadow-inner"
                     />
                 </div>
 
@@ -47,21 +47,21 @@ export default function TaskToolbar({
                     <button
                         id="task-sort-btn"
                         onClick={() => { setShowSort(s => !s); setShowFilter(false); }}
-                        className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-[#6B6B8D] bg-white border border-[#E0E0F0] rounded-xl hover:bg-[#F8F8FC] transition-colors"
+                        className={`flex items-center gap-2 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest bg-bg-secondary border border-border-primary/50 rounded-2xl hover:bg-bg-hover transition-all ${showSort ? 'ring-2 ring-accent border-accent' : ''}`}
                     >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                        <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
                         </svg>
                         Sort by
                     </button>
                     {showSort && (
-                        <div className="absolute top-full mt-2 left-0 z-30 bg-white border border-[#E0E0F0] rounded-xl shadow-lg py-1 w-52">
+                        <div className="absolute top-full mt-3 left-0 z-30 bg-card border border-border-primary/50 rounded-[1.5rem] shadow-2xl py-2 w-56 animate-in fade-in zoom-in-95 duration-200">
                             {SORT_OPTIONS.map(opt => (
                                 <button
                                     key={opt.value}
                                     onClick={() => { onSortChange(opt.value); setShowSort(false); }}
-                                    className={`w-full text-left px-4 py-2 text-sm transition-colors
-                                        ${sort === opt.value ? 'bg-[#F0F0FE] text-[#5B5BD6] font-medium' : 'text-[#3A3A5C] hover:bg-[#F8F8FC]'}`}
+                                    className={`w-full text-left px-5 py-3 text-[11px] font-black uppercase tracking-widest transition-all
+                                        ${sort === opt.value ? 'bg-accent/10 text-accent' : 'text-text-primary hover:bg-bg-hover'}`}
                                 >
                                     {opt.label}
                                 </button>
@@ -74,13 +74,13 @@ export default function TaskToolbar({
                 <button
                     id="task-filter-btn"
                     onClick={() => { setShowFilter(s => !s); setShowSort(false); }}
-                    className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border rounded-xl transition-colors
-                        ${hasActiveFilters
-                            ? 'bg-[#5B5BD6] text-white border-[#5B5BD6]'
-                            : 'text-[#6B6B8D] bg-white border-[#E0E0F0] hover:bg-[#F8F8FC]'}`}
+                    className={`flex items-center gap-2 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest border rounded-2xl transition-all
+                        ${hasActiveFilters || showFilter
+                            ? 'bg-accent text-white border-accent shadow-lg shadow-accent/20'
+                            : 'text-text-muted bg-bg-secondary border-border-primary/50 hover:bg-bg-hover hover:text-text-primary'}`}
                 >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z" />
                     </svg>
                     Filter {hasActiveFilters && '•'}
                 </button>
@@ -90,10 +90,10 @@ export default function TaskToolbar({
                         <button
                             id="task-add-new-btn"
                             onClick={onAddTask}
-                            className="flex items-center gap-1.5 px-4 py-2 bg-[#5B5BD6] text-white text-sm font-semibold rounded-xl
-                                       hover:bg-[#4747B8] active:scale-95 transition-all shadow-md shadow-[#5B5BD6]/20"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-accent text-white text-[11px] font-black uppercase tracking-widest rounded-2xl
+                                       hover:opacity-90 active:scale-95 transition-all shadow-xl shadow-accent/25 border border-accent/20"
                         >
-                            + Add new
+                            <span className="text-base">+</span> Add new
                         </button>
                     )}
                 </div>
@@ -101,18 +101,18 @@ export default function TaskToolbar({
 
             {/* Filter panel */}
             {showFilter && (
-                <div className="bg-white border border-[#E0E0F0] rounded-xl p-4">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <div className="bg-card border border-border-primary/50 rounded-[1.5rem] p-6 shadow-2xl animate-in slide-in-from-top-2 duration-300">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
 
                         {/* Assigned To */}
-                        <div>
-                            <label className="text-xs font-medium text-[#6B6B8D] mb-1 block">Assigned To</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Assigned To</label>
                             <select
                                 value={filters.assigned_to}
                                 onChange={e => onFilterChange('assigned_to', e.target.value)}
-                                className="w-full text-xs border border-[#E0E0F0] rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30"
+                                className="w-full text-xs border border-border-primary/50 rounded-xl px-3 py-2.5 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary shadow-inner appearance-none cursor-pointer"
                             >
-                                <option value="">All</option>
+                                <option value="">All Personnel</option>
                                 {meta?.users?.map(u => (
                                     <option key={u.id} value={u.id}>{u.name}</option>
                                 ))}
@@ -120,14 +120,14 @@ export default function TaskToolbar({
                         </div>
 
                         {/* Priority */}
-                        <div>
-                            <label className="text-xs font-medium text-[#6B6B8D] mb-1 block">Priority</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Priority</label>
                             <select
                                 value={filters.priority}
                                 onChange={e => onFilterChange('priority', e.target.value)}
-                                className="w-full text-xs border border-[#E0E0F0] rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30"
+                                className="w-full text-xs border border-border-primary/50 rounded-xl px-3 py-2.5 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary shadow-inner appearance-none cursor-pointer"
                             >
-                                <option value="">All</option>
+                                <option value="">All Priorities</option>
                                 {Object.entries(TASK_PRIORITIES).map(([k, v]) => (
                                     <option key={k} value={k}>{v.label}</option>
                                 ))}
@@ -135,14 +135,14 @@ export default function TaskToolbar({
                         </div>
 
                         {/* Status */}
-                        <div>
-                            <label className="text-xs font-medium text-[#6B6B8D] mb-1 block">Status</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">Status</label>
                             <select
                                 value={filters.status}
                                 onChange={e => onFilterChange('status', e.target.value)}
-                                className="w-full text-xs border border-[#E0E0F0] rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30"
+                                className="w-full text-xs border border-border-primary/50 rounded-xl px-3 py-2.5 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary shadow-inner appearance-none cursor-pointer"
                             >
-                                <option value="">All</option>
+                                <option value="">All Statuses</option>
                                 {Object.entries(TASK_STATUSES).map(([k, v]) => (
                                     <option key={k} value={k}>{v.label}</option>
                                 ))}
@@ -150,35 +150,37 @@ export default function TaskToolbar({
                         </div>
 
                         {/* From Date */}
-                        <div>
-                            <label className="text-xs font-medium text-[#6B6B8D] mb-1 block">From</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">From Date</label>
                             <input
                                 type="date"
                                 value={filters.start_date}
                                 onChange={e => onFilterChange('start_date', e.target.value)}
-                                className="w-full text-xs border border-[#E0E0F0] rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30"
+                                className="w-full text-xs border border-border-primary/50 rounded-xl px-3 py-2.5 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary shadow-inner cursor-pointer"
                             />
                         </div>
 
                         {/* To Date */}
-                        <div>
-                            <label className="text-xs font-medium text-[#6B6B8D] mb-1 block">To</label>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-text-muted uppercase tracking-widest ml-1">To Date</label>
                             <input
                                 type="date"
                                 value={filters.end_date}
                                 onChange={e => onFilterChange('end_date', e.target.value)}
-                                className="w-full text-xs border border-[#E0E0F0] rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-[#5B5BD6]/30"
+                                className="w-full text-xs border border-border-primary/50 rounded-xl px-3 py-2.5 bg-bg-tertiary focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent text-text-primary shadow-inner cursor-pointer"
                             />
                         </div>
                     </div>
 
                     {hasActiveFilters && (
-                        <button
-                            onClick={onResetFilters}
-                            className="mt-3 text-xs text-[#5B5BD6] hover:underline"
-                        >
-                            Clear all filters
-                        </button>
+                        <div className="mt-6 pt-4 border-t border-border-primary/30 flex justify-end">
+                            <button
+                                onClick={onResetFilters}
+                                className="text-[11px] font-black text-accent uppercase tracking-widest hover:bg-accent/10 px-4 py-2 rounded-xl transition-all"
+                            >
+                                Reset all filters
+                            </button>
+                        </div>
                     )}
                 </div>
             )}

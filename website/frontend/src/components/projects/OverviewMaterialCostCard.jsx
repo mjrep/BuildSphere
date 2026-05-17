@@ -23,11 +23,11 @@ export default function OverviewMaterialCostCard({ costData }) {
         val != null ? `₱${Number(val).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}` : '₱0';
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col h-full">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col h-full">
             <div className="flex justify-between items-start mb-6">
                 <div>
-                    <h3 className="text-base font-bold text-[#1A1A1A]">Material Cost</h3>
-                    <p className="text-[10px] text-[#A1A1A1] mt-0.5">as of {new Date().toLocaleDateString('en-US', { month: '2-digit', day:'2-digit', year:'2-digit' })}</p>
+                    <h3 className="text-base font-bold text-text-primary">Material Cost</h3>
+                    <p className="text-[10px] text-text-muted mt-0.5">as of {new Date().toLocaleDateString('en-US', { month: '2-digit', day:'2-digit', year:'2-digit' })}</p>
                 </div>
                 {planned > 0 && (
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white shadow-sm ${badgeBg}`}>
@@ -65,11 +65,11 @@ export default function OverviewMaterialCostCard({ costData }) {
             <div className="flex justify-between items-end mt-4">
                 <div className="text-left">
                     <p className="text-sm font-bold text-[#5B9C2A]">{formatCurrency(actual)}</p>
-                    <p className="text-xs text-[#1A1A1A] font-semibold mt-0.5">Actual</p>
+                    <p className="text-xs text-text-primary font-semibold mt-0.5">Actual</p>
                 </div>
                 <div className="text-right">
-                    <p className="text-sm font-bold text-[#1A1A1A]">{formatCurrency(planned)}</p>
-                    <p className="text-xs text-[#1A1A1A] font-semibold mt-0.5">Planned</p>
+                    <p className="text-sm font-bold text-text-primary">{formatCurrency(planned)}</p>
+                    <p className="text-xs text-text-primary font-semibold mt-0.5">Planned</p>
                 </div>
             </div>
             {actual === 0 && (

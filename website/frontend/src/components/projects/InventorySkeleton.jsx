@@ -6,7 +6,7 @@ export default function InventorySkeleton() {
     return (
         <>
             {rows.map((row) => (
-                <tr key={row} className="animate-pulse border-b border-[#F0F0F8]">
+                <tr key={row} className="animate-pulse border-b border-border-primary">
                     <td className="px-6 py-5">
                         <div className="h-4 bg-gray-100 rounded-lg w-3/4 shimmer" />
                     </td>

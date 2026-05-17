@@ -37,3 +37,7 @@ logs/
 # Scratch scripts
 backend/scratch/*.js
 !backend/scratch/debug_dashboard_queries.js
+
+# Agent brain
+brain/
+

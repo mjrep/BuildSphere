@@ -21,10 +21,10 @@ export default function ProjectOverviewTab({ project, fetchProject }) {
                     {/* Description and Progress row */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Project Description */}
-                        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 lg:p-8 w-full flex flex-col">
-                            <h3 className="text-base font-bold text-[#1A1A1A] mb-4">Project Description</h3>
-                            <p className="text-sm text-[#1A1A1A] leading-relaxed">
-                                {project.description || <span className="text-gray-400 italic">No description provided.</span>}
+                        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 lg:p-8 w-full flex flex-col transition-colors duration-200">
+                            <h3 className="text-base font-bold text-text-primary mb-4">Project Description</h3>
+                            <p className="text-sm text-text-primary leading-relaxed">
+                                {project.description || <span className="text-text-muted italic">No description provided.</span>}
                             </p>
                         </div>
 

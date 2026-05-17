@@ -8,14 +8,14 @@ export default function MilestoneReviewChart({ data }) {
     const { timeline_months, phases } = data;
 
     return (
-        <div className="w-full overflow-x-auto rounded-xl border border-[#E8E8FF]">
+        <div className="w-full overflow-x-auto rounded-xl border border-border-primary">
             <table className="w-full text-left border-collapse">
-                <thead className="bg-[#FAFAFA] text-xs font-semibold text-[#5A5A5A] whitespace-nowrap">
+                <thead className="bg-bg-secondary text-xs font-semibold text-[#5A5A5A] whitespace-nowrap">
                     <tr>
-                        <th className="p-4 border-b border-r border-[#E8E8FF] min-w-[200px]">Project Phase</th>
-                        <th className="p-4 border-b border-r border-[#E8E8FF] min-w-[200px]">Milestone</th>
+                        <th className="p-4 border-b border-r border-border-primary min-w-[200px]">Project Phase</th>
+                        <th className="p-4 border-b border-r border-border-primary min-w-[200px]">Milestone</th>
                         {timeline_months.map((month) => (
-                            <th key={month.key} className="p-4 text-center border-b border-r border-[#E8E8FF] min-w-[100px]">
+                            <th key={month.key} className="p-4 text-center border-b border-r border-border-primary min-w-[100px]">
                                 {month.label} {month.year !== timeline_months[0]?.year ? month.year : ''}
                             </th>
                         ))}
@@ -25,8 +25,8 @@ export default function MilestoneReviewChart({ data }) {
                     {phases.map((phase) => (
                         <React.Fragment key={phase.id}>
                             {/* Phase Row */}
-                            <tr className="bg-[#F8F9FA] font-semibold text-[#1A1A1A]">
-                                <td colSpan={2} className="p-4 border-b border-r border-[#E8E8FF]">
+                            <tr className="bg-bg-secondary font-semibold text-text-primary">
+                                <td colSpan={2} className="p-4 border-b border-r border-border-primary">
                                     {phase.phase_title} ({phase.weight_percentage}%)
                                 </td>
                                 {timeline_months.map((month) => {
@@ -35,9 +35,9 @@ export default function MilestoneReviewChart({ data }) {
                                     const pEnd = phase.end_date.substring(0, 7);
                                     const isSpan = month.key >= pStart && month.key <= pEnd;
                                     return (
-                                        <td key={`${phase.id}-${month.key}`} className="p-0 border-b border-r border-[#E8E8FF] h-12">
+                                        <td key={`${phase.id}-${month.key}`} className="p-0 border-b border-r border-border-primary h-12">
                                             {isSpan && (
-                                                <div className="h-full w-full bg-[#E8E8FF] opacity-30"></div>
+                                                <div className="h-full w-full bg-accent/10 opacity-30"></div>
                                             )}
                                         </td>
                                     );
@@ -47,13 +47,13 @@ export default function MilestoneReviewChart({ data }) {
                             {/* Milestone Rows */}
                             {phase.milestones.map((ms) => (
                                 <tr key={ms.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="p-4 border-b border-r border-[#E8E8FF] text-gray-400 pl-8">
+                                    <td className="p-4 border-b border-r border-border-primary text-gray-400 pl-8">
                                         ↳
                                     </td>
-                                    <td className="p-4 border-b border-r border-[#E8E8FF] text-[#1A1A1A]">
+                                    <td className="p-4 border-b border-r border-border-primary text-text-primary">
                                         {ms.milestone_name} 
                                         {ms.has_quantity && ms.quantity_target && (
-                                            <span className="ml-2 text-xs text-[#706BFF] bg-[#E8E8FF] px-2 py-0.5 rounded-full">
+                                            <span className="ml-2 text-xs text-accent bg-accent/10 px-2 py-0.5 rounded-full">
                                                 Qty: {ms.quantity_target}
                                             </span>
                                         )}
@@ -64,9 +64,9 @@ export default function MilestoneReviewChart({ data }) {
                                     {timeline_months.map((month) => {
                                         const isSpan = ms.month_spans.includes(month.key);
                                         return (
-                                            <td key={`${ms.id}-${month.key}`} className="p-2 border-b border-r border-[#E8E8FF] h-16">
+                                            <td key={`${ms.id}-${month.key}`} className="p-2 border-b border-r border-border-primary h-16">
                                                 {isSpan && (
-                                                    <div className="h-full w-full bg-[#706BFF] rounded-md shadow-sm opacity-90 transition-opacity hover:opacity-100 flex items-center justify-center">
+                                                    <div className="h-full w-full bg-accent rounded-md shadow-sm opacity-90 transition-opacity hover:opacity-100 flex items-center justify-center">
                                                         <span className="text-white text-xs opacity-0 hover:opacity-100 cursor-default px-1 text-center leading-tight">
                                                             {ms.milestone_name}
                                                         </span>

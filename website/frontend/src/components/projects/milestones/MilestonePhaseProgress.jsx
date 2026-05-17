@@ -14,10 +14,10 @@ export default function MilestonePhaseProgress({ phases }) {
     };
 
     return (
-        <div className="bg-white rounded-3xl border border-[#F0F0F8] p-10 shadow-sm mb-8">
+        <div className="bg-card rounded-3xl border border-border-primary p-10 shadow-sm mb-8">
             <div className="flex items-center justify-between mb-8">
-                <h3 className="text-[#1A1A1A] font-bold text-xl">Phases Progress</h3>
-                <button className="text-[#A1A1A1] hover:text-[#706BFF] transition-colors">
+                <h3 className="text-text-primary font-bold text-xl">Phases Progress</h3>
+                <button className="text-text-muted hover:text-accent transition-colors">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                     </svg>
@@ -29,9 +29,9 @@ export default function MilestonePhaseProgress({ phases }) {
                     <div 
                         key={phase.id}
                         onClick={() => scrollToPhase(phase.id)}
-                        className="flex items-center justify-between p-8 rounded-2xl border border-[#F0F0F8] hover:border-[#706BFF] hover:bg-[#706BFF]/5 hover:shadow-md transition-all cursor-pointer group"
+                        className="flex items-center justify-between p-8 rounded-2xl border border-border-primary hover:border-[#706BFF] hover:bg-accent/5 hover:shadow-md transition-all cursor-pointer group"
                     >
-                        <span className="text-xl font-medium text-[#A1A1A1] group-hover:text-[#706BFF] transition-colors">
+                        <span className="text-xl font-medium text-text-muted group-hover:text-accent transition-colors">
                             {phase.name}
                         </span>
                         

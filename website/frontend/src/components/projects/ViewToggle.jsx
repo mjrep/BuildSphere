@@ -2,8 +2,8 @@ import React from 'react';
 
 export default function ViewToggle({ view, onChange }) {
     const base = 'flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition-all cursor-pointer';
-    const active = 'border-2 border-[#706BFF] text-[#706BFF] bg-white';
-    const inactive = 'border-2 border-[#E8E8FF] text-[#A1A1A1] bg-white hover:border-[#C6C4FF]';
+    const active = 'border-2 border-[#706BFF] text-accent bg-card';
+    const inactive = 'border-2 border-border-primary text-text-muted bg-card hover:border-[#C6C4FF]';
 
     return (
         <div className="flex gap-2">

@@ -77,10 +77,10 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-            <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col max-h-[90vh]">
+            <div className="bg-card rounded-3xl shadow-2xl w-full max-w-5xl overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-8 duration-300 flex flex-col max-h-[90vh]">
                 
                 {/* Header */}
-                <div className="bg-[#706BFF] p-6 text-white shrink-0">
+                <div className="bg-accent p-6 text-white shrink-0">
                     <div className="flex justify-between items-center">
                         <div>
                             <h3 className="text-xl font-bold">Universal Inventory Ledger</h3>
@@ -88,7 +88,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                         </div>
                         <button 
                             onClick={onClose}
-                            className="p-2 bg-white/10 hover:bg-white/20 rounded-xl text-white transition-colors"
+                            className="p-2 bg-card/10 hover:bg-card/20 rounded-xl text-white transition-colors"
                         >
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
@@ -97,13 +97,13 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                     </div>
 
                     {/* Filter Bar */}
-                    <div className="mt-6 flex flex-wrap gap-4 items-end bg-white/10 p-4 rounded-2xl border border-white/10">
+                    <div className="mt-6 flex flex-wrap gap-4 items-end bg-card/10 p-4 rounded-2xl border border-white/10">
                         <div className="space-y-1.5">
                             <label className="text-[10px] font-bold text-white/60 uppercase tracking-widest ml-1">Filter by Item</label>
                             <select 
                                 value={filterItem}
                                 onChange={(e) => setFilterItem(e.target.value)}
-                                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+                                className="bg-card/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
                             >
                                 <option value="all" className="text-gray-900">All Materials</option>
                                 {inventoryItems.map(item => (
@@ -117,7 +117,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                             <select 
                                 value={filterType}
                                 onChange={(e) => setFilterType(e.target.value)}
-                                className="bg-white/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
+                                className="bg-card/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
                             >
                                 <option value="all" className="text-gray-900">All Types</option>
                                 <option value="RECEIVING" className="text-gray-900">Receiving</option>
@@ -151,7 +151,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
-                            <thead className="sticky top-0 bg-white border-b border-gray-100 z-10 shadow-sm">
+                            <thead className="sticky top-0 bg-card border-b border-gray-100 z-10 shadow-sm">
                                 <tr>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Timestamp</th>
                                     <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Material</th>
@@ -167,11 +167,11 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                 {filteredLogs.map((log) => (
                                     <tr key={log.id} className="hover:bg-gray-50/70 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-[11px] font-bold text-[#1A1A1A]">{formatDate(log.created_at)}</div>
+                                            <div className="text-[11px] font-bold text-text-primary">{formatDate(log.created_at)}</div>
                                             <div className="text-[10px] text-gray-400">{formatTime(log.created_at)}</div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="text-xs font-bold text-[#1A1A1A]">{log.item?.item_name || 'Deleted Item'}</div>
+                                            <div className="text-xs font-bold text-text-primary">{log.item?.item_name || 'Deleted Item'}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             {getActionBadge(log.action_type)}
@@ -184,7 +184,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                         </td>
                                         <td className="px-6 py-4">
                                             {log.task ? (
-                                                <span className="text-[10px] font-bold text-[#706BFF] bg-[#F0F0FF] px-2 py-0.5 rounded-lg border border-[#E0E0FF]">
+                                                <span className="text-[10px] font-bold text-accent bg-[#F0F0FF] px-2 py-0.5 rounded-lg border border-[#E0E0FF]">
                                                     {log.task.title}
                                                 </span>
                                             ) : (
@@ -212,7 +212,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                 <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end shrink-0">
                     <button 
                         onClick={onClose}
-                        className="px-8 py-2.5 bg-white border border-gray-200 text-gray-600 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-colors shadow-sm"
+                        className="px-8 py-2.5 bg-card border border-gray-200 text-gray-600 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-colors shadow-sm"
                     >
                         Close Ledger
                     </button>

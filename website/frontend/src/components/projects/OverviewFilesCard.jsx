@@ -44,9 +44,9 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
     };
 
     return (
-        <div className="bg-white rounded-2xl shadow-sm border border-[#F0F0F8] p-6 w-full flex flex-col mt-4">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col mt-4">
             <div className="flex justify-between items-center mb-6">
-                <h3 className="text-base font-bold text-[#1A1A1A]">Files</h3>
+                <h3 className="text-base font-bold text-text-primary">Files</h3>
                 
                 <input 
                     type="file" 
@@ -86,10 +86,10 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                                     {file.uploaded_by ? file.uploaded_by.substring(0, 2).toUpperCase() : 'SYS'}
                                 </div>
                                 <div className="truncate min-w-0 pr-4">
-                                    <p className="text-sm font-semibold text-[#1A1A1A] truncate">{file.file_name}</p>
+                                    <p className="text-sm font-semibold text-text-primary truncate">{file.file_name}</p>
                                 </div>
                             </div>
-                            <span className="text-xs font-medium text-[#1A1A1A] whitespace-nowrap flex-shrink-0">
+                            <span className="text-xs font-medium text-text-primary whitespace-nowrap flex-shrink-0">
                                 {file.uploaded_at_human}
                             </span>
                         </div>

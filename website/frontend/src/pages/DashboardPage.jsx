@@ -43,15 +43,15 @@ export default function DashboardPage() {
                 </div>
 
                 {/* Project Teams */}
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#F0F0F8]">
-                    <h2 className="text-base font-bold text-[#706BFF] mb-4">Project Teams</h2>
+                <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
+                    <h2 className="text-base font-bold text-accent mb-4">Project Teams</h2>
                     <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
                         {statsData.project_teams?.length > 0 ? (
                             statsData.project_teams.map((t, i) => (
                                 <ProjectTeamCard key={i} {...t} />
                             ))
                         ) : (
-                            <p className="text-sm text-gray-400 col-span-full">No active project teams found.</p>
+                            <p className="text-sm text-text-muted col-span-full">No active project teams found.</p>
                         )}
                     </div>
                 </div>
@@ -60,29 +60,28 @@ export default function DashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                     {/* Ongoing Projects (left) */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#F0F0F8]">
-                        <h2 className="text-base font-bold text-[#706BFF] mb-4">Ongoing Projects</h2>
+                    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
+                        <h2 className="text-base font-bold text-accent mb-4">Ongoing Projects</h2>
                         {statsData.ongoing_projects?.length > 0 ? (
                             statsData.ongoing_projects.map((p, i) => (
                                 <OngoingProjectRow key={i} {...p} />
                             ))
                         ) : (
-                            <p className="text-sm text-gray-400">No ongoing projects found.</p>
+                            <p className="text-sm text-text-muted">No ongoing projects found.</p>
                         )}
                     </div>
 
                     {/* Project Updates (right) */}
-                    <div className="bg-white rounded-2xl p-6 shadow-sm border border-[#F0F0F8]">
-                        <h2 className="text-base font-bold text-[#706BFF] mb-4">Project Updates</h2>
+                    <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
+                        <h2 className="text-base font-bold text-accent mb-4">Project Updates</h2>
                         {statsData.project_updates?.length > 0 ? (
                             statsData.project_updates.map((update, i) => (
                                 <ProjectUpdateCard key={i} projectName={update.project_name} count={update.updates_today} index={i} />
                             ))
                         ) : (
-                            <p className="text-sm text-gray-400">No updates received today.</p>
+                            <p className="text-sm text-text-muted">No updates received today.</p>
                         )}
                     </div>
-
                 </div>
             </div>
         </DashboardLayout>

@@ -16,11 +16,11 @@ export default function MilestonePhaseCard({
     };
 
     return (
-        <div className="bg-[#F8F9FA] rounded-2xl p-6 border border-[#E8E8FF] shadow-sm hover:shadow-md transition-shadow">
+        <div className="bg-bg-secondary rounded-2xl p-6 border border-border-primary shadow-sm hover:shadow-md transition-shadow">
             {/* Phase Header Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="space-y-1 relative">
-                    <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                    <label className="block text-xs font-semibold text-text-primary ml-1">
                         Phase {phaseIndex + 1} Title
                     </label>
                     <PhaseTitleSelect
@@ -31,7 +31,7 @@ export default function MilestonePhaseCard({
                 </div>
 
                 <div className="space-y-1 relative">
-                    <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                    <label className="block text-xs font-semibold text-text-primary ml-1">
                         Weight
                     </label>
                     <div className="relative">
@@ -43,7 +43,7 @@ export default function MilestonePhaseCard({
                             value={phase.weight_percentage}
                             onChange={(e) => handlePhaseChange('weight_percentage', e.target.value)}
                             className={`w-full rounded-xl border px-4 py-3 pr-8 text-sm ${
-                                errors.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                                errors.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                             } focus:outline-none focus:ring-2`}
                         />
                         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">%</span>
@@ -52,7 +52,7 @@ export default function MilestonePhaseCard({
                 </div>
 
                 <div className="space-y-1 relative">
-                    <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                    <label className="block text-xs font-semibold text-text-primary ml-1">
                         Phase Start
                     </label>
                     <input
@@ -60,14 +60,14 @@ export default function MilestonePhaseCard({
                         value={phase.start_date}
                         onChange={(e) => handlePhaseChange('start_date', e.target.value)}
                         className={`w-full rounded-xl border px-4 py-3 text-sm text-[#5A5A5A] ${
-                            errors.start_date ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                            errors.start_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                         } focus:outline-none focus:ring-2`}
                     />
                     {errors.start_date && <p className="text-red-500 text-xs ml-1 absolute">{errors.start_date}</p>}
                 </div>
 
                 <div className="space-y-1 relative">
-                    <label className="block text-xs font-semibold text-[#1A1A1A] ml-1">
+                    <label className="block text-xs font-semibold text-text-primary ml-1">
                         Phase End
                     </label>
                     <input
@@ -75,7 +75,7 @@ export default function MilestonePhaseCard({
                         value={phase.end_date}
                         onChange={(e) => handlePhaseChange('end_date', e.target.value)}
                         className={`w-full rounded-xl border px-4 py-3 text-sm text-[#5A5A5A] ${
-                            errors.end_date ? 'border-red-400 focus:ring-red-200' : 'border-[#E8E8FF] focus:border-[#706BFF] focus:ring-[#706BFF]/20'
+                            errors.end_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                         } focus:outline-none focus:ring-2`}
                     />
                     {errors.end_date && <p className="text-red-500 text-xs ml-1 absolute">{errors.end_date}</p>}
@@ -84,16 +84,16 @@ export default function MilestonePhaseCard({
 
             {/* Milestones List Header */}
             <div className="flex justify-between items-center mb-4 px-1">
-                <h3 className="text-sm font-bold text-[#1A1A1A] flex items-center gap-2">
+                <h3 className="text-sm font-bold text-text-primary flex items-center gap-2">
                     Milestones
-                    <span className="bg-[#E8E8FF] text-[#706BFF] text-[10px] px-2 py-0.5 rounded-full">
+                    <span className="bg-accent/10 text-accent text-[10px] px-2 py-0.5 rounded-full">
                         {phase.milestones.length}
                     </span>
                 </h3>
                 
                 {/* 100% Helper UI */}
                 <div className="flex items-center gap-3">
-                    <span className="text-[10px] font-bold text-[#A1A1A1] uppercase tracking-wider">Phase Weight Total:</span>
+                    <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Phase Weight Total:</span>
                     <div className="flex items-center gap-2">
                         <div className="w-24 h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <div 
@@ -135,7 +135,7 @@ export default function MilestonePhaseCard({
                 <button
                     type="button"
                     onClick={() => onAddMilestone(phaseIndex)}
-                    className="text-[#706BFF] text-sm font-medium hover:underline flex items-center gap-1"
+                    className="text-accent text-sm font-medium hover:underline flex items-center gap-1"
                 >
                     Add one more milestone
                 </button>

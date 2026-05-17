@@ -1,1 +1,65 @@
 @import "tailwindcss";
+
+@theme {
+  /* Semantic Colors */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-tertiary: var(--bg-tertiary);
+  --color-bg-hover: var(--bg-hover);
+  --color-bg-stripe: var(--bg-stripe);
+  --color-bg-input: var(--bg-input);
+  --color-bg-overlay: var(--bg-overlay);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --text-muted: var(--text-muted); /* Custom name to avoid conflict */
+  --color-text-muted: var(--text-muted);
+  
+  --color-accent: var(--accent-primary);
+  --color-border-primary: var(--border-primary);
+  --color-card: var(--card-bg);
+}
+
+:root {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F9FAFB;
+  --bg-tertiary: #F3F4F6;
+  --bg-hover: #F9FAFB;
+  --bg-stripe: #F9FAFB;
+  --bg-input: #FFFFFF;
+  --bg-overlay: #FFFFFF;
+  
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-muted: #9CA3AF;
+  
+  --accent-primary: #706BFF;
+  --border-primary: #E5E7EB;
+  --card-bg: #FFFFFF;
+  
+  color-scheme: light;
+}
+
+.dark {
+  --bg-primary: #0b0b0e;      /* Deep blackish background */
+  --bg-secondary: #121217;    /* Sidebar / Intermediate panels */
+  --bg-tertiary: #08080a;     /* Deepest wells / Insets */
+  --bg-hover: #1e1e26;        /* Hover states */
+  --bg-stripe: #121217;       /* Alternating table rows */
+  --bg-input: #08080a;        /* Forms / Inputs */
+  --bg-overlay: #1c1c24;      /* Elevated Modals */
+
+  --text-primary: #ffffff;
+  --text-secondary: #a0a0ab;
+  --text-muted: #6e6e77;
+
+  --accent-primary: #7c74ff;  /* Slightly more vibrant for dark mode */
+  --border-primary: #1e1e26;
+  --card-bg: #16161d;         /* Card background - lighter than base */
+
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-bg-primary text-text-primary transition-colors duration-200;
+}
