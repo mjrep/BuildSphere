@@ -1,6 +1,8 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from '../pages/auth/LoginPage';
+import ResetPasswordPage from '../pages/auth/ResetPasswordPage';
+import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
 import SignupPage from '../pages/auth/SignupPage';
 import DashboardPage from '../pages/DashboardPage';
 import ProjectsPage from '../pages/ProjectsPage';
@@ -41,6 +43,8 @@ export default function AppRoutes() {
             <Routes>
                 <Route path="/" element={<Navigate to="/login" replace />} />
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
                 <Route path="/signup" element={<Navigate to="/login" replace />} />
                 <Route
                     path="/dashboard"
@@ -65,4 +69,4 @@ export default function AppRoutes() {
             </Routes>
         </BrowserRouter>
     );
-}
+}

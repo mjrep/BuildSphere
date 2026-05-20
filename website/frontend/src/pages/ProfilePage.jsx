@@ -10,17 +10,43 @@ export default function ProfilePage() {
         role: '',
         password: '',
         password_confirmation: '',
+        current_password: '',
+        middle_name: '',
+        suffix: '',
+        phone_number: '',
+        gender: '',
+        birthdate: '',
+        address: '',
     });
     const [errors, setErrors]     = useState({});
     const [loading, setLoading]   = useState(true);
     const [saving, setSaving]     = useState(false);
     const [success, setSuccess]   = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isDirty, setIsDirty]   = useState(false);
 
     useEffect(() => {
         api.get('/profile/me')
             .then(res => {
-                const { first_name, last_name, email, role } = res.data;
-                setForm(f => ({ ...f, first_name, last_name, email, role }));
+                const { 
+                    first_name, last_name, email, role,
+                    middle_name, suffix, phone_number, gender, birthdate, address 
+                } = res.data;
+                const formattedBirthdate = birthdate ? birthdate.split('T')[0] : '';
+                setForm(f => ({ 
+                    ...f, 
+                    first_name: first_name || '', 
+                    last_name: last_name || '', 
+                    email: email || '', 
+                    role: role || '',
+                    middle_name: middle_name || '',
+                    suffix: suffix || '',
+                    phone_number: phone_number || '',
+                    gender: gender || '',
+                    birthdate: formattedBirthdate,
+                    address: address || ''
+                }));
+                setIsDirty(false);
             })
             .catch(() => {})
             .finally(() => setLoading(false));
@@ -30,10 +56,17 @@ export default function ProfilePage() {
         setForm({ ...form, [e.target.name]: e.target.value });
         setErrors({ ...errors, [e.target.name]: null });
         setSuccess(false);
+        setIsDirty(true);
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!isEditing) {
+            setIsEditing(true);
+            return;
+        }
+
         setSaving(true);
         setErrors({});
         setSuccess(false);
@@ -42,16 +75,25 @@ export default function ProfilePage() {
             first_name: form.first_name,
             last_name:  form.last_name,
             email:      form.email,
+            middle_name: form.middle_name,
+            suffix:      form.suffix,
+            phone_number: form.phone_number,
+            gender:      form.gender,
+            birthdate:   form.birthdate || null,
+            address:     form.address,
         };
         if (form.password) {
             payload.password              = form.password;
             payload.password_confirmation = form.password_confirmation;
+            payload.current_password      = form.current_password;
         }
 
         try {
             await api.put('/profile/update', payload);
             setSuccess(true);
-            setForm(f => ({ ...f, password: '', password_confirmation: '' }));
+            setForm(f => ({ ...f, password: '', password_confirmation: '', current_password: '' }));
+            setIsEditing(false);
+            setIsDirty(false);
         } catch (err) {
             console.error('Profile update failed:', err);
             if (err.response?.status === 422) {
@@ -74,7 +116,7 @@ export default function ProfilePage() {
             errors[field]
                 ? 'border-red-400 focus:ring-red-200'
                 : 'border-border-primary focus:ring-accent/20 focus:border-accent'
-        }`;
+        } ${!isEditing ? 'opacity-70 cursor-not-allowed bg-bg-tertiary/50' : ''}`;
 
     if (loading) {
         return (
@@ -129,7 +171,7 @@ export default function ProfilePage() {
                     )}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Name row */}
+                        {/* Name Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2.5">
                                 <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">First Name</label>
@@ -140,8 +182,21 @@ export default function ProfilePage() {
                                     onChange={handleChange}
                                     className={inputClass('first_name')}
                                     placeholder="First name"
+                                    disabled={!isEditing}
                                 />
                                 {errors.first_name && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.first_name[0]}</p>}
+                            </div>
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Middle Name</label>
+                                <input
+                                    type="text"
+                                    name="middle_name"
+                                    value={form.middle_name}
+                                    onChange={handleChange}
+                                    className={inputClass('middle_name')}
+                                    placeholder="Middle name"
+                                    disabled={!isEditing}
+                                />
                             </div>
                             <div className="space-y-2.5">
                                 <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Last Name</label>
@@ -152,23 +207,96 @@ export default function ProfilePage() {
                                     onChange={handleChange}
                                     className={inputClass('last_name')}
                                     placeholder="Last name"
+                                    disabled={!isEditing}
                                 />
                                 {errors.last_name && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.last_name[0]}</p>}
                             </div>
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Suffix</label>
+                                <input
+                                    type="text"
+                                    name="suffix"
+                                    value={form.suffix}
+                                    onChange={handleChange}
+                                    className={inputClass('suffix')}
+                                    placeholder="e.g. Jr., III"
+                                    disabled={!isEditing}
+                                />
+                            </div>
                         </div>
 
-                        {/* Email */}
+                        {/* Contact Details Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={form.email}
+                                    onChange={handleChange}
+                                    className={inputClass('email')}
+                                    placeholder="Email address"
+                                    disabled={!isEditing}
+                                />
+                                {errors.email && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.email[0]}</p>}
+                            </div>
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Phone Number</label>
+                                <input
+                                    type="text"
+                                    name="phone_number"
+                                    value={form.phone_number}
+                                    onChange={handleChange}
+                                    className={inputClass('phone_number')}
+                                    placeholder="Phone number"
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Personal Details Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Gender</label>
+                                <select
+                                    name="gender"
+                                    value={form.gender}
+                                    onChange={handleChange}
+                                    className={inputClass('gender')}
+                                    disabled={!isEditing}
+                                >
+                                    <option value="">Select Gender</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                    <option value="Prefer not to say">Prefer not to say</option>
+                                </select>
+                            </div>
+                            <div className="space-y-2.5">
+                                <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Birthdate</label>
+                                <input
+                                    type="date"
+                                    name="birthdate"
+                                    value={form.birthdate}
+                                    onChange={handleChange}
+                                    className={inputClass('birthdate')}
+                                    disabled={!isEditing}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Address */}
                         <div className="space-y-2.5">
-                            <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
-                            <input
-                                type="email"
-                                name="email"
-                                value={form.email}
+                            <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Address</label>
+                            <textarea
+                                name="address"
+                                value={form.address}
                                 onChange={handleChange}
-                                className={inputClass('email')}
-                                placeholder="Email address"
+                                className={`${inputClass('address')} resize-none`}
+                                rows={3}
+                                placeholder="Living address details"
+                                disabled={!isEditing}
                             />
-                            {errors.email && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.email[0]}</p>}
                         </div>
 
                         {/* Role — read only */}
@@ -186,6 +314,19 @@ export default function ProfilePage() {
 
                             <div className="space-y-6">
                                 <div className="space-y-2.5">
+                                    <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Current Password</label>
+                                    <input
+                                        type="password"
+                                        name="current_password"
+                                        value={form.current_password}
+                                        onChange={handleChange}
+                                        className={inputClass('current_password')}
+                                        placeholder="Enter current password to set new password"
+                                        disabled={!isEditing}
+                                    />
+                                    {errors.current_password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.current_password[0]}</p>}
+                                </div>
+                                <div className="space-y-2.5">
                                     <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
                                     <input
                                         type="password"
@@ -194,6 +335,7 @@ export default function ProfilePage() {
                                         onChange={handleChange}
                                         className={inputClass('password')}
                                         placeholder="Leave blank to keep current"
+                                        disabled={!isEditing}
                                     />
                                     {errors.password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.password[0]}</p>}
                                 </div>
@@ -206,6 +348,7 @@ export default function ProfilePage() {
                                         onChange={handleChange}
                                         className={inputClass('password_confirmation')}
                                         placeholder="Confirm new password"
+                                        disabled={!isEditing}
                                     />
                                 </div>
                             </div>
@@ -218,7 +361,7 @@ export default function ProfilePage() {
                                 disabled={saving}
                                 className="w-full bg-accent hover:opacity-90 disabled:opacity-60 text-white font-black uppercase tracking-widest py-5 rounded-[1.5rem] transition-all shadow-xl shadow-accent/20 active:scale-[0.98] focus:ring-4 focus:ring-accent/30 outline-none"
                             >
-                                {saving ? 'Processing…' : 'Update Profile'}
+                                {saving ? 'Processing…' : (!isEditing ? 'Update Profile' : (isDirty ? 'Save Changes' : 'Update Profile'))}
                             </button>
                         </div>
                     </form>

@@ -51,7 +51,7 @@ router.post('/login', async (req, res) => {
     console.log(`[DEBUG] Login attempt for: "${email}"`);
     const result = await pool.query('SELECT * FROM "public"."users" WHERE email = $1', [email]);
     console.log(`[DEBUG] DB Result size: ${result.rows.length}`);
-    
+
     if (result.rows.length === 0) {
       console.log(`[DEBUG] NO ACCOUNT FOUND for: "${email}"`);
       return res.status(401).json({ error: 'No account found with that email.' });
@@ -94,7 +94,7 @@ router.post('/forgot-password', async (req, res) => {
 
     // Generate 6 digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
+
     // Clear old tokens for this email and insert new one
     await pool.query('DELETE FROM password_reset_tokens WHERE email = $1', [email]);
     await pool.query('INSERT INTO password_reset_tokens (email, token, created_at) VALUES ($1, $2, NOW())', [email, otp]);
@@ -119,7 +119,7 @@ router.post('/verify-otp', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(400).json({ error: 'Invalid or expired OTP.' });
     }
-    
+
     // Check if OTP is older than 15 minutes
     const tokenTime = new Date(result.rows[0].created_at).getTime();
     if (Date.now() - tokenTime > 15 * 60 * 1000) {

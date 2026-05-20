@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const bcrypt = require('bcryptjs');
+const { sendPasswordResetEmail } = require('../utils/mailer');
 
 dotenv.config();
 
@@ -13,6 +14,55 @@ const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabase
 const supabaseAdmin = supabaseUrl && supabaseServiceKey ? createClient(supabaseUrl, supabaseServiceKey) : null;
 
 class AuthController {
+  static async forgotPassword(req, res) {
+    if (!supabaseAdmin) return res.status(500).json({ message: 'Supabase admin client not initialized' });
+
+    try {
+      const { email } = req.body;
+      if (!email) {
+        return res.status(422).json({ message: 'Email address is required.', errors: { email: ['Email is required.'] } });
+      }
+
+      // Check if user exists in our local users db
+      const { data: userData, error: dbError } = await supabaseAdmin
+        .from('users')
+        .select('first_name, last_name')
+        .eq('email', email)
+        .maybeSingle();
+
+      if (dbError || !userData) {
+        return res.json({ message: 'If the email exists in our system, a password reset link has been dispatched.' });
+      }
+
+      // Generate password recovery link
+      const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
+        type: 'recovery',
+        email,
+        options: {
+          redirectTo: `${process.env.FRONTEND_URL || 'http://localhost:5173'}/reset-password`
+        }
+      });
+
+      if (linkError) throw linkError;
+
+      const actionLink = linkData?.properties?.action_link;
+
+      // Send reset password email using custom SMTP mailer
+      const mailResult = await sendPasswordResetEmail({
+        to: email,
+        name: `${userData.first_name} ${userData.last_name}`,
+        actionLink
+      });
+
+      res.json({
+        message: 'Password reset link sent successfully.',
+        mail_method: mailResult.method
+      });
+    } catch (err) {
+      console.error('Forgot password error:', err);
+      res.status(500).json({ message: err.message });
+    }
+  }
   static async login(req, res) {
     if (!supabase) return res.status(500).json({ message: 'Supabase client not initialized' });
 
@@ -166,9 +216,10 @@ class AuthController {
 
       // If successful, push custom attributes to the public users table
       if (data?.user) {
+        const hashedPassword = await bcrypt.hash(password, 10);
         await supabase.from('users').insert([{
-           id: data.user.id,
            email,
+           password: hashedPassword,
            first_name,
            last_name,
            role

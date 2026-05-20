@@ -12,7 +12,13 @@ export default function UserManagementPage() {
         email: '',
         first_name: '',
         last_name: '',
-        role: 'Project Engineer'
+        role: 'Project Engineer',
+        middle_name: '',
+        suffix: '',
+        phone_number: '',
+        gender: '',
+        birthdate: '',
+        address: ''
     });
 
     const roles = [
@@ -44,7 +50,18 @@ export default function UserManagementPage() {
             await api.post('/admin/users/invite', inviteForm);
             toast.success('Invitation sent to ' + inviteForm.email);
             setShowInviteModal(false);
-            setInviteForm({ email: '', first_name: '', last_name: '', role: 'Project Engineer' });
+            setInviteForm({ 
+                email: '', 
+                first_name: '', 
+                last_name: '', 
+                role: 'Project Engineer',
+                middle_name: '',
+                suffix: '',
+                phone_number: '',
+                gender: '',
+                birthdate: '',
+                address: ''
+            });
             fetchUsers();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to send invitation');
@@ -258,16 +275,16 @@ export default function UserManagementPage() {
                 {/* Invite Modal */}
                 {showInviteModal && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-md border border-border-primary overflow-hidden animate-in zoom-in-95 duration-300">
-                            <div className="bg-accent px-8 py-10 text-white relative">
+                        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl border border-border-primary overflow-hidden animate-in zoom-in-95 duration-300">
+                            <div className="bg-accent px-8 py-8 text-white relative">
                                 <h3 className="text-2xl font-black tracking-tight">Add Personnel</h3>
                                 <p className="text-white/70 text-[10px] font-bold uppercase tracking-widest mt-1">Directory Invitation</p>
                             </div>
                             
-                            <form onSubmit={handleInviteSubmit} className="p-8 space-y-6">
-                                <div className="grid grid-cols-2 gap-4">
+                            <form onSubmit={handleInviteSubmit} className="p-8 space-y-6 max-h-[75vh] overflow-y-auto">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div className="space-y-1.5">
-                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">First Name</label>
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">First Name *</label>
                                         <input 
                                             required
                                             value={inviteForm.first_name}
@@ -276,7 +293,15 @@ export default function UserManagementPage() {
                                         />
                                     </div>
                                     <div className="space-y-1.5">
-                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Last Name</label>
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Middle Name</label>
+                                        <input 
+                                            value={inviteForm.middle_name}
+                                            onChange={(e) => setInviteForm({...inviteForm, middle_name: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Last Name *</label>
                                         <input 
                                             required
                                             value={inviteForm.last_name}
@@ -284,37 +309,92 @@ export default function UserManagementPage() {
                                             className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
                                         />
                                     </div>
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address</label>
-                                    <input 
-                                        required
-                                        type="email"
-                                        value={inviteForm.email}
-                                        onChange={(e) => setInviteForm({...inviteForm, email: e.target.value})}
-                                        className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
-                                    />
-                                </div>
-
-                                <div className="space-y-1.5">
-                                    <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Role</label>
-                                    <div className="relative group">
-                                        <select 
-                                            value={inviteForm.role}
-                                            onChange={(e) => setInviteForm({...inviteForm, role: e.target.value})}
-                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 pr-10 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all appearance-none cursor-pointer text-text-primary"
-                                        >
-                                            {roles.map(r => <option key={r} value={r}>{r}</option>)}
-                                        </select>
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
-                                            </svg>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Suffix</label>
+                                        <input 
+                                            value={inviteForm.suffix}
+                                            placeholder="e.g. Jr., III"
+                                            onChange={(e) => setInviteForm({...inviteForm, suffix: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Email Address *</label>
+                                        <input 
+                                            required
+                                            type="email"
+                                            value={inviteForm.email}
+                                            onChange={(e) => setInviteForm({...inviteForm, email: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Phone Number</label>
+                                        <input 
+                                            value={inviteForm.phone_number}
+                                            onChange={(e) => setInviteForm({...inviteForm, phone_number: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Gender</label>
+                                        <div className="relative group">
+                                            <select 
+                                                value={inviteForm.gender}
+                                                onChange={(e) => setInviteForm({...inviteForm, gender: e.target.value})}
+                                                className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 pr-10 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all appearance-none cursor-pointer text-text-primary animate-none"
+                                            >
+                                                <option value="">Select Gender</option>
+                                                <option value="Male">Male</option>
+                                                <option value="Female">Female</option>
+                                                <option value="Other">Other</option>
+                                                <option value="Prefer not to say">Prefer not to say</option>
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
                                         </div>
                                     </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Birthdate</label>
+                                        <input 
+                                            type="date"
+                                            value={inviteForm.birthdate}
+                                            onChange={(e) => setInviteForm({...inviteForm, birthdate: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary"
+                                        />
+                                    </div>
+                                    <div className="space-y-1.5 md:col-span-2">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Role *</label>
+                                        <div className="relative group">
+                                            <select 
+                                                value={inviteForm.role}
+                                                onChange={(e) => setInviteForm({...inviteForm, role: e.target.value})}
+                                                className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 pr-10 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all appearance-none cursor-pointer text-text-primary"
+                                            >
+                                                {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                                            </select>
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5 md:col-span-2">
+                                        <label className="text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Address</label>
+                                        <textarea 
+                                            rows={2}
+                                            value={inviteForm.address}
+                                            onChange={(e) => setInviteForm({...inviteForm, address: e.target.value})}
+                                            className="w-full rounded-xl border border-border-primary bg-bg-tertiary px-4 py-3 text-sm font-semibold focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all text-text-primary resize-none"
+                                            placeholder="Living address details"
+                                        />
+                                    </div>
                                 </div>
-
+                                
                                 <div className="flex gap-3 pt-2">
                                     <button 
                                         type="button"

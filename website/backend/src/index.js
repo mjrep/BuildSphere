@@ -42,6 +42,7 @@ const projectLock = require('./middleware/projectLock');
 app.post('/api/login', authController.login);
 // app.post('/api/register', authController.register); // Public registration disabled
 app.post('/api/logout', authController.logout);
+app.post('/api/forgot-password', authController.forgotPassword);
 app.get('/api/users', authenticateToken, authController.index);
 
 // Admin Personnel Management
@@ -145,3 +146,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+// Nodemon trigger reload to Gmail SMTP
