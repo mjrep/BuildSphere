@@ -21,37 +21,81 @@ export default function ResetPasswordPage() {
                 const currentUrl = new URL(window.location.href);
                 const code = currentUrl.searchParams.get('code');
 
-                if (!code) {
-                    // No recovery code — redirect to the forgot password page
-                    navigate('/forgot-password', { replace: true });
+                // Flow 1: PKCE code exchange (query param ?code=...)
+                if (code) {
+                    const { error } = await supabase.auth.exchangeCodeForSession(code);
+                    if (error) throw error;
+
+                    const { data } = await supabase.auth.getSession();
+                    if (!isMounted) return;
+
+                    if (!data.session) {
+                        setErrors({ form: ['This reset link is invalid or expired. Please request a new one.'] });
+                        setSessionReady(false);
+                    } else {
+                        setSessionReady(true);
+                    }
+                    setLoading(false);
                     return;
                 }
 
-                const { error } = await supabase.auth.exchangeCodeForSession(code);
-                if (error) throw error;
+                // Flow 2: Hash fragment tokens (#access_token=...&type=recovery)
+                // Supabase may redirect with tokens in the hash fragment.
+                // The Supabase client auto-detects these and fires onAuthStateChange
+                // with PASSWORD_RECOVERY event. We listen for that below.
+                // Also check if hash contains recovery-related tokens.
+                const hash = window.location.hash;
+                if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
+                    // Supabase JS client will automatically pick up the hash tokens
+                    // and trigger onAuthStateChange. We wait for that event.
+                    return;
+                }
 
+                // Flow 3: Check if there's already an active session (e.g., page refresh)
                 const { data } = await supabase.auth.getSession();
-
                 if (!isMounted) return;
 
-                if (!data.session) {
-                    setErrors({ form: ['This reset link is invalid or expired. Please request a new one.'] });
-                    setSessionReady(false);
-                } else {
+                if (data.session) {
                     setSessionReady(true);
+                    setLoading(false);
+                    return;
                 }
+
+                // No recovery code, no hash tokens, no existing session
+                // Redirect to forgot password page
+                navigate('/forgot-password', { replace: true });
             } catch (error) {
                 if (!isMounted) return;
                 setErrors({ form: [error.message || 'Unable to start the password reset session.'] });
                 setSessionReady(false);
-            } finally {
-                if (isMounted) setLoading(false);
+                setLoading(false);
             }
         };
 
+        // Listen for Supabase auth state changes (PASSWORD_RECOVERY event)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (!isMounted) return;
+
+            if (event === 'PASSWORD_RECOVERY' && session) {
+                setSessionReady(true);
+                setLoading(false);
+            } else if (event === 'SIGNED_IN' && session) {
+                // Some Supabase versions fire SIGNED_IN instead of PASSWORD_RECOVERY
+                // when processing recovery tokens from hash fragments
+                const hashParams = new URLSearchParams(window.location.hash.substring(1));
+                if (hashParams.get('type') === 'recovery') {
+                    setSessionReady(true);
+                    setLoading(false);
+                }
+            }
+        });
+
         initializeRecoverySession();
 
-        return () => { isMounted = false; };
+        return () => {
+            isMounted = false;
+            subscription.unsubscribe();
+        };
     }, [navigate]);
 
     const handleChange = (event) => {

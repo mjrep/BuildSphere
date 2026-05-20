@@ -693,6 +693,10 @@ class ProjectController {
         return {
           ...p,
           phase_title: p.name, // Ensure both property names exist for compatibility
+          // Merge start_date and end_date from the raw phase (MilestoneService doesn't include these)
+          start_date: rawPhase?.start_date || null,
+          end_date: rawPhase?.end_date || null,
+          weight_percentage: rawPhase?.weight_percentage || p.weight_percentage || 0,
           milestones: p.milestones.map(ms => {
             const rawMs = (rawPhase?.milestones || []).find(rm => rm.id === ms.id);
             
@@ -711,6 +715,11 @@ class ProjectController {
 
             return {
               ...ms,
+              // Merge start_date and end_date from raw milestone data
+              start_date: rawMs?.start_date || ms.start_date || null,
+              end_date: rawMs?.end_date || ms.end_date || null,
+              has_quantity: rawMs?.has_quantity || false,
+              quantity_target: rawMs?.target_quantity || rawMs?.quantity_target || null,
               month_spans: monthSpans
             };
           })

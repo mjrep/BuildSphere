@@ -284,12 +284,22 @@ class TaskController {
   static async updateStatus(req, res) {
     try {
       const user = req.user;
-      if (!TaskController.isCreatorRole(user)) {
-        return res.status(403).json({ message: 'Unauthorized to update task status.' });
-      }
-
       const supabase = TaskController.getSupabaseWithAuth(req);
       const { task: id } = req.params;
+
+      const { data: currentTask, error: fetchError } = await supabase
+        .from('tasks')
+        .select('assigned_to')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) throw fetchError;
+      
+      const isAssignedUser = currentTask.assigned_to === user.id;
+
+      if (!TaskController.isCreatorRole(user) && !isAssignedUser) {
+        return res.status(403).json({ message: 'Unauthorized to update task status.' });
+      }
 
       const { status } = req.body;
       const { data, error } = await supabase

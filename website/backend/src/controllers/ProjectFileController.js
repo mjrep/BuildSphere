@@ -13,9 +13,37 @@ class ProjectFileController {
     });
   }
 
+  static getSupabaseAdmin() {
+    return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+
+  /**
+   * Ensures the storage bucket exists, creating it if missing.
+   * Uses the service-role admin client since regular users can't create buckets.
+   */
+  static async ensureBucketExists(bucketName) {
+    const admin = ProjectFileController.getSupabaseAdmin();
+    const { data, error } = await admin.storage.getBucket(bucketName);
+
+    if (error && (error.message?.includes('not found') || error.statusCode === '404' || error.status === 400)) {
+      console.log(`[ProjectFileController] Bucket "${bucketName}" not found. Creating...`);
+      const { error: createError } = await admin.storage.createBucket(bucketName, {
+        public: true,
+        fileSizeLimit: 100 * 1024 * 1024, // 100MB
+      });
+      if (createError) {
+        console.error(`[ProjectFileController] Failed to create bucket "${bucketName}":`, createError);
+        throw createError;
+      }
+      console.log(`[ProjectFileController] Bucket "${bucketName}" created successfully.`);
+    } else if (error) {
+      throw error;
+    }
+  }
+
   static async index(req, res) {
     try {
-      const supabase = ProjectFileController.getSupabaseWithAuth(req);
+      const supabase = ProjectFileController.getSupabaseAdmin();
       const { id: projectId } = req.params;
 
       const { data: files, error } = await supabase
@@ -56,6 +84,7 @@ class ProjectFileController {
   static async store(req, res) {
     try {
       const supabase = ProjectFileController.getSupabaseWithAuth(req);
+      const supabaseAdmin = ProjectFileController.getSupabaseAdmin();
       const { id: projectId } = req.params;
       const user = req.user;
       const files = req.files;
@@ -65,13 +94,17 @@ class ProjectFileController {
       }
 
       const bucket = process.env.SUPABASE_BUCKET_PROJECT_FILES || 'project-files';
+      
+      // Auto-create bucket if it doesn't exist
+      await ProjectFileController.ensureBucketExists(bucket);
+      
       const created = [];
 
       for (const file of files) {
         const path = `prj_${projectId}/${Date.now()}_${file.originalname}`;
 
-        // 1. Upload to Storage
-        const { error: uploadError } = await supabase.storage
+        // 1. Upload to Storage (use admin client to bypass RLS)
+        const { error: uploadError } = await supabaseAdmin.storage
           .from(bucket)
           .upload(path, file.buffer, {
             contentType: file.mimetype,
@@ -79,12 +112,11 @@ class ProjectFileController {
           });
 
         if (uploadError) {
-             // If bucket doesn't exist, this might fail. We assume bucket exists.
              throw uploadError;
         }
 
-        // 2. DB Record
-        const { data: dbFile, error: dbError } = await supabase
+        // 2. DB Record (use admin client to bypass RLS on project_files table too)
+        const { data: dbFile, error: dbError } = await supabaseAdmin
           .from('project_files')
           .insert([{
             project_id: projectId,
@@ -113,7 +145,7 @@ class ProjectFileController {
           file_type: dbFile.file_type,
           file_size: dbFile.file_size,
           created_at: dbFile.created_at,
-          uploaded_by: `${dbFile.uploader.first_name} ${dbFile.uploader.last_name}`,
+          uploaded_by: dbFile.uploader ? `${dbFile.uploader.first_name} ${dbFile.uploader.last_name}` : 'Unknown',
           download_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${dbFile.file_path.replace(/^\/+/, '')}`
         });
       }
@@ -127,10 +159,10 @@ class ProjectFileController {
 
   static async destroy(req, res) {
     try {
-      const supabase = ProjectFileController.getSupabaseWithAuth(req);
+      const supabaseAdmin = ProjectFileController.getSupabaseAdmin();
       const { id: projectId, file: fileId } = req.params;
 
-      const { data: file, error: fetchErr } = await supabase
+      const { data: file, error: fetchErr } = await supabaseAdmin
         .from('project_files')
         .select('file_path')
         .eq('id', fileId)
@@ -141,14 +173,15 @@ class ProjectFileController {
 
       const bucket = process.env.SUPABASE_BUCKET_PROJECT_FILES || 'project-files';
       
-      // 1. Storage delete
-      await supabase.storage.from(bucket).remove([file.file_path]);
+      // 1. Storage delete (admin bypasses RLS)
+      await supabaseAdmin.storage.from(bucket).remove([file.file_path]);
 
       // 2. DB delete
-      await supabase.from('project_files').delete().eq('id', fileId);
+      await supabaseAdmin.from('project_files').delete().eq('id', fileId);
 
       res.json({ message: 'File deleted successfully' });
     } catch (err) {
+      console.error(err);
       res.status(500).json({ message: 'Error deleting file' });
     }
   }

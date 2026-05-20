@@ -362,7 +362,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                             {statusIsLocked ? (
                                 /* ── Locked status for quantifiable milestones ── */
                                 <LockedStatusBadge status={task.status} />
-                            ) : permissions.canUpdateStatus ? (
+                            ) : (permissions.canUpdateStatus || task.assigned_to?.id === user?.id) ? (
                                 <div className="relative">
                                     <button
                                         onClick={() => setShowStatusMenu(s => !s)}
@@ -434,7 +434,7 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                         <Section title={`Attachments ${attachments.length > 0 ? `(${attachments.length})` : ''}`}>
                             <TaskAttachmentList
                                 attachments={attachments}
-                                canUpload={permissions.canUploadAttachment}
+                                canUpload={permissions.canUploadAttachment || task.assigned_to?.id === user?.id}
                                 onUpload={handleAttachment}
                             />
                         </Section>

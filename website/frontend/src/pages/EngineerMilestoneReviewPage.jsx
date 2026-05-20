@@ -3,6 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getProject, getMilestoneChart, submitMilestoneReview } from '../services/projectApi';
 import MilestoneReviewChart from '../components/projects/MilestoneReviewChart';
 import { toast } from 'react-hot-toast';
+import DashboardLayout from '../layouts/DashboardLayout';
+import { ChevronLeft } from 'lucide-react';
 
 export default function EngineerMilestoneReviewPage() {
     const { id } = useParams();
@@ -46,15 +48,33 @@ export default function EngineerMilestoneReviewPage() {
         }
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500">Loading review chart...</div>;
-    if (!project || !chartData) return <div className="p-8 text-center text-red-500">Data not found.</div>;
+    if (loading) return (
+        <DashboardLayout pageTitle={<span className="font-bold">Review Milestones</span>}>
+            <div className="p-8 text-center text-gray-500">Loading review chart...</div>
+        </DashboardLayout>
+    );
+    if (!project || !chartData) return (
+        <DashboardLayout pageTitle={<span className="font-bold">Review Milestones</span>}>
+            <div className="p-8 text-center text-red-500">Data not found.</div>
+        </DashboardLayout>
+    );
 
     return (
-        <div className="flex-1 bg-card p-8">
-            <div className="max-w-7xl mx-auto">
+        <DashboardLayout pageTitle={
+            <div className="flex items-center gap-3">
+                <button 
+                    onClick={() => navigate(`/projects/${id}/milestone-input`)} 
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+                <span className="font-bold">Review Milestones</span>
+            </div>
+        }>
+            <div className="max-w-7xl mx-auto pb-12">
                 <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-text-primary">Review Milestones</h1>
+                        <h1 className="text-2xl font-bold text-text-primary">Review Milestones</h1>
                         <p className="text-[#5A5A5A] mt-2">
                             Review the Gantt chart for <span className="font-semibold">{project.project_code} ({project.project_name})</span>.
                         </p>
@@ -83,6 +103,6 @@ export default function EngineerMilestoneReviewPage() {
                     </button>
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 }

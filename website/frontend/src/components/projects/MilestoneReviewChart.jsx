@@ -31,9 +31,9 @@ export default function MilestoneReviewChart({ data }) {
                                 </td>
                                 {timeline_months.map((month) => {
                                     // Check if phase spans this month (rough check for visual phase bar)
-                                    const pStart = phase.start_date.substring(0, 7);
-                                    const pEnd = phase.end_date.substring(0, 7);
-                                    const isSpan = month.key >= pStart && month.key <= pEnd;
+                                    const pStart = phase.start_date ? phase.start_date.substring(0, 7) : '';
+                                    const pEnd = phase.end_date ? phase.end_date.substring(0, 7) : '';
+                                    const isSpan = pStart && pEnd && month.key >= pStart && month.key <= pEnd;
                                     return (
                                         <td key={`${phase.id}-${month.key}`} className="p-0 border-b border-r border-border-primary h-12">
                                             {isSpan && (

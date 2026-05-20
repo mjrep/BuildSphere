@@ -14,6 +14,29 @@ class TaskAttachmentController {
     });
   }
 
+  static getSupabaseAdmin() {
+    return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+  }
+
+  static async ensureBucketExists(bucketName) {
+    const admin = TaskAttachmentController.getSupabaseAdmin();
+    const { data, error } = await admin.storage.getBucket(bucketName);
+
+    if (error && (error.message?.includes('not found') || error.statusCode === '404' || error.status === 400)) {
+      console.log(`[TaskAttachmentController] Bucket "${bucketName}" not found. Creating...`);
+      const { error: createError } = await admin.storage.createBucket(bucketName, {
+        public: true,
+        fileSizeLimit: 50 * 1024 * 1024,
+      });
+      if (createError) {
+        console.error(`[TaskAttachmentController] Failed to create bucket "${bucketName}":`, createError);
+        throw createError;
+      }
+    } else if (error) {
+      throw error;
+    }
+  }
+
   static async index(req, res) {
     try {
       const supabase = TaskAttachmentController.getSupabaseWithAuth(req);
@@ -73,6 +96,7 @@ class TaskAttachmentController {
   static async store(req, res) {
     try {
       const supabase = TaskAttachmentController.getSupabaseWithAuth(req);
+      const supabaseAdmin = TaskAttachmentController.getSupabaseAdmin();
       const { task: taskId } = req.params;
       const user = req.user;
       const files = req.files; // Populated by multer
@@ -82,6 +106,8 @@ class TaskAttachmentController {
       }
 
       const bucket = process.env.SUPABASE_BUCKET_ATTACHMENTS || 'task-attachments';
+      await TaskAttachmentController.ensureBucketExists(bucket);
+      
       const created = [];
 
       for (const file of files) {
@@ -89,7 +115,7 @@ class TaskAttachmentController {
         const path = `${Date.now()}_${Math.random().toString(36).substring(2, 10)}_${file.originalname}`;
 
         // 1. Upload to Supabase Storage
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseAdmin.storage
           .from(bucket)
           .upload(path, file.buffer, {
             contentType: file.mimetype,
