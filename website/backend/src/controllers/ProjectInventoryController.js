@@ -54,9 +54,9 @@ class ProjectInventoryController {
         const criticalLevel = parseFloat(item.critical_level || 0);
         const price = parseFloat(item.price || 0);
 
-        let status = 'In Stock';
-        if (currentStock === 0) status = 'Out of Stock';
-        else if (currentStock <= criticalLevel) status = 'Low Stock';
+        let status = 'in_stock';
+        if (currentStock <= 0) status = 'out_of_stock';
+        else if (currentStock <= criticalLevel) status = 'low_stock';
 
         return {
           id: item.id,
