@@ -41,7 +41,17 @@ class ProjectController {
       if (req.query.status) {
         query = query.eq('status', req.query.status.toLowerCase());
       }
-      if (sub_status) query = query.eq('sub_status', sub_status);
+      if (sub_status) {
+        if (sub_status.toLowerCase() === 'draft') {
+          query = query.ilike('sub_status', 'draft');
+        } else if (sub_status === 'for_accounting_approval') {
+          query = query.or('sub_status.eq.for_accounting_approval,and(sub_status.eq.pending_approval,accounting_approved_at.is.null)');
+        } else if (sub_status === 'for_executives_approval') {
+          query = query.or('sub_status.eq.for_executives_approval,and(sub_status.eq.pending_approval,accounting_approved_at.not.is.null)');
+        } else {
+          query = query.ilike('sub_status', sub_status);
+        }
+      }
       if (created_by) query = query.eq('created_by', created_by);
 
       let orderColumn = 'created_at';
@@ -778,7 +788,7 @@ class ProjectController {
       // 1. Verify project exists, is proposed, and is in an editable sub-status
       const { data: project, error: fetchErr } = await supabase
         .from('projects')
-        .select('status, sub_status')
+        .select('status, sub_status, project_name')
         .eq('id', id)
         .single();
       
@@ -790,14 +800,37 @@ class ProjectController {
         return res.status(422).json({ message: 'Only proposed projects can have milestones submitted for review.' });
       }
 
-      // 2. Update project status to "pending_approval"
+      // 2. Update project status to "for_accounting_approval"
       const { error } = await supabase
         .from('projects')
-        .update({ sub_status: 'pending_approval' })
+        .update({ sub_status: 'for_accounting_approval' })
         .eq('id', id);
 
       if (error) throw error;
-      res.json({ message: 'Milestones submitted for review. Project updated to pending_approval.' });
+
+      // 3. Notify Accounting users
+      try {
+        const { data: accountingUsers } = await supabase
+          .from('users')
+          .select('id')
+          .eq('role', 'Accounting');
+        
+        if (accountingUsers && accountingUsers.length > 0) {
+          for (const accUser of accountingUsers) {
+            await NotificationService.createNotification(
+              accUser.id,
+              'Project For Accounting Approval',
+              `Project '${project.project_name || 'Unnamed'}' is now awaiting accounting approval.`,
+              'info',
+              `/projects/${id}`
+            );
+          }
+        }
+      } catch (notifErr) {
+        console.error('Accounting Approval Notification Error:', notifErr);
+      }
+
+      res.json({ message: 'Milestones submitted for review. Project updated to for_accounting_approval.' });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }

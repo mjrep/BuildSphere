@@ -2,21 +2,34 @@ import React from 'react';
 
 const STATUS_MAP = {
     proposed: {
-        draft:            { label: 'Draft',            bg: 'bg-text-muted/10',   text: 'text-text-muted' },
-        for_revision:     { label: 'For Revision',     bg: 'bg-red-500/20',     text: 'text-red-400' },
-        pending_approval: { label: 'Pending Approval', bg: 'bg-amber-500/20', text: 'text-amber-400' },
-        approved:         { label: 'Approved',         bg: 'bg-emerald-500/20', text: 'text-emerald-400' },
+        draft:                     { label: 'Draft',                   bg: 'bg-white/90 shadow-sm',     text: 'text-slate-700' },
+        for_revision:              { label: 'For Revision',            bg: 'bg-red-500 shadow-sm',      text: 'text-white' },
+        pending_approval:          { label: 'For Accounting Approval', bg: 'bg-amber-500 shadow-sm',    text: 'text-white' }, // Alias for old data
+        for_accounting_approval:   { label: 'For Accounting Approval', bg: 'bg-amber-500 shadow-sm',    text: 'text-white' },
+        for_executives_approval:   { label: 'For Executives Approval', bg: 'bg-purple-500 shadow-sm',   text: 'text-white' },
+        approved:                  { label: 'Approved',                bg: 'bg-emerald-500 shadow-sm',  text: 'text-white' },
     },
     ongoing:   { label: 'Ongoing',   bg: 'bg-accent shadow-[0_0_12px_rgba(124,116,255,0.4)]', text: 'text-white' },
     completed: { label: 'Completed', bg: 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.3)]', text: 'text-white' },
 };
 
-export default function StatusBadge({ status, subStatus }) {
+export default function StatusBadge({ status, subStatus, project }) {
     // Determine config based on nested structure
     let config;
     
     if (status === 'proposed') {
-        config = STATUS_MAP.proposed[subStatus] || { label: 'Proposed', bg: 'bg-slate-100', text: 'text-slate-600' };
+        let normalizedSub = subStatus?.toLowerCase() || 'draft';
+        
+        // Handle legacy pending_approval alias
+        if (normalizedSub === 'pending_approval') {
+            if (project && project.accounting_approved_at) {
+                normalizedSub = 'for_executives_approval';
+            } else {
+                normalizedSub = 'for_accounting_approval';
+            }
+        }
+        
+        config = STATUS_MAP.proposed[normalizedSub] || { label: 'Draft', bg: 'bg-white/90 shadow-sm', text: 'text-slate-700' };
     } else if (status === 'ongoing') {
         config = STATUS_MAP.ongoing;
     } else {

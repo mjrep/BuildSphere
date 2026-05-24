@@ -15,11 +15,11 @@ const STATUS_TABS = [
 ];
 
 const SUB_STATUS_TABS = [
-    { key: '',                 label: 'All' },
-    { key: 'draft',            label: 'Draft' },
-    { key: 'for_revision',     label: 'For Revision' },
-    { key: 'pending_approval', label: 'Pending Approval' },
-    { key: 'approved',         label: 'Approved' },
+    { key: '',                        label: 'All Proposed' },
+    { key: 'draft',                   label: 'Draft' },
+    { key: 'for_revision',            label: 'For Revision' },
+    { key: 'for_accounting_approval', label: 'For Accounting Approval' },
+    { key: 'for_executives_approval', label: 'For Executives Approval' },
 ];
 
 export default function ProjectsPage() {
@@ -51,14 +51,15 @@ export default function ProjectsPage() {
     };
 
     useEffect(() => {
-        // Reset sub-tab when main tab changes
-        setActiveSubTab('');
         fetchProjects();
-    }, [activeTab]);
+    }, [activeTab, activeSubTab]);
 
-    useEffect(() => {
-        fetchProjects();
-    }, [activeSubTab]);
+    const handleTabChange = (tabKey) => {
+        if (activeTab !== tabKey) {
+            setActiveTab(tabKey);
+            setActiveSubTab('');
+        }
+    };
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -86,7 +87,6 @@ export default function ProjectsPage() {
 
             {/* Content card */}
             <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 p-8">
-                {/* Status tabs */}
                 <div className="flex items-center gap-8 border-b border-border-primary/50 mb-8">
                     {STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
@@ -94,48 +94,53 @@ export default function ProjectsPage() {
                             ? meta.total || projects.length
                             : projects.length;
                         return (
-                            <button
-                                key={tab.key}
-                                onClick={() => setActiveTab(tab.key)}
-                                className={`pb-4 text-sm font-black transition-all relative ${
-                                    isActive
-                                        ? 'text-accent'
-                                        : 'text-text-muted hover:text-text-primary'
-                                }`}
-                            >
-                                <span className="uppercase tracking-wider">{tab.label}</span>
-                                {isActive && (
-                                    <>
-                                        <span className="ml-2 text-[10px] bg-accent/10 px-2 py-0.5 rounded-full">{count}</span>
-                                        <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full shadow-[0_-2px_10px_rgba(124,116,255,0.4)]" />
-                                    </>
+                            <div key={tab.key} className="relative group">
+                                <button
+                                    onClick={() => handleTabChange(tab.key)}
+                                    className={`pb-4 text-sm font-black transition-all relative ${
+                                        isActive
+                                            ? 'text-accent'
+                                            : 'text-text-muted hover:text-text-primary'
+                                    }`}
+                                >
+                                    <span className="uppercase tracking-wider">{tab.label}</span>
+                                    {isActive && (
+                                        <>
+                                            <span className="ml-2 text-[10px] bg-accent/10 px-2 py-0.5 rounded-full">{count}</span>
+                                            <div className="absolute bottom-0 left-0 right-0 h-1 bg-accent rounded-full shadow-[0_-2px_10px_rgba(124,116,255,0.4)]" />
+                                        </>
+                                    )}
+                                </button>
+                                
+                                {/* Dropdown for Proposed */}
+                                {tab.key === 'proposed' && (
+                                    <div className="absolute top-full left-0 mt-0 w-60 bg-card border border-border-primary/80 rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden py-2">
+                                        {SUB_STATUS_TABS.map(sub => {
+                                            const isSubActive = activeTab === 'proposed' && activeSubTab === sub.key;
+                                            return (
+                                                <button
+                                                    key={sub.key}
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setActiveTab('proposed');
+                                                        setActiveSubTab(sub.key);
+                                                    }}
+                                                    className={`w-full text-left px-5 py-2.5 text-xs font-bold transition-colors ${
+                                                        isSubActive
+                                                            ? 'bg-accent/10 text-accent border-l-4 border-accent'
+                                                            : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary border-l-4 border-transparent'
+                                                    }`}
+                                                >
+                                                    {sub.label}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 )}
-                            </button>
+                            </div>
                         );
                     })}
                 </div>
-
-                {/* Sub-status filters for Proposed */}
-                {activeTab === 'proposed' && (
-                    <div className="flex items-center gap-3 mb-8 animate-in fade-in slide-in-from-top-2 duration-500">
-                        {SUB_STATUS_TABS.map((tab) => {
-                            const isActive = activeSubTab === tab.key;
-                            return (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setActiveSubTab(tab.key)}
-                                    className={`px-6 py-2 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                                        isActive
-                                            ? 'bg-accent text-white shadow-lg shadow-accent/20 scale-105'
-                                            : 'bg-bg-secondary text-text-muted hover:bg-bg-hover hover:text-text-primary'
-                                    }`}
-                                >
-                                    {tab.label}
-                                </button>
-                            );
-                        })}
-                    </div>
-                )}
 
                 {/* Search bar */}
                 <form onSubmit={handleSearch} className="mb-8">

@@ -15,8 +15,14 @@ export default function MilestonePhaseCard({
         onChange(phaseIndex, field, value);
     };
 
+    const hasError = Object.keys(errors).length > 0;
+
     return (
-        <div className="bg-bg-secondary rounded-2xl p-6 border border-border-primary shadow-sm hover:shadow-md transition-shadow">
+        <div className={`rounded-2xl p-6 border shadow-sm hover:shadow-md transition-all duration-300 ${
+            hasError 
+                ? 'bg-red-50/30 border-red-400 ring-2 ring-red-400/20' 
+                : 'bg-bg-secondary border-border-primary'
+        }`}>
             {/* Phase Header Fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div className="space-y-1 relative">

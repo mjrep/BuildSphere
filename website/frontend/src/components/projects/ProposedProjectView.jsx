@@ -24,7 +24,7 @@ export default function ProposedProjectView({ project }) {
                         <h2 className="text-xl font-bold text-text-primary">{project.project_name}</h2>
                         <p className="text-sm text-[#6B6B6B] mt-1">{project.client_name}</p>
                     </div>
-                    <StatusBadge status={project.status} subStatus={project.sub_status} />
+                    <StatusBadge status={project.status} subStatus={project.sub_status} project={project} />
                 </div>
 
                 {project.rejection_reason && (

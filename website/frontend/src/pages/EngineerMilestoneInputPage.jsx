@@ -188,8 +188,17 @@ export default function EngineerMilestoneInputPage() {
             
             if (!phase.start_date) newErrors[`phases.${pIdx}.start_date`] = 'Required';
             if (!phase.end_date) newErrors[`phases.${pIdx}.end_date`] = 'Required';
-            else if (phase.start_date && phase.end_date < phase.start_date) {
+            
+            if (phase.start_date && phase.end_date && phase.end_date < phase.start_date) {
                 newErrors[`phases.${pIdx}.end_date`] = 'Must be after start';
+            }
+
+            // Phase dates must be within Project dates
+            if (project?.start_date && phase.start_date && phase.start_date < project.start_date) {
+                newErrors[`phases.${pIdx}.start_date`] = 'Cannot start before project';
+            }
+            if (project?.end_date && phase.end_date && phase.end_date > project.end_date) {
+                newErrors[`phases.${pIdx}.end_date`] = 'Cannot end after project';
             }
             
             let msTotalWeight = 0;
@@ -197,17 +206,19 @@ export default function EngineerMilestoneInputPage() {
                 if (!ms.milestone_name) newErrors[`phases.${pIdx}.milestones.${mIdx}.milestone_name`] = 'Required';
                 if (!ms.start_date) newErrors[`phases.${pIdx}.milestones.${mIdx}.start_date`] = 'Required';
                 if (!ms.end_date) newErrors[`phases.${pIdx}.milestones.${mIdx}.end_date`] = 'Required';
-                else if (ms.start_date && ms.end_date < ms.start_date) {
+                
+                if (ms.start_date && ms.end_date && ms.end_date < ms.start_date) {
                     newErrors[`phases.${pIdx}.milestones.${mIdx}.end_date`] = 'Must be after start';
                 }
                 
                 msTotalWeight += parseFloat(ms.weight_percentage || 0);
 
                 // Check if ms dates are within phase dates
-                if (phase.start_date && phase.end_date && ms.start_date && ms.end_date) {
-                    if (ms.start_date < phase.start_date || ms.end_date > phase.end_date) {
-                        newErrors[`phases.${pIdx}.milestones.${mIdx}.general`] = 'Dates must fall within phase range';
-                    }
+                if (phase.start_date && ms.start_date && ms.start_date < phase.start_date) {
+                    newErrors[`phases.${pIdx}.milestones.${mIdx}.start_date`] = 'Cannot start before phase';
+                }
+                if (phase.end_date && ms.end_date && ms.end_date > phase.end_date) {
+                    newErrors[`phases.${pIdx}.milestones.${mIdx}.end_date`] = 'Cannot end after phase';
                 }
                 
                 if (ms.has_quantity && !ms.quantity_target) {

@@ -111,6 +111,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
     const [accomplishmentViews, setAccomplishmentViews] = useState([
         {
             id: Date.now(),
+            taskId: '',
             beforeDate: config?.startDate ? new Date(config.startDate) : new Date(),
             afterDate: config?.endDate ? new Date(config.endDate) : new Date(),
             showBeforeCalendar: false,
@@ -126,6 +127,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
             ...accomplishmentViews,
             {
                 id: Date.now(),
+                taskId: '',
                 beforeDate: new Date(),
                 afterDate: new Date(),
                 showBeforeCalendar: false,
@@ -140,10 +142,39 @@ export default function ReportPreview({ reportData, config, onBack }) {
         }
     };
 
-    const updateViewDate = (id, field, date) => {
-        setAccomplishmentViews(accomplishmentViews.map(v =>
-            v.id === id ? { ...v, [field]: date, [`show${field.charAt(0).toUpperCase() + field.slice(1)}Calendar`]: false } : v
-        ));
+    const updateViewDate = (id, field, value) => {
+        setAccomplishmentViews(prevViews => prevViews.map(v => {
+            if (v.id !== id) return v;
+
+            const updatedView = { ...v, [field]: value };
+            
+            if (field === 'beforeDate' || field === 'afterDate') {
+                updatedView[`show${field.charAt(0).toUpperCase() + field.slice(1)}Calendar`] = false;
+            }
+
+            // Auto-load previous date into beforeDate if afterDate is selected
+            if (field === 'afterDate') {
+                const project = reportData && reportData[0];
+                if (project?.accomplishments) {
+                    const viewUpdateDates = project.accomplishments
+                        .filter(a => !v.taskId || String(a.task_id) === String(v.taskId))
+                        .map(a => toDateString(a.date))
+                        .filter(Boolean);
+
+                    const uniqueSortedDates = [...new Set(viewUpdateDates)].sort((a, b) => new Date(b) - new Date(a));
+                    const selectedDateStr = toDateString(value);
+                    
+                    // Find the closest previous update date (-1)
+                    const prevDateStr = uniqueSortedDates.find(d => new Date(d) < new Date(selectedDateStr));
+
+                    if (prevDateStr) {
+                        updatedView.beforeDate = new Date(prevDateStr);
+                    }
+                }
+            }
+
+            return updatedView;
+        }));
     };
 
     const toggleCalendar = (id, field) => {
@@ -160,7 +191,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
             // Format accomplishment views for backend
             const formattedViews = accomplishmentViews.map(v => ({
                 beforeDate: toDateString(v.beforeDate),
-                afterDate: toDateString(v.afterDate)
+                afterDate: toDateString(v.afterDate),
+                taskId: v.taskId
             }));
 
             const response = await api.post('/reports/export/pdf', {
@@ -206,7 +238,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
             // Format accomplishment views for backend
             const formattedViews = accomplishmentViews.map(v => ({
                 beforeDate: toDateString(v.beforeDate),
-                afterDate: toDateString(v.afterDate)
+                afterDate: toDateString(v.afterDate),
+                taskId: v.taskId
             }));
 
             const response = await api.post('/reports/export/excel', { 
@@ -364,95 +397,118 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                 </div>
 
                                 {activeTab === 'Progress Analysis' && (
-                                    <div className="space-y-12 animate-in fade-in duration-500">
-                                        {/* Progress Status Summary Table */}
-                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
-                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Progress Status Summary</span>
-                                            </div>
-                                            <table className="w-full text-left">
-                                                <thead className="bg-card border-b border-border-primary">
+                                    <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden animate-in fade-in duration-500">
+                                        <div className="bg-bg-secondary/50 py-4 px-8 border-b border-border-primary flex items-center justify-between">
+                                            <span className="text-sm font-black uppercase tracking-[0.2em] text-text-primary">Progress Analysis Report</span>
+                                        </div>
+                                        <table className="w-full text-left">
+                                            {/* Progress Status Summary Header */}
+                                            <thead className="bg-bg-secondary/30 border-b border-border-primary">
+                                                <tr>
+                                                    <th colSpan="4" className="px-8 py-4 text-[11px] font-black text-accent uppercase tracking-widest bg-accent/5">
+                                                        Milestones
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider w-1/3">Milestone Name</th>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider text-center w-1/6">Progress</th>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider text-center w-1/4">Status</th>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider text-right w-1/4">Date Finished</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-border-primary/30">
+                                                {(!project.progress?.phases || project.progress.phases.length === 0) ? (
                                                     <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Milestone</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Date finished</th>
+                                                        <td colSpan="4" className="px-8 py-6 text-center text-sm text-text-muted italic">No milestones found.</td>
                                                     </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-border-primary/30">
-                                                    {(!project.progress?.phases || project.progress.phases.flatMap(p => p.milestones.filter(m => m.progress_percentage === 100)).length === 0) ? (
-                                                        <tr>
-                                                            <td colSpan="3" className="px-8 py-8 text-center text-sm text-text-muted italic">No completed milestones found.</td>
-                                                        </tr>
-                                                    ) : project.progress.phases.flatMap(phase =>
-                                                        phase.milestones.filter(m => m.progress_percentage === 100).map((m) => (
-                                                            <tr key={m.id} className="hover:bg-bg-hover transition-colors">
-                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
-                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{m.milestone_name}</td>
-                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{m.end_date || 'N/A'}</td>
+                                                ) : project.progress.phases.flatMap(phase => phase.milestones).map((m, i) => {
+                                                    const milestoneTasks = project.completedTasks?.filter(t => t.milestone_id === m.id) || [];
+                                                    return (
+                                                        <React.Fragment key={`m-${m.id}-${i}`}>
+                                                            <tr className="bg-bg-secondary/10 hover:bg-bg-hover transition-colors">
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-primary">{m.milestone_name}</td>
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-secondary text-center">{m.progress_percentage || 0}%</td>
+                                                                <td className="px-8 py-4 text-xs font-bold text-center">
+                                                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${m.progress_percentage === 100 ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}>
+                                                                        {m.progress_percentage === 100 ? 'Completed' : 'Ongoing'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-8 py-4 text-xs font-bold text-text-secondary text-right">
+                                                                    {m.progress_percentage === 100 ? (m.end_date || '—') : '—'}
+                                                                </td>
                                                             </tr>
-                                                        ))
-                                                    )}
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                            {milestoneTasks.map((task, tIdx) => (
+                                                                <tr key={`t-${task.id}-${tIdx}`} className="hover:bg-bg-hover transition-colors">
+                                                                    <td className="px-8 py-3 text-[11px] font-medium text-text-secondary pl-12 flex items-center gap-2">
+                                                                        <div className="w-1 h-1 rounded-full bg-text-muted/50"></div>
+                                                                        {task.title}
+                                                                    </td>
+                                                                    <td className="px-8 py-3 text-[11px] font-medium text-text-secondary text-center"></td>
+                                                                    <td className="px-8 py-3 text-[11px] font-medium text-center">
+                                                                        <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${task.status === 'completed' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                                            {task.status === 'completed' ? 'Completed' : 'Ongoing'}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-8 py-3 text-[11px] font-medium text-text-secondary text-right">
+                                                                        {task.status === 'completed' ? (task.date || '—') : '—'}
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </React.Fragment>
+                                                    );
+                                                })}
+                                                {(() => {
+                                                    const unassignedTasks = project.completedTasks?.filter(t => !t.milestone_id || !project.progress?.phases?.flatMap(p => p.milestones).some(m => m.id === t.milestone_id)) || [];
+                                                    if (unassignedTasks.length > 0) {
+                                                        return unassignedTasks.map((task, tIdx) => (
+                                                            <tr key={`t-u-${tIdx}`} className="hover:bg-bg-hover transition-colors">
+                                                                <td className="px-8 py-3 text-[11px] font-medium text-text-secondary pl-12 flex items-center gap-2">
+                                                                    <div className="w-1 h-1 rounded-full bg-text-muted/50"></div>
+                                                                    {task.title} (Uncategorized)
+                                                                </td>
+                                                                <td className="px-8 py-3 text-[11px] font-medium text-text-secondary text-center"></td>
+                                                                <td className="px-8 py-3 text-[11px] font-medium text-center">
+                                                                    <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase ${task.status === 'completed' ? 'text-emerald-500' : 'text-amber-500'}`}>
+                                                                        {task.status === 'completed' ? 'Completed' : 'Ongoing'}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-8 py-3 text-[11px] font-medium text-text-secondary text-right">
+                                                                    {task.status === 'completed' ? (task.date || '—') : '—'}
+                                                                </td>
+                                                            </tr>
+                                                        ));
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </tbody>
 
-                                        {/* Progress Report Table */}
-                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
-                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Completed Works</span>
-                                            </div>
-                                            <table className="w-full text-left">
-                                                <thead className="bg-card border-b border-border-primary">
-                                                    <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Task</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Task Owner</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Date finished</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-border-primary/30">
-                                                    {(!project.completedTasks || project.completedTasks.length === 0) ? (
-                                                        <tr>
-                                                            <td colSpan="4" className="px-8 py-8 text-center text-sm text-text-muted italic">No completed tasks found.</td>
-                                                        </tr>
-                                                    ) : project.completedTasks.map((task, i) => (
-                                                        <tr key={i} className="hover:bg-bg-hover transition-colors">
-                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.title}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.taken_by}</td>
-                                                            <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{task.date}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </div>
-
-                                        {/* Summary Table */}
-                                        <div className="bg-card rounded-3xl border border-border-primary shadow-sm overflow-hidden">
-                                            <div className="bg-bg-secondary/50 py-3 px-8 text-center border-b border-border-primary">
-                                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-text-muted">Summary</span>
-                                            </div>
-                                            <table className="w-full text-left">
-                                                <thead className="bg-card border-b border-border-primary">
-                                                    <tr>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Project Name</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Accomplishments</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Tasks Completed</th>
-                                                        <th className="px-8 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Progress %</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-border-primary/30">
-                                                    <tr className="hover:bg-bg-hover transition-colors">
-                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.name}</td>
-                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">
-                                                            {project.progress?.phases?.reduce((acc, p) => acc + (p.milestones?.filter(m => m.progress_percentage === 100).length || 0), 0) || 0}
-                                                        </td>
-                                                        <td className="px-8 py-4 text-xs font-bold text-text-primary text-center">{project.completedTasks?.length || 0}</td>
-                                                        <td className="px-8 py-4 text-sm font-black text-emerald-500 text-center">{project.progress?.project_progress || 0}%</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                            {/* Summary Header */}
+                                            <thead className="bg-bg-secondary/30 border-y border-border-primary">
+                                                <tr>
+                                                    <th colSpan="4" className="px-8 py-4 text-[11px] font-black text-accent uppercase tracking-widest bg-accent/5 mt-4">
+                                                        Summary
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th colSpan="2" className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider">Milestones Completed</th>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Tasks Completed</th>
+                                                    <th className="px-8 py-3 text-[10px] font-black text-text-muted uppercase tracking-wider text-right">Overall Progress</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="bg-card">
+                                                <tr className="hover:bg-bg-hover transition-colors">
+                                                    <td colSpan="2" className="px-8 py-6 text-lg font-black text-text-primary">
+                                                        {project.progress?.phases?.reduce((acc, p) => acc + (p.milestones?.filter(m => m.progress_percentage === 100).length || 0), 0) || 0}
+                                                    </td>
+                                                    <td className="px-8 py-6 text-lg font-black text-text-primary text-center">
+                                                        {project.completedTasks?.filter(t => t.status === 'completed').length || 0}
+                                                    </td>
+                                                    <td className="px-8 py-6 text-xl font-black text-emerald-500 text-right">
+                                                        {project.progress?.project_progress || 0}%
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 )}
 
@@ -467,10 +523,10 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                     <tr>
                                                         <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Item Name</th>
                                                         <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Category</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Total Purchased</th>
                                                         <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">In Stock</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-center">Min. Stock</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Price</th>
-                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider">Status</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-right">Unit Price</th>
+                                                        <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-wider text-right">Total Value</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-border-primary/20">
@@ -487,15 +543,10 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     {item.category}
                                                                 </span>
                                                             </td>
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary text-center">{item.received || item.stock}</td>
                                                             <td className="px-6 py-4 text-xs font-bold text-text-secondary text-center">{item.stock}</td>
-                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary text-center">{item.minStock}</td>
-                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary">{item.price}</td>
-                                                            <td className="px-6 py-4">
-                                                                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase ${item.status === 'In Stock' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-orange-500/10 text-orange-600'
-                                                                    }`}>
-                                                                    {item.status}
-                                                                </span>
-                                                            </td>
+                                                            <td className="px-6 py-4 text-xs font-bold text-text-secondary text-right">{item.price}</td>
+                                                            <td className="px-6 py-4 text-xs font-black text-text-primary text-right">{item.totalValueDisplay}</td>
                                                         </tr>
                                                     ))}
                                                 </tbody>
@@ -504,7 +555,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                         <div className="mt-8 flex justify-between items-center px-4">
                                             <span className="text-xl font-black text-text-primary uppercase tracking-tight">Total Inventory Value</span>
                                             <span className="text-2xl font-black text-text-primary">
-                                                ₱{project.inventory?.reduce((sum, item) => sum + (parseFloat(item.price.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()}
+                                                ₱{project.inventory?.reduce((sum, item) => sum + (parseFloat(item.totalValue) || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                             </span>
                                         </div>
                                     </div>
@@ -524,8 +575,23 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                         </div>
 
                                         {accomplishmentViews.map((view, idx) => {
-                                            const filteredBefore = project.accomplishments.filter(a => isSameDay(a.date, view.beforeDate));
-                                            const filteredAfter = project.accomplishments.filter(a => isSameDay(a.date, view.afterDate));
+                                            const tasksWithAccomplishments = (() => {
+                                                if (!project?.accomplishments) return [];
+                                                const taskMap = new Map();
+                                                project.accomplishments.forEach(a => {
+                                                    if (a.task_id && a.title) {
+                                                        taskMap.set(a.task_id, a.title);
+                                                    }
+                                                });
+                                                return Array.from(taskMap.entries()).map(([id, title]) => ({ id, title }));
+                                            })();
+
+                                            const viewUpdateDates = project.accomplishments
+                                                .filter(a => !view.taskId || String(a.task_id) === String(view.taskId))
+                                                .map(a => a.date);
+
+                                            const filteredBefore = project.accomplishments.filter(a => isSameDay(a.date, view.beforeDate) && (!view.taskId || String(a.task_id) === String(view.taskId)));
+                                            const filteredAfter = project.accomplishments.filter(a => isSameDay(a.date, view.afterDate) && (!view.taskId || String(a.task_id) === String(view.taskId)));
 
                                             return (
                                                 <div key={view.id} className="space-y-8 relative group">
@@ -542,6 +608,20 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                 Remove
                                                             </button>
                                                         )}
+                                                    </div>
+
+                                                    <div className="mb-4 no-print">
+                                                        <label className="text-[10px] font-black text-text-muted uppercase tracking-widest pl-4 mb-2 block">Select Task (Optional)</label>
+                                                        <select
+                                                            value={view.taskId || ''}
+                                                            onChange={(e) => updateViewDate(view.id, 'taskId', e.target.value)}
+                                                            className="w-full px-4 py-3.5 bg-bg-secondary/50 border border-border-primary rounded-2xl text-xs font-bold text-text-primary focus:outline-none focus:border-accent appearance-none cursor-pointer"
+                                                        >
+                                                            <option value="">All Tasks</option>
+                                                            {tasksWithAccomplishments.map(t => (
+                                                                <option key={t.id} value={t.id}>{t.title}</option>
+                                                            ))}
+                                                        </select>
                                                     </div>
 
                                                     <div className="flex gap-8 mb-4 no-print">
@@ -561,7 +641,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     <CustomMiniCalendar
                                                                         selectedDate={view.beforeDate}
                                                                         onSelectDate={(d) => updateViewDate(view.id, 'beforeDate', d)}
-                                                                        updateDates={updateDates}
+                                                                        updateDates={viewUpdateDates}
                                                                     />
                                                                 </div>
                                                             )}
@@ -582,7 +662,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     <CustomMiniCalendar
                                                                         selectedDate={view.afterDate}
                                                                         onSelectDate={(d) => updateViewDate(view.id, 'afterDate', d)}
-                                                                        updateDates={updateDates}
+                                                                        updateDates={viewUpdateDates}
                                                                     />
                                                                 </div>
                                                             )}

@@ -1,5 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
+const NotificationService = require('../services/NotificationService');
 
 dotenv.config();
 
@@ -63,7 +64,7 @@ class ProjectApprovalController {
       }
 
       const subStatus = (project.sub_status || '').toLowerCase();
-      if (subStatus !== 'pending_approval' || project.accounting_approved_at !== null) {
+      if ((subStatus !== 'pending_approval' && subStatus !== 'for_accounting_approval') || project.accounting_approved_at !== null) {
         return res.status(422).json({ 
           message: 'This project is not pending accounting approval.',
           current_sub_status: project.sub_status,
@@ -81,7 +82,7 @@ class ProjectApprovalController {
       let newSubStatus = null;
       
       if (decision === 'APPROVED') {
-        newSubStatus = 'pending_approval';
+        newSubStatus = 'for_executives_approval';
         updates.sub_status = newSubStatus;
         updates.accounting_approved_by = user.id;
         updates.accounting_approved_at = new Date().toISOString();
@@ -132,6 +133,30 @@ class ProjectApprovalController {
           requested_by: user.id,
           comments: comments || ''
         }]);
+
+        if (decision === 'APPROVED') {
+          // Send notification to Executives
+          try {
+            const { data: execUsers } = await supabaseAdmin
+              .from('users')
+              .select('id')
+              .in('role', ['CEO', 'COO']);
+
+            if (execUsers && execUsers.length > 0) {
+              for (const exec of execUsers) {
+                await NotificationService.createNotification(
+                  exec.id,
+                  'Project For Executive Approval',
+                  `Project '${project.project_name || 'Unnamed'}' has been approved by Accounting and is now awaiting your approval.`,
+                  'info',
+                  `/projects/${projectId}`
+                );
+              }
+            }
+          } catch (notifErr) {
+            console.error('Executive Approval Notification Error:', notifErr);
+          }
+        }
       } catch (logError) {
         console.error('Logging records failed:', logError);
       }
@@ -186,7 +211,7 @@ class ProjectApprovalController {
       }
 
       const subStatus = (project.sub_status || '').toLowerCase();
-      if (subStatus !== 'pending_approval' || project.accounting_approved_at === null) {
+      if ((subStatus !== 'pending_approval' && subStatus !== 'for_executives_approval') || project.accounting_approved_at === null) {
         return res.status(422).json({ 
           message: 'This project is not pending executive approval.',
           current_sub_status: project.sub_status,

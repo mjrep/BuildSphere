@@ -80,17 +80,21 @@ class ReportController {
                 status,
                 due_date,
                 updated_at,
+                milestone_id,
                 assigned_to:users!assigned_to(first_name, last_name)
               `)
-              .eq('project_id', projectIdInt)
-              .eq('status', 'completed');
+              .eq('project_id', projectIdInt);
             
-            if (!taskError) {
+            if (!taskError && tasks) {
               completedTasks = tasks.map(t => ({
                 id: t.id,
+                milestone_id: t.milestone_id,
                 title: t.title,
+                status: t.status,
                 taken_by: t.assigned_to ? `${t.assigned_to.first_name} ${t.assigned_to.last_name}` : 'Field Staff',
-                date: t.updated_at ? t.updated_at.split('T')[0] : (t.due_date ? t.due_date.split('T')[0] : 'N/A')
+                date: t.status === 'completed' 
+                  ? (t.updated_at ? t.updated_at.split('T')[0] : (t.due_date ? t.due_date.split('T')[0] : 'N/A'))
+                  : 'Ongoing'
               }));
             }
           } catch (e) {
@@ -106,16 +110,44 @@ class ReportController {
               .select('*')
               .eq('project_id', projectIdInt);
             
-            if (!invError) {
-              inventory = invItems.map(item => ({
-                id: item.id,
-                item: item.item_name,
-                category: item.category || 'Material',
-                stock: item.current_stock || 0,
-                minStock: item.critical_level || 0,
-                price: item.price ? `₱${parseFloat(item.price).toLocaleString()}` : '₱0',
-                status: (item.current_stock || 0) <= (item.critical_level || 0) ? 'Low Stock' : 'In Stock'
-              }));
+            if (!invError && invItems) {
+              const itemIds = invItems.map(item => item.id);
+              
+              let logsData = [];
+              if (itemIds.length > 0) {
+                const { data: invLogs } = await supabase
+                  .from('project_inventory_logs')
+                  .select('item_id, quantity')
+                  .eq('action_type', 'RECEIVING')
+                  .in('item_id', itemIds);
+                if (invLogs) logsData = invLogs;
+              }
+
+              const receivedMap = {};
+              logsData.forEach(log => {
+                receivedMap[log.item_id] = (receivedMap[log.item_id] || 0) + parseFloat(log.quantity || 0);
+              });
+
+              inventory = invItems.map(item => {
+                const totalReceived = receivedMap[item.id] || 0;
+                // Fallback to current_stock if no RECEIVING logs exist (e.g. manual entry without logs)
+                const purchasedQty = Math.max(totalReceived, parseFloat(item.current_stock || 0));
+                const rawPrice = parseFloat(item.price) || 0;
+                const totalValue = purchasedQty * rawPrice;
+
+                return {
+                  id: item.id,
+                  item: item.item_name,
+                  category: item.category || 'Material',
+                  received: purchasedQty,
+                  stock: item.current_stock || 0,
+                  minStock: item.critical_level || 0,
+                  price: item.price ? `₱${rawPrice.toLocaleString()}` : '₱0',
+                  totalValue: totalValue,
+                  totalValueDisplay: `₱${totalValue.toLocaleString()}`,
+                  status: (parseFloat(item.current_stock || 0) <= parseFloat(item.critical_level || 0)) ? 'Low Stock' : 'In Stock'
+                };
+              });
             }
           } catch (e) {
             console.warn(`Inventory fetch failed for project ${id}:`, e.message);
@@ -155,6 +187,7 @@ class ReportController {
 
                 return {
                   id: log.id,
+                  task_id: log.task?.id || null,
                   date: log.work_date || (log.created_at ? log.created_at.split('T')[0] : null),
                   time: log.created_at ? log.created_at.split('T')[1].substring(0, 5) : null,
                   title: log.task?.title || 'Site Update',

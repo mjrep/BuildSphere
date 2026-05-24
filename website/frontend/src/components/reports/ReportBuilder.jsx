@@ -55,14 +55,29 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
         } else {
             current.push(id);
         }
-        setFormData({ ...formData, projectIds: current });
+        
+        let newStartDate = formData.startDate;
+        let newEndDate = formData.endDate;
+
+        if (current.length === 1) {
+            const selectedProj = projects.find(p => p.id === current[0]);
+            if (selectedProj) {
+                newStartDate = selectedProj.start_date || '';
+                newEndDate = selectedProj.end_date || '';
+            }
+        } else {
+            newStartDate = '';
+            newEndDate = '';
+        }
+
+        setFormData({ ...formData, projectIds: current, startDate: newStartDate, endDate: newEndDate });
     };
 
     const toggleAllProjects = () => {
         if (formData.projectIds.length === projects.length) {
-            setFormData({ ...formData, projectIds: [] });
+            setFormData({ ...formData, projectIds: [], startDate: '', endDate: '' });
         } else {
-            setFormData({ ...formData, projectIds: projects.map(p => p.id) });
+            setFormData({ ...formData, projectIds: projects.map(p => p.id), startDate: '', endDate: '' });
         }
     };
 
@@ -239,10 +254,10 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                     <button 
                         type="submit"
                         disabled={isGenerating || formData.projectIds.length === 0}
-                        className={`w-full max-w-sm py-5 text-[11px] text-white rounded-2xl font-black uppercase tracking-widest shadow-2xl transition-all flex items-center justify-center gap-4 ${
+                        className={`w-full max-w-sm py-5 text-[11px] rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-4 ${
                             isGenerating || formData.projectIds.length === 0
-                                ? 'bg-bg-tertiary text-text-muted cursor-not-allowed border border-border-primary' 
-                                : 'bg-accent shadow-[0_8px_25px_rgba(124,116,255,0.3)] hover:bg-accent hover:-translate-y-1 active:scale-[0.98]'
+                                ? 'bg-bg-tertiary text-text-secondary opacity-80 cursor-not-allowed border border-border-primary' 
+                                : 'bg-accent text-white shadow-[0_8px_25px_rgba(124,116,255,0.3)] hover:bg-accent hover:-translate-y-1 active:scale-[0.98]'
                         }`}
                     >
                         {isGenerating ? (

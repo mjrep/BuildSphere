@@ -4,11 +4,8 @@ import { buildTaskFormData } from '../../utils/taskHelpers';
 import { getTaskMeta, createTask, updateTask, uploadTaskAttachments } from '../../services/taskApi';
 // import api from '../../services/api'; // No longer needed directly for tasks
 
-const STEPS = ['Details', 'Description'];
-
 export default function AddTaskModal({ onClose, onSuccess, user, task = null }) {
     const isEdit = !!task;
-    const [step, setStep]           = useState(0);
     const [submitting, setSubmitting]= useState(false);
     const [success, setSuccess]     = useState(false);
     const [errors, setErrors]       = useState({});
@@ -54,7 +51,6 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
     useEffect(() => {
         if (!form.project_id) { setPhases([]); setMilestones([]); return; }
         // Use the existing milestone-plan endpoint — it returns phases with milestones
-        // Use the existing milestone-plan endpoint — it returns phases with milestones
         getTaskMeta().then(data => { // Reusing meta endpoint if needed, but actually we need another one for phases
             // Actually, keep using direct api for this specific endpoint if not in taskApi
             import('../../services/api').then(({ default: api }) => {
@@ -80,9 +76,11 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
         const e = {};
         if (!form.title.trim())       e.title       = 'Task title is required.';
         if (!form.project_id)         e.project_id  = 'Please select a project.';
-        if (!form.description.trim()) e.description = 'Description is required.';
+        if (!form.phase_id)           e.phase_id    = 'Please select a phase.';
+        if (!form.milestone_id)       e.milestone_id = 'Please select a milestone.';
         if (!form.assigned_to)        e.assigned_to = 'Please select an assignee.';
         if (!form.priority)           e.priority    = 'Please select priority.';
+        if (!form.start_date)         e.start_date  = 'Start date is required.';
         if (!form.due_date)           e.due_date    = 'Due date is required.';
         if (form.start_date && form.due_date && form.due_date < form.start_date)
             e.due_date = 'Due date must be on or after start date.';
@@ -141,6 +139,11 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
          focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8]
          ${errors[field] ? 'border-red-400' : 'border-border-primary'}`;
 
+    const formatPhaseName = (name) => {
+        if (!name) return '';
+        return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    };
+
     // Success screen
     if (success) {
         return (
@@ -173,168 +176,124 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     </button>
                 </div>
 
-                {/* Step indicator */}
-                <div className="flex items-center justify-center gap-2 px-6 pb-4">
-                    {STEPS.map((s, i) => (
-                        <div key={s} className="flex items-center gap-2">
-                            <div className={`w-6 h-2 rounded-full transition-colors ${i <= step ? 'bg-accent' : 'bg-[#E0E0F0]'}`} />
-                        </div>
-                    ))}
-                </div>
-
                 <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
-                    {/* STEP 0: Project details */}
-                    {step === 0 && (
-                        <>
-                            <div>
-                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Title *</label>
-                                <input
-                                    type="text"
-                                    value={form.title}
-                                    onChange={e => set('title', e.target.value)}
-                                    placeholder="Enter the title of the task here"
-                                    className={inputCls('title')}
-                                />
-                                {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
-                            </div>
+                    <div>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project *</label>
+                        <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
+                            <option value="">Select</option>
+                            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                        </select>
+                        {errors.project_id && <p className="text-red-500 text-xs mt-1">{errors.project_id}</p>}
+                    </div>
 
-                            <div>
-                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project *</label>
-                                <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
-                                    <option value="">Select</option>
-                                    {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                                </select>
-                                {errors.project_id && <p className="text-red-500 text-xs mt-1">{errors.project_id}</p>}
-                            </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Phase *</label>
+                            <select value={form.phase_id} onChange={e => set('phase_id', e.target.value)} className={inputCls('phase_id')}>
+                                <option value="">Select</option>
+                                {phases.map(p => <option key={p.id} value={p.id}>{formatPhaseName(p.phase_title ?? p.phase_key)}</option>)}
+                            </select>
+                            {errors.phase_id && <p className="text-red-500 text-xs mt-1">{errors.phase_id}</p>}
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Milestone *</label>
+                            <select value={form.milestone_id} onChange={e => set('milestone_id', e.target.value)} className={inputCls('milestone_id')}>
+                                <option value="">Select</option>
+                                {milestones.map(m => <option key={m.id} value={m.id}>{m.milestone_name}</option>)}
+                            </select>
+                            {errors.milestone_id && <p className="text-red-500 text-xs mt-1">{errors.milestone_id}</p>}
+                        </div>
+                    </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Phase</label>
-                                    <select value={form.phase_id} onChange={e => set('phase_id', e.target.value)} className={inputCls('phase_id')}>
-                                        <option value="">Select</option>
-                                        {phases.map(p => <option key={p.id} value={p.id}>{p.phase_title ?? p.phase_key}</option>)}
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Milestone</label>
-                                    <select value={form.milestone_id} onChange={e => set('milestone_id', e.target.value)} className={inputCls('milestone_id')}>
-                                        <option value="">Select</option>
-                                        {milestones.map(m => <option key={m.id} value={m.id}>{m.milestone_name}</option>)}
-                                    </select>
-                                </div>
-                            </div>
+                    <div>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Title *</label>
+                        <input
+                            type="text"
+                            value={form.title}
+                            onChange={e => set('title', e.target.value)}
+                            placeholder="Enter the title of the task here"
+                            className={inputCls('title')}
+                        />
+                        {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+                    </div>
 
-                            <div className="flex justify-end pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        const e = {};
-                                        if (!form.title.trim())  e.title      = 'Task title is required.';
-                                        if (!form.project_id)    e.project_id = 'Please select a project.';
-                                        if (Object.keys(e).length) { setErrors(e); return; }
-                                        setStep(1);
-                                    }}
-                                    className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-colors"
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        </>
-                    )}
+                    <div>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Description (optional)</label>
+                        <textarea
+                            value={form.description}
+                            onChange={e => set('description', e.target.value)}
+                            rows={3}
+                            placeholder="Enter the description of the task here"
+                            className={`${inputCls('description')} resize-none`}
+                        />
+                        {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
+                    </div>
 
-                    {/* STEP 1: Task details */}
-                    {step === 1 && (
-                        <>
-                            <div>
-                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Description *</label>
-                                <textarea
-                                    value={form.description}
-                                    onChange={e => set('description', e.target.value)}
-                                    rows={3}
-                                    placeholder="Enter the title of the task here"
-                                    className={`${inputCls('description')} resize-none`}
-                                />
-                                {errors.description && <p className="text-red-500 text-xs mt-1">{errors.description}</p>}
-                            </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To *</label>
+                            <select value={form.assigned_to} onChange={e => set('assigned_to', e.target.value)} className={inputCls('assigned_to')}>
+                                <option value="">Select</option>
+                                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                            </select>
+                            {errors.assigned_to && <p className="text-red-500 text-xs mt-1">{errors.assigned_to}</p>}
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Priority Level *</label>
+                            <select value={form.priority} onChange={e => set('priority', e.target.value)} className={inputCls('priority')}>
+                                {Object.entries(TASK_PRIORITIES).map(([k, v]) => (
+                                    <option key={k} value={k}>{v.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To *</label>
-                                    <select value={form.assigned_to} onChange={e => set('assigned_to', e.target.value)} className={inputCls('assigned_to')}>
-                                        <option value="">Select</option>
-                                        {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-                                    </select>
-                                    {errors.assigned_to && <p className="text-red-500 text-xs mt-1">{errors.assigned_to}</p>}
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Priority Level *</label>
-                                    <select value={form.priority} onChange={e => set('priority', e.target.value)} className={inputCls('priority')}>
-                                        {Object.entries(TASK_PRIORITIES).map(([k, v]) => (
-                                            <option key={k} value={k}>{v.label}</option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start *</label>
+                            <input
+                                type="date" value={form.start_date}
+                                onChange={e => set('start_date', e.target.value)}
+                                className={inputCls('start_date')}
+                            />
+                            {errors.start_date && <p className="text-red-500 text-xs mt-1">{errors.start_date}</p>}
+                        </div>
+                        <div>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until *</label>
+                            <input
+                                type="date" value={form.due_date}
+                                min={form.start_date || undefined}
+                                onChange={e => set('due_date', e.target.value)}
+                                className={inputCls('due_date')}
+                            />
+                            {errors.due_date && <p className="text-red-500 text-xs mt-1">{errors.due_date}</p>}
+                        </div>
+                    </div>
 
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start</label>
-                                    <input
-                                        type="date" value={form.start_date}
-                                        onChange={e => set('start_date', e.target.value)}
-                                        className={inputCls('start_date')}
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until *</label>
-                                    <input
-                                        type="date" value={form.due_date}
-                                        min={form.start_date || undefined}
-                                        onChange={e => set('due_date', e.target.value)}
-                                        className={inputCls('due_date')}
-                                    />
-                                    {errors.due_date && <p className="text-red-500 text-xs mt-1">{errors.due_date}</p>}
-                                </div>
-                            </div>
+                    {/* Attachment */}
+                    <div>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Attachments (optional)</label>
+                        <input
+                            type="file" multiple
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                            onChange={e => setFiles(Array.from(e.target.files))}
+                            className="text-xs text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-accent/10 file:text-accent hover:file:bg-[#E0E0FE]"
+                        />
+                        {files.length > 0 && (
+                            <p className="text-xs text-text-muted mt-1">{files.length} file(s) selected</p>
+                        )}
+                    </div>
 
-                            {/* Attachment */}
-                            <div>
-                                <label className="text-xs font-semibold text-text-primary mb-1.5 block">Attachments (optional)</label>
-                                <input
-                                    type="file" multiple
-                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                                    onChange={e => setFiles(Array.from(e.target.files))}
-                                    className="text-xs text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-accent/10 file:text-accent hover:file:bg-[#E0E0FE]"
-                                />
-                                {files.length > 0 && (
-                                    <p className="text-xs text-text-muted mt-1">{files.length} file(s) selected</p>
-                                )}
-                            </div>
-
-                            {/* Navigation */}
-                            <div className="flex items-center justify-between pt-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setStep(0)}
-                                    className="text-sm text-text-muted hover:text-text-primary flex items-center gap-1"
-                                >
-                                    ‹ Back
-                                </button>
-
-                                <div className="flex items-center gap-2">
-                                    {/* dot indicator */}
-                                    <span className="w-2 h-2 rounded-full bg-accent" />
-                                    <button
-                                        type="submit"
-                                        disabled={submitting}
-                                        className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors"
-                                    >
-                                        {submitting ? 'Saving…' : 'Submit'}
-                                    </button>
-                                </div>
-                            </div>
-                        </>
-                    )}
+                    {/* Navigation */}
+                    <div className="flex justify-end pt-2">
+                        <button
+                            type="submit"
+                            disabled={submitting}
+                            className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors"
+                        >
+                            {submitting ? 'Saving…' : 'Submit'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>

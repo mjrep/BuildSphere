@@ -100,7 +100,7 @@ export default function ProjectApprovalPage() {
                             <h2 className="text-lg font-bold text-text-primary">{project.project_name}</h2>
                             <p className="text-sm text-[#6B6B6B]">{project.client_name} · {project.project_code}</p>
                         </div>
-                        <StatusBadge status={project.status} />
+                        <StatusBadge status={project.status} subStatus={project.sub_status} project={project} />
                     </div>
                     <div className="grid grid-cols-3 gap-4 text-sm">
                         <div><span className="text-text-muted">Contract Price</span><p className="font-medium">{formatCurrency(project.contract_price)}</p></div>

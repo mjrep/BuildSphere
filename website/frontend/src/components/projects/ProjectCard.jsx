@@ -108,7 +108,7 @@ export default function ProjectCard({ project }) {
                 </div>
 
                 <div className="absolute top-3 right-3 z-20">
-                    <StatusBadge status={project.status} subStatus={project.sub_status} />
+                    <StatusBadge status={project.status} subStatus={project.sub_status} project={project} />
                 </div>
             </div>
 

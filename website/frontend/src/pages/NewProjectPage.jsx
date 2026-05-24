@@ -4,7 +4,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import useAuth from '../hooks/useAuth';
 import { createProject, getUsers } from '../services/projectApi';
 import toast from 'react-hot-toast';
-import { ChevronLeft, Briefcase, User, MapPin, AlignLeft, DollarSign, Calendar, Target, Plus } from 'lucide-react';
+import { ChevronLeft, Briefcase, User, MapPin, AlignLeft, Calendar, Target, Plus } from 'lucide-react';
 
 export default function NewProjectPage() {
     const navigate = useNavigate();
@@ -12,6 +12,7 @@ export default function NewProjectPage() {
     const [users, setUsers] = useState([]);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     const [form, setForm] = useState({
         project_name: '',
@@ -65,8 +66,30 @@ export default function NewProjectPage() {
         setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
+        setErrors({});
+
+        if (!form.project_name.trim() || !form.address.trim() || !form.start_date || !form.end_date) {
+            toast.error('Please fill in all required fields (Project Name, Address, Start and End Dates).');
+            return;
+        }
+
+        if (new Date(form.end_date) < new Date(form.start_date)) {
+            toast.error('End Date cannot be earlier than Start Date.');
+            setErrors(prev => ({ 
+                ...prev, 
+                end_date: ['End Date cannot be earlier than Start Date.'],
+                start_date: ['Start Date cannot be later than End Date.']
+            }));
+            return;
+        }
+
+        setShowConfirmModal(true);
+    };
+
+    const confirmSubmit = async () => {
+        setShowConfirmModal(false);
         setSaving(true);
         setErrors({});
 
@@ -83,12 +106,6 @@ export default function NewProjectPage() {
                 budget_for_materials: form.budget_for_materials ? parseFloat(form.budget_for_materials) : null,
                 project_in_charge_id: form.project_in_charge_id ? parseInt(form.project_in_charge_id) : null,
             };
-
-            if (!payload.project_name || !payload.address || !payload.start_date || !payload.end_date) {
-                toast.error('Please fill in all required fields (Project Name, Address, Start and End Dates).');
-                setSaving(false);
-                return;
-            }
 
             const response = await createProject(payload);
             toast.success('Project created successfully!');
@@ -203,7 +220,7 @@ export default function NewProjectPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 pt-4">
                             <div className="space-y-6">
                                 <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
-                                    <DollarSign className="w-4 h-4 text-accent" />
+                                    <span className="text-accent font-bold text-lg leading-none">₱</span>
                                     <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Financials</h3>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -312,6 +329,61 @@ export default function NewProjectPage() {
                     </form>
                 </div>
             </div>
+
+            {/* Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-card rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-border-primary animate-in fade-in zoom-in duration-200">
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-text-primary mb-2">Confirm Project Creation</h3>
+                            <p className="text-text-secondary text-sm mb-4 leading-relaxed">
+                                Please review the details below. You won't be able to edit or delete it once created.
+                            </p>
+                            
+                            {/* Summary View */}
+                            <div className="bg-accent/5 rounded-xl p-4 mb-6 space-y-3 border border-accent/10 text-sm">
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-text-secondary">Project Name:</span>
+                                    <span className="font-semibold text-text-primary text-right">{form.project_name.trim()}</span>
+                                </div>
+                                {form.client_name && (
+                                    <div className="flex justify-between items-start gap-4">
+                                        <span className="text-text-secondary">Client:</span>
+                                        <span className="font-semibold text-text-primary text-right">{form.client_name.trim()}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between items-start gap-4">
+                                    <span className="text-text-secondary">Timeline:</span>
+                                    <span className="font-semibold text-text-primary text-right">
+                                        {form.start_date} to {form.end_date}
+                                    </span>
+                                </div>
+                                {form.contract_price && (
+                                    <div className="flex justify-between items-start gap-4 pt-2 border-t border-accent/10">
+                                        <span className="text-text-secondary">Contract Price:</span>
+                                        <span className="font-semibold text-text-primary text-right">₱ {formatNumber(form.contract_price)}</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex justify-end gap-3">
+                                <button
+                                    onClick={() => setShowConfirmModal(false)}
+                                    className="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-primary hover:bg-gray-100 rounded-xl transition-all"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={confirmSubmit}
+                                    className="px-5 py-2.5 text-sm font-bold text-white bg-accent hover:opacity-90 rounded-xl transition-all shadow-lg shadow-accent/20 active:scale-[0.98]"
+                                >
+                                    Yes, Create Project
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </DashboardLayout>
     );
 }
