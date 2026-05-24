@@ -50,6 +50,14 @@ Recent system enhancements have heavily shaped the current architecture:
 5. **Explaining Report Module Functionality**: Established PDF and Excel generation logic, moving heavy processing to the backend using Puppeteer and ExcelJS.
 6. **Fixing UUID Bigint Cast Error**: Resolved critical strict-type issues in Postgres relationships to ensure robust relational queries.
 7. **Syncing Project Changes & Architecture**: Consolidated the ecosystem into a singular, unified `website/` repository structure.
+8. **UI/UX & Reporting Overhaul (Current Session)**: 
+   - **Syntax & Critical Bug Fixes:** Resolved a critical Vite/React-Babel unexpected token error in `ReportPreview.jsx` and patched a fatal ReferenceError (white screen crash) caused by an undefined project variable during date auto-loading.
+   - **Nomenclature & Labeling:** Updated report terminology, changing "Executive Summary" to "Summary" and "Accomplishments Recorded" to "Milestones Completed" to better reflect the logical flow of project tracking.
+   - **Inventory Logic Enhancement:** Updated the inventory summary to function like a comprehensive sales report. The total inventory value now accurately calculates based on the total delivered/purchased stock rather than just the utilized stock, and this total value was subsequently added to the PDF/Excel exports.
+   - **Accomplishments & Timeline Filtering:** Introduced a task-specific filtering system in the accomplishments view. Engineered a smart calendar feature that automatically loads the precise chronological predecessor (-1) of any selected "After Date" to instantly facilitate before-and-after photo comparisons.
+   - **Progress Analysis Restructuring:** Consolidated the reporting UI by logically nesting sub-tasks directly beneath their parent milestones. Removed redundant "Ongoing" tags from date columns and resolved visual contradictions by removing partial percentage values from binary-status tasks.
+   - **Data Consistency & Exports:** Fixed logical discrepancies where completed milestones showed no completed tasks. Ensured that all UI improvements perfectly mirror into both the PDF and Excel generators within `ReportExportService.js`.
+   - **Task Management Streamlining:** Completely overhauled the `AddTaskModal`, eliminating multi-step pagination in favor of a responsive, single-view layout configured to a specific visual hierarchy (Project -> Phase/Milestone -> Title -> Description -> Assignee/Priority -> Dates). Implemented strict form validations, visual asterisks for mandatory fields (making description optional), dynamic enum formatting (e.g., `PREPARATION_PLANNING` to "Preparation Planning"), and inline error handling.
 
 ## 🚀 Setup & Development Workflow
 
