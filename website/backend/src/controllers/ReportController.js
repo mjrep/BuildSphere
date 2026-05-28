@@ -243,11 +243,9 @@ class ReportController {
       const { reportData, config } = req.body;
       if (!reportData) return res.status(400).json({ message: 'Missing report data' });
 
-      const pdfBuffer = await ReportExportService.generatePDF(reportData, config);
+      const payload = await ReportExportService.generatePDF(reportData, config);
 
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=BuildSphere_Report.pdf');
-      res.end(pdfBuffer, 'binary');
+      res.json(payload);
     } catch (error) {
       console.error('PDF Export Error:', error);
       res.status(500).json({ message: 'Failed to generate PDF', error: error.message });

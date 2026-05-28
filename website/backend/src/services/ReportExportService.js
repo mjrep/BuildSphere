@@ -1,37 +1,20 @@
-const puppeteer = require('puppeteer');
+let puppeteer;
+try {
+    puppeteer = require('puppeteer');
+} catch (e) {
+    console.warn('Puppeteer not installed, PDF generation will not work.');
+}
 const ExcelJS = require('exceljs');
 const axios = require('axios');
 
 class ReportExportService {
     /**
-     * Generates a high-quality PDF report using Puppeteer.
+     * Generates HTML payload for client-side PDF generation.
      */
     static async generatePDF(reportData, config) {
-        let browser;
-        try {
-            browser = await puppeteer.launch({
-                headless: 'new',
-                args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
-            const page = await browser.newPage();
-
-            const htmlContent = this.generateReportHTML(reportData, config);
-            
-            await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
-
-            const pdfBuffer = await page.pdf({
-                format: 'A4',
-                printBackground: true,
-                margin: { top: '20mm', right: '10mm', bottom: '20mm', left: '10mm' },
-                displayHeaderFooter: true,
-                headerTemplate: '<span></span>',
-                footerTemplate: '<div style="font-size: 10px; width: 100%; text-align: center;">Page <span class="pageNumber"></span> of <span class="totalPages"></span></div>'
-            });
-
-            return pdfBuffer;
-        } finally {
-            if (browser) await browser.close();
-        }
+        // Return raw HTML instead of using Puppeteer on the server
+        const htmlContent = this.generateReportHTML(reportData, config);
+        return { html: htmlContent };
     }
 
     /**
@@ -434,52 +417,46 @@ class ReportExportService {
         }).join('');
 
         return `
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
+            <div id="buildsphere-pdf-wrapper">
                 <style>
-                    body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1e293b; line-height: 1.5; padding: 0; margin: 0; background: white; }
-                    .report-header { background: #f8fafc; padding: 40px; border-bottom: 2px solid #e2e8f0; margin-bottom: 40px; }
-                    h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: -1px; }
-                    .meta { color: #94a3b8; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 0.2em; }
+                    #buildsphere-pdf-wrapper { font-family: 'Helvetica', 'Arial', sans-serif; color: #1e293b; line-height: 1.5; padding: 0; margin: 0; background: white; width: 100%; box-sizing: border-box; }
+                    #buildsphere-pdf-wrapper .report-header { background: #f8fafc; padding: 40px; border-bottom: 2px solid #e2e8f0; margin-bottom: 40px; }
+                    #buildsphere-pdf-wrapper h1 { font-size: 32px; font-weight: 900; color: #0f172a; margin: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: -1px; }
+                    #buildsphere-pdf-wrapper .meta { color: #94a3b8; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 0.2em; }
                     
-                    .content { padding: 0 40px 40px 40px; }
-                    .project-container { margin-bottom: 60px; page-break-after: always; }
-                    .project-container:last-child { page-break-after: auto; }
+                    #buildsphere-pdf-wrapper .content { padding: 0 40px 40px 40px; }
+                    #buildsphere-pdf-wrapper .project-container { margin-bottom: 60px; page-break-after: always; clear: both; }
+                    #buildsphere-pdf-wrapper .project-container:last-child { page-break-after: auto; }
                     
-                    .project-header { display: flex; align-items: center; margin-bottom: 30px; }
-                    .marker { width: 8px; height: 35px; background: #4f46e5; border-radius: 4px; margin-right: 15px; }
-                    .project-name { font-size: 28px; font-weight: 900; margin: 0; text-transform: uppercase; color: #0f172a; }
+                    #buildsphere-pdf-wrapper .project-header { display: flex; align-items: center; margin-bottom: 30px; }
+                    #buildsphere-pdf-wrapper .marker { width: 8px; height: 35px; background: #4f46e5; border-radius: 4px; margin-right: 15px; display: inline-block; }
+                    #buildsphere-pdf-wrapper .project-name { font-size: 28px; font-weight: 900; margin: 0; text-transform: uppercase; color: #0f172a; display: inline-block; vertical-align: middle; }
                     
-                    .section { margin-bottom: 40px; page-break-inside: avoid; }
-                    .section-title { font-size: 14px; font-weight: 900; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 20px; }
+                    #buildsphere-pdf-wrapper .section { margin-bottom: 40px; page-break-inside: avoid; }
+                    #buildsphere-pdf-wrapper .section-title { font-size: 14px; font-weight: 900; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 20px; }
                     
-                    .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-                    .data-table th { background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; }
-                    .data-table td { padding: 12px; border: 1px solid #e2e8f0; font-size: 12px; }
-                    .highlight-green { color: #10b981; font-weight: 900; font-size: 16px; }
-                    .text-green { color: #059669; font-weight: bold; }
-                    .text-red { color: #dc2626; font-weight: bold; }
-                    .empty { text-align: center; color: #94a3b8; font-style: italic; padding: 30px; }
+                    #buildsphere-pdf-wrapper .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    #buildsphere-pdf-wrapper .data-table th { background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; text-align: left; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; }
+                    #buildsphere-pdf-wrapper .data-table td { padding: 12px; border: 1px solid #e2e8f0; font-size: 12px; }
+                    #buildsphere-pdf-wrapper .highlight-green { color: #10b981; font-weight: 900; font-size: 16px; }
+                    #buildsphere-pdf-wrapper .empty { text-align: center; color: #94a3b8; font-style: italic; padding: 30px; }
                     
-                    .comparison-row { margin-bottom: 30px; page-break-inside: avoid; }
-                    .comparison-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; }
-                    .photo-grid { display: flex; gap: 20px; }
-                    .photo-card { flex: 1; border: 1px solid #f1f5f9; border-radius: 20px; overflow: hidden; background: #fff; }
-                    .photo-header { background: #f8fafc; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
-                    .photo-header .label { font-size: 10px; font-weight: 900; color: #4f46e5; }
-                    .photo-header .label.green { color: #10b981; }
-                    .photo-header .date { font-size: 10px; font-weight: bold; color: #94a3b8; }
-                    .photo-container { aspect-ratio: 16/9; background: #f8fafc; display: flex; items-center: center; justify-content: center; overflow: hidden; }
-                    .photo-container img { width: 100%; height: 100%; object-cover: cover; }
-                    .no-photo { color: #cbd5e1; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-                    .photo-footer { padding: 15px 20px; }
-                    .photo-footer p { margin: 0; font-size: 10px; color: #475569; }
-                    .photo-footer p strong { color: #1e293b; text-transform: uppercase; font-size: 9px; }
+                    #buildsphere-pdf-wrapper .comparison-row { margin-bottom: 30px; page-break-inside: avoid; }
+                    #buildsphere-pdf-wrapper .comparison-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; }
+                    #buildsphere-pdf-wrapper .photo-grid { display: block; overflow: hidden; }
+                    #buildsphere-pdf-wrapper .photo-card { float: left; width: 48%; border: 1px solid #f1f5f9; border-radius: 20px; overflow: hidden; background: #fff; margin-right: 2%; margin-bottom: 20px; box-sizing: border-box; }
+                    #buildsphere-pdf-wrapper .photo-card:nth-child(even) { margin-right: 0; }
+                    #buildsphere-pdf-wrapper .photo-header { background: #f8fafc; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
+                    #buildsphere-pdf-wrapper .photo-header .label { font-size: 10px; font-weight: 900; color: #4f46e5; }
+                    #buildsphere-pdf-wrapper .photo-header .label.green { color: #10b981; }
+                    #buildsphere-pdf-wrapper .photo-header .date { font-size: 10px; font-weight: bold; color: #94a3b8; float: right; }
+                    #buildsphere-pdf-wrapper .photo-container { width: 100%; height: 220px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+                    #buildsphere-pdf-wrapper .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+                    #buildsphere-pdf-wrapper .no-photo { color: #cbd5e1; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-top: 100px; text-align: center; }
+                    #buildsphere-pdf-wrapper .photo-footer { padding: 15px 20px; clear: both; }
+                    #buildsphere-pdf-wrapper .photo-footer p { margin: 0; font-size: 10px; color: #475569; }
+                    #buildsphere-pdf-wrapper .photo-footer p strong { color: #1e293b; text-transform: uppercase; font-size: 9px; }
                 </style>
-            </head>
-            <body>
                 <div class="report-header">
                     <h1>BuildSphere Project Report</h1>
                     <div class="meta">${config.startDate} — ${config.endDate}</div>
@@ -487,8 +464,7 @@ class ReportExportService {
                 <div class="content">
                     ${sections}
                 </div>
-            </body>
-            </html>
+            </div>
         `;
     }
 }

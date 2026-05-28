@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, FileSpreadsheet, FileText, Calendar, Printer, TrendingUp, Package, ListChecks, ArrowRight, Download, Filter, ArrowUpDown, MoreVertical, Camera, Clock, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
+import html2pdf from 'html2pdf.js';
 
 /* ═══════════════════════════════════════════════════════════════════════════
    HELPERS for Calendar
@@ -198,27 +199,24 @@ export default function ReportPreview({ reportData, config, onBack }) {
             const response = await api.post('/reports/export/pdf', {
                 reportData,
                 config: { ...config, accomplishmentViews: formattedViews }
-            }, {
-                responseType: 'blob'
             });
 
-            const blob = response.data instanceof Blob
-                ? response.data
-                : new Blob([response.data], { type: 'application/pdf' });
+            if (!response.data || !response.data.html) {
+                throw new Error('Invalid response from server');
+            }
 
-            if (blob.size === 0) throw new Error('Generated PDF is empty');
+            const htmlContent = response.data.html;
 
-            const url = window.URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `BuildSphere_Report_${new Date().toISOString().split('T')[0]}.pdf`);
-            document.body.appendChild(link);
-            link.click();
+            const opt = {
+              margin:       10,
+              filename:     `BuildSphere_Report_${new Date().toISOString().split('T')[0]}.pdf`,
+              image:        { type: 'jpeg', quality: 0.98 },
+              html2canvas:  { scale: 2, useCORS: true },
+              jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+              pagebreak:    { mode: ['css', 'legacy'] }
+            };
 
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-                link.remove();
-            }, 100);
+            await html2pdf().set(opt).from(htmlContent).save();
 
             toast.success('PDF report downloaded');
         } catch (err) {

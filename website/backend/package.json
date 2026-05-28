@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "build": "echo 'No build step required'"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
@@ -19,8 +20,7 @@
     "express": "^4.19.2",
     "multer": "^2.1.1",
     "node-cron": "^4.2.1",
-    "nodemailer": "^8.0.7",
-    "puppeteer": "^24.42.0"
+    "nodemailer": "^8.0.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
