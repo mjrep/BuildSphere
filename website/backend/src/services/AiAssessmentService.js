@@ -74,6 +74,10 @@ class AiAssessmentService {
   static generateProgressHash(evmData) {
     const progressData = {
       status: evmData.project_status,
+      elapsed_time: evmData.elapsed_project_time_days,
+      planned_duration: evmData.planned_duration_days,
+      actual_cost: evmData.contract_price, // EVM Actual Cost is mapped to contract_price in prompt
+      budget: evmData.budget_at_completion,
       phases: (evmData.phases || []).map(p => ({
         id: p.phase_id,
         completion: p.phase_completion_percentage,
@@ -140,7 +144,7 @@ Provide your analysis as a strict JSON object (no markdown, no code fences, no e
     if (!keys.length) throw new Error('GEMINI_API_KEY is not configured in .env');
 
     // Matrix to explore - Based on user's AI Studio dashboard
-    const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2-flash-lite', 'gemini-3-flash'];
+    const models = ['gemini-3.5-flash', 'gemini-3.0-flash-preview', 'gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2-flash-lite', 'gemini-3-flash'];
     const errors = [];
 
     // Exhaustive search through Matrix[Model][Key]

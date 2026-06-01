@@ -16,7 +16,7 @@ const STATUS_TABS = [
 
 const SUB_STATUS_TABS = [
     { key: '',                        label: 'All Proposed' },
-    { key: 'draft',                   label: 'Draft' },
+    { key: 'draft',                   label: 'Pending Engineering Milestones' },
     { key: 'for_revision',            label: 'For Revision' },
     { key: 'for_accounting_approval', label: 'For Accounting Approval' },
     { key: 'for_executives_approval', label: 'For Executives Approval' },

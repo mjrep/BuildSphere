@@ -3,7 +3,7 @@
  * Matches the BuildSphere visibility matrix.
  */
 
-const FULL_ACCESS_ROLES = ['CEO', 'COO', 'Accounting', 'HR', 'Admin'];
+const FULL_ACCESS_ROLES = ['CEO', 'COO', 'HR', 'Admin'];
 
 /**
  * Helper to fetch all project IDs where the user is a team member.
@@ -75,12 +75,17 @@ function applyProjectVisibility(query, user, memberProjectIds = []) {
     return query;
   }
 
-  // 2. Sales: Only projects they created
+  // 2. Accounting: Full access but hide 'draft' projects
+  if (role === 'Accounting') {
+    return query.neq('sub_status', 'draft');
+  }
+
+  // 3. Sales: Only projects they created
   if (role === 'Sales') {
     return query.eq('created_by', user.id);
   }
 
-  // 3. Project Engineer, Project Coordinator & Others: Only projects they created, PIC, or are members of
+  // 4. Project Engineer, Project Coordinator & Others: Only projects they created, PIC, or are members of
   if (memberProjectIds.length > 0) {
     return query.or(`created_by.eq.${user.id},project_in_charge_id.eq.${user.id},id.in.(${memberProjectIds.join(',')})`);
   } else {
@@ -96,8 +101,8 @@ function applyTaskVisibility(query, user, allVisibleProjectIds = [], salesProjec
 
   const role = user.role;
 
-  // 1. Full Access Roles
-  if (FULL_ACCESS_ROLES.includes(role)) {
+  // 1. Full Access Roles (including Accounting for tasks)
+  if (FULL_ACCESS_ROLES.includes(role) || role === 'Accounting') {
     return query;
   }
 

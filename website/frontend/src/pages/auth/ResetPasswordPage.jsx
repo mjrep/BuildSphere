@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, KeyRound, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, KeyRound, CheckCircle2, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import logo from '../../assets/images/logo.png';
 import { supabase } from '../../utils/supabase';
 
@@ -12,6 +12,8 @@ export default function ResetPasswordPage() {
     const [submitting, setSubmitting] = useState(false);
     const [sessionReady, setSessionReady] = useState(false);
     const [success, setSuccess] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -211,14 +213,21 @@ export default function ResetPasswordPage() {
                                 <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted" />
                                 <input
                                     id="new-password"
-                                    type="password"
+                                    type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={form.password}
                                     onChange={handleChange}
                                     placeholder="Enter a new password"
-                                    className={`${inputClass('password')} pl-12`}
+                                    className={`${inputClass('password')} pl-12 pr-14`}
                                     autoFocus
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                                >
+                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
                             {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
                         </div>
@@ -229,13 +238,20 @@ export default function ResetPasswordPage() {
                                 <Lock size={18} className="absolute left-5 top-1/2 -translate-y-1/2 text-text-muted" />
                                 <input
                                     id="confirm-password"
-                                    type="password"
+                                    type={showConfirmPassword ? "text" : "password"}
                                     name="password_confirmation"
                                     value={form.password_confirmation}
                                     onChange={handleChange}
                                     placeholder="Re-enter your new password"
-                                    className={`${inputClass('password_confirmation')} pl-12`}
+                                    className={`${inputClass('password_confirmation')} pl-12 pr-14`}
                                 />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                                >
+                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                </button>
                             </div>
                             {errors.password_confirmation && (
                                 <p className="text-red-500 text-xs ml-1">{errors.password_confirmation[0]}</p>

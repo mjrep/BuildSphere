@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import api from '../../services/api';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignupPage() {
     const navigate = useNavigate();
@@ -16,6 +17,8 @@ export default function SignupPage() {
     });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -144,28 +147,46 @@ export default function SignupPage() {
                     {/* Password */}
                     <div className="space-y-1.5">
                         <label className="block text-sm font-semibold text-text-primary ml-1">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            placeholder="Create a password"
-                            className={inputClass('password').replace('px-5', 'px-6')}
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                placeholder="Create a password"
+                                className={inputClass('password').replace('px-5', 'px-6') + " pr-14"}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
                     </div>
 
                     {/* Confirm Password */}
                     <div className="space-y-1.5">
                         <label className="block text-sm font-semibold text-text-primary ml-1">Confirm Password</label>
-                        <input
-                            type="password"
-                            name="password_confirmation"
-                            value={form.password_confirmation}
-                            onChange={handleChange}
-                            placeholder="Confirm your password"
-                            className={inputClass('password_confirmation').replace('px-5', 'px-6')}
-                        />
+                        <div className="relative">
+                            <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="password_confirmation"
+                                value={form.password_confirmation}
+                                onChange={handleChange}
+                                placeholder="Confirm your password"
+                                className={inputClass('password_confirmation').replace('px-5', 'px-6') + " pr-14"}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                            >
+                                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         {errors.password_confirmation && <p className="text-red-500 text-xs ml-1">{errors.password_confirmation[0]}</p>}
                     </div>
 

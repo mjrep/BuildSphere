@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo.png';
 import api from '../../services/api';
 import useAuth from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
     const { theme, toggleTheme } = useTheme();
@@ -14,6 +14,7 @@ export default function LoginPage() {
     const [form, setForm] = useState({ email: '', password: '' });
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -81,18 +82,27 @@ export default function LoginPage() {
 
                     <div className="space-y-3">
                         <label className="block text-sm font-semibold text-text-primary ml-1">Password</label>
-                        <input
-                            type="password"
-                            name="password"
-                            value={form.password}
-                            onChange={handleChange}
-                            placeholder="Enter your password"
-                            className={`w-full rounded-2xl border px-6 py-4 text-base transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted bg-bg-secondary text-text-primary ${
-                                errors.password
-                                    ? 'border-red-400 focus:ring-red-200'
-                                    : 'border-border-primary focus:ring-accent/20 focus:border-accent'
-                            }`}
-                        />
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                name="password"
+                                value={form.password}
+                                onChange={handleChange}
+                                placeholder="Enter your password"
+                                className={`w-full rounded-2xl border px-6 py-4 pr-14 text-base transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted bg-bg-secondary text-text-primary ${
+                                    errors.password
+                                        ? 'border-red-400 focus:ring-red-200'
+                                        : 'border-border-primary focus:ring-accent/20 focus:border-accent'
+                                }`}
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                            >
+                                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
+                        </div>
                         {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
                     </div>
 

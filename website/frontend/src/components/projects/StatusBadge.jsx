@@ -2,7 +2,7 @@ import React from 'react';
 
 const STATUS_MAP = {
     proposed: {
-        draft:                     { label: 'Draft',                   bg: 'bg-white/90 shadow-sm',     text: 'text-slate-700' },
+        draft:                     { label: 'Pending Engineering Milestones',  bg: 'bg-white/90 shadow-sm',     text: 'text-slate-700' },
         for_revision:              { label: 'For Revision',            bg: 'bg-red-500 shadow-sm',      text: 'text-white' },
         pending_approval:          { label: 'For Accounting Approval', bg: 'bg-amber-500 shadow-sm',    text: 'text-white' }, // Alias for old data
         for_accounting_approval:   { label: 'For Accounting Approval', bg: 'bg-amber-500 shadow-sm',    text: 'text-white' },

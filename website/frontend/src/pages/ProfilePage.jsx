@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../layouts/DashboardLayout';
 import api from '../services/api';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function ProfilePage() {
     const [form, setForm] = useState({
@@ -24,6 +25,9 @@ export default function ProfilePage() {
     const [success, setSuccess]   = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [isDirty, setIsDirty]   = useState(false);
+    const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     useEffect(() => {
         api.get('/profile/me')
@@ -258,19 +262,26 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2.5">
                                 <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Gender</label>
-                                <select
-                                    name="gender"
-                                    value={form.gender}
-                                    onChange={handleChange}
-                                    className={inputClass('gender')}
-                                    disabled={!isEditing}
-                                >
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                    <option value="Prefer not to say">Prefer not to say</option>
-                                </select>
+                                <div className="relative">
+                                    <select
+                                        name="gender"
+                                        value={form.gender}
+                                        onChange={handleChange}
+                                        className={inputClass('gender') + " appearance-none"}
+                                        disabled={!isEditing}
+                                    >
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                    </select>
+                                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-5 text-text-muted">
+                                        <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
+                                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                                        </svg>
+                                    </div>
+                                </div>
                             </div>
                             <div className="space-y-2.5">
                                 <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Birthdate</label>
@@ -315,41 +326,71 @@ export default function ProfilePage() {
                             <div className="space-y-6">
                                 <div className="space-y-2.5">
                                     <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Current Password</label>
-                                    <input
-                                        type="password"
-                                        name="current_password"
-                                        value={form.current_password}
-                                        onChange={handleChange}
-                                        className={inputClass('current_password')}
-                                        placeholder="Enter current password to set new password"
-                                        disabled={!isEditing}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showCurrentPassword ? "text" : "password"}
+                                            name="current_password"
+                                            value={form.current_password}
+                                            onChange={handleChange}
+                                            className={inputClass('current_password') + " pr-12"}
+                                            placeholder="Enter current password to set new password"
+                                            disabled={!isEditing}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                                            disabled={!isEditing}
+                                        >
+                                            {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
                                     {errors.current_password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.current_password[0]}</p>}
                                 </div>
                                 <div className="space-y-2.5">
                                     <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">New Password</label>
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        value={form.password}
-                                        onChange={handleChange}
-                                        className={inputClass('password')}
-                                        placeholder="Leave blank to keep current"
-                                        disabled={!isEditing}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={form.password}
+                                            onChange={handleChange}
+                                            className={inputClass('password') + " pr-12"}
+                                            placeholder="Leave blank to keep current"
+                                            disabled={!isEditing}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                                            disabled={!isEditing}
+                                        >
+                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
                                     {errors.password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.password[0]}</p>}
                                 </div>
                                 <div className="space-y-2.5">
                                     <label className="block text-[11px] font-black text-text-muted uppercase tracking-widest ml-1">Confirm New Password</label>
-                                    <input
-                                        type="password"
-                                        name="password_confirmation"
-                                        value={form.password_confirmation}
-                                        onChange={handleChange}
-                                        className={inputClass('password_confirmation')}
-                                        placeholder="Confirm new password"
-                                        disabled={!isEditing}
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showConfirmPassword ? "text" : "password"}
+                                            name="password_confirmation"
+                                            value={form.password_confirmation}
+                                            onChange={handleChange}
+                                            className={inputClass('password_confirmation') + " pr-12"}
+                                            placeholder="Confirm new password"
+                                            disabled={!isEditing}
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
+                                            disabled={!isEditing}
+                                        >
+                                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
