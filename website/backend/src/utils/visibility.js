@@ -77,7 +77,7 @@ function applyProjectVisibility(query, user, memberProjectIds = []) {
 
   // 2. Accounting: Full access but hide 'draft' projects
   if (role === 'Accounting') {
-    return query.neq('sub_status', 'draft');
+    return query.not('sub_status', 'ilike', 'draft');
   }
 
   // 3. Sales: Only projects they created
