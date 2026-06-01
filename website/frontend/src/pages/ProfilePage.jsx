@@ -342,7 +342,7 @@ export default function ProfilePage() {
                                             className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
                                             disabled={!isEditing}
                                         >
-                                            {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            {showCurrentPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                         </button>
                                     </div>
                                     {errors.current_password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.current_password[0]}</p>}
@@ -365,7 +365,7 @@ export default function ProfilePage() {
                                             className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
                                             disabled={!isEditing}
                                         >
-                                            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                         </button>
                                     </div>
                                     {errors.password && <p className="text-red-500 text-[10px] font-bold ml-1">{errors.password[0]}</p>}
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                                             className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
                                             disabled={!isEditing}
                                         >
-                                            {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                            {showConfirmPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                                         </button>
                                     </div>
                                 </div>

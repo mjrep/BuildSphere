@@ -226,7 +226,7 @@ export default function ResetPasswordPage() {
                                     onClick={() => setShowPassword(!showPassword)}
                                     className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
                                 >
-                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                 </button>
                             </div>
                             {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
@@ -250,7 +250,7 @@ export default function ResetPasswordPage() {
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                     className="absolute right-5 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors focus:outline-none"
                                 >
-                                    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                    {showConfirmPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                 </button>
                             </div>
                             {errors.password_confirmation && (
