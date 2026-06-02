@@ -37,7 +37,7 @@ export default function InventoryTable({ items, canManage, onEdit, onUpdateStock
                         <th className="px-6 py-5 whitespace-nowrap">Item Name</th>
                         <th className="px-6 py-5 whitespace-nowrap">Category</th>
                         <th className="px-6 py-5 whitespace-nowrap">In Stock</th>
-                        <th className="px-6 py-5 whitespace-nowrap">Critical Lvl</th>
+                        <th className="px-6 py-5 whitespace-nowrap">Critical Level</th>
                         <th className="px-6 py-5 whitespace-nowrap">Price</th>
                         <th className="px-6 py-5 whitespace-nowrap">Status</th>
                         {canManage && <th className="px-6 py-5 whitespace-nowrap w-4 text-center"></th>}

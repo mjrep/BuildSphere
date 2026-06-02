@@ -86,7 +86,7 @@ export default function ProposedProjectView({ project }) {
                             Manage Milestone Plan
                         </button>
                     )}
-                    {userRole === 'accounting' && subStatus === 'pending_approval' && !project.accounting_approved_at && (
+                    {userRole === 'accounting' && ['pending_approval', 'for_accounting_approval'].includes(subStatus) && !project.accounting_approved_at && (
                         <button
                             onClick={() => navigate(`/projects/${project.id}/approval`)}
                             className="px-6 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-sm hover:shadow-md"
@@ -94,7 +94,7 @@ export default function ProposedProjectView({ project }) {
                             Review & Approve
                         </button>
                     )}
-                    {['ceo', 'coo'].includes(userRole) && subStatus === 'pending_approval' && !!project.accounting_approved_at && (
+                    {['ceo', 'coo'].includes(userRole) && ['pending_approval', 'for_executives_approval'].includes(subStatus) && !!project.accounting_approved_at && (
                         <button
                             onClick={() => navigate(`/projects/${project.id}/approval`)}
                             className="px-6 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:opacity-90 transition-all shadow-sm hover:shadow-md"

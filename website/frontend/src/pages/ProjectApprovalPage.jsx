@@ -32,11 +32,11 @@ export default function ProjectApprovalPage() {
 
     const isAccounting = userRole === 'accounting' && 
                          project?.status === 'proposed' && 
-                         project?.sub_status === 'pending_approval' && 
+                         ['pending_approval', 'for_accounting_approval'].includes(project?.sub_status) && 
                          !project?.accounting_approved_at;
 
     const isExecutive = ['ceo', 'coo'].includes(userRole) && 
-                        (project?.status === 'proposed' && project?.sub_status === 'pending_approval' && !!project?.accounting_approved_at);
+                        (project?.status === 'proposed' && ['pending_approval', 'for_executives_approval'].includes(project?.sub_status) && !!project?.accounting_approved_at);
 
     const handleApprove = async () => {
         setSubmitting(true);

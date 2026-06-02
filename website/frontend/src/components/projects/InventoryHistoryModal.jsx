@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 
 const formatDate = (dateString) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -28,7 +28,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
     const fetchHistory = async () => {
         try {
             setLoading(true);
-            const res = await axios.get(`/api/projects/${project.id}/inventory/${item.id}/history`);
+            const res = await api.get(`/projects/${project.id}/inventory/${item.id}/history`);
             setLogs(res.data.data || []);
         } catch (err) {
             console.error('Failed to fetch inventory history', err);

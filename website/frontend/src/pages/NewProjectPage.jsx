@@ -66,25 +66,59 @@ export default function NewProjectPage() {
         setErrors((prev) => ({ ...prev, [name]: null }));
     };
 
+    // Calculate real-time validation errors
+    const realTimeErrors = {};
+
+    if (form.start_date && form.end_date) {
+        if (new Date(form.end_date) <= new Date(form.start_date)) {
+            realTimeErrors.end_date = ['End Date must be later than Start Date.'];
+            realTimeErrors.start_date = ['Start Date must be earlier than End Date.'];
+        }
+    }
+
+    const cp = parseFloat(form.contract_price || 0);
+    const up = parseFloat(form.contract_unit_price || 0);
+    const bm = parseFloat(form.budget_for_materials || 0);
+
+    if (form.contract_price && form.contract_unit_price && form.budget_for_materials) {
+        if (cp <= bm + up) {
+            realTimeErrors.contract_price = ['Contract Price must be strictly higher than Budget for Materials + Unit Price.'];
+        }
+    }
+
+    const getFieldError = (field) => {
+        return errors[field] || realTimeErrors[field];
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        const requiredFields = [
+            'project_name', 'client_name', 'address', 'description', 
+            'contract_price', 'contract_unit_price', 'budget_for_materials', 
+            'start_date', 'end_date', 'project_in_charge_id'
+        ];
+        let newErrors = {};
+        let hasError = false;
+
+        requiredFields.forEach(field => {
+            if (!form[field] || (typeof form[field] === 'string' && !form[field].trim())) {
+                newErrors[field] = ['This field is required.'];
+                hasError = true;
+            }
+        });
+
+        if (Object.keys(realTimeErrors).length > 0) {
+            hasError = true;
+            newErrors = { ...newErrors, ...realTimeErrors };
+        }
+
+        if (hasError) {
+            setErrors(newErrors);
+            return;
+        }
+
         setErrors({});
-
-        if (!form.project_name.trim() || !form.address.trim() || !form.start_date || !form.end_date) {
-            toast.error('Please fill in all required fields (Project Name, Address, Start and End Dates).');
-            return;
-        }
-
-        if (new Date(form.end_date) < new Date(form.start_date)) {
-            toast.error('End Date cannot be earlier than Start Date.');
-            setErrors(prev => ({ 
-                ...prev, 
-                end_date: ['End Date cannot be earlier than Start Date.'],
-                start_date: ['Start Date cannot be later than End Date.']
-            }));
-            return;
-        }
-
         setShowConfirmModal(true);
     };
 
@@ -118,14 +152,11 @@ export default function NewProjectPage() {
                 // If backend sent a flat message but no field-specific errors
                 if (Object.keys(backendErrors).length === 0 && errorData.message) {
                     setErrors({ project_name: [errorData.message] });
-                    toast.error(errorData.message);
                 } else {
                     setErrors(backendErrors);
-                    toast.error('Please check the form for errors.');
                 }
             } else {
                 const message = errorData?.message || errorData?.error || 'Something went wrong. Please try again.';
-                toast.error(message);
                 setErrors({ project_name: [message] });
             }
         } finally {
@@ -133,12 +164,16 @@ export default function NewProjectPage() {
         }
     };
 
-    const inputClass = (field) =>
-        `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted ${
-            errors[field]
+    const hasRealTimeErrors = Object.keys(realTimeErrors).length > 0;
+
+    const inputClass = (field) => {
+        const error = getFieldError(field);
+        return `w-full rounded-2xl border px-5 py-3 text-sm transition-all focus:outline-none focus:ring-2 placeholder:text-text-muted ${
+            error
                 ? 'border-red-400 focus:ring-red-200'
                 : 'border-border-primary focus:ring-[#706BFF]/20 focus:border-[#706BFF]'
         }`;
+    };
 
     return (
         <DashboardLayout pageTitle={
@@ -182,7 +217,7 @@ export default function NewProjectPage() {
                                         <input type="text" name="project_name" value={form.project_name} onChange={handleChange}
                                                placeholder="e.g., Sky Garden Condominium" className={inputClass('project_name')} />
                                     </div>
-                                    {errors.project_name && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.project_name[0]}</p>}
+                                    {getFieldError('project_name') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('project_name')[0]}</p>}
                                 </div>
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-semibold text-text-secondary ml-1">Client / Company</label>
@@ -190,7 +225,7 @@ export default function NewProjectPage() {
                                         <input type="text" name="client_name" value={form.client_name} onChange={handleChange}
                                                placeholder="Enter client name" className={inputClass('client_name')} />
                                     </div>
-                                    {errors.client_name && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.client_name[0]}</p>}
+                                    {getFieldError('client_name') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('client_name')[0]}</p>}
                                 </div>
                             </div>
 
@@ -201,7 +236,7 @@ export default function NewProjectPage() {
                                 </label>
                                 <input type="text" name="address" value={form.address} onChange={handleChange}
                                        placeholder="Complete project location address" className={inputClass('address')} />
-                                {errors.address && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.address[0]}</p>}
+                                {getFieldError('address') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('address')[0]}</p>}
                             </div>
 
                             <div className="space-y-1.5">
@@ -212,7 +247,7 @@ export default function NewProjectPage() {
                                 <textarea name="description" value={form.description} onChange={handleChange} rows="4"
                                           placeholder="Describe the scope of work and key deliverables..."
                                           className={inputClass('description') + " resize-none"} />
-                                {errors.description && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.description[0]}</p>}
+                                {getFieldError('description') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('description')[0]}</p>}
                             </div>
                         </div>
 
@@ -231,6 +266,7 @@ export default function NewProjectPage() {
                                             <input type="text" name="contract_price" value={formatNumber(form.contract_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_price') + " pl-8"} />
                                         </div>
+                                        {getFieldError('contract_price') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('contract_price')[0]}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-text-secondary ml-1">Unit Price</label>
@@ -239,6 +275,7 @@ export default function NewProjectPage() {
                                             <input type="text" name="contract_unit_price" value={formatNumber(form.contract_unit_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_unit_price') + " pl-8"} />
                                         </div>
+                                        {getFieldError('contract_unit_price') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('contract_unit_price')[0]}</p>}
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
@@ -248,6 +285,7 @@ export default function NewProjectPage() {
                                         <input type="text" name="budget_for_materials" value={formatNumber(form.budget_for_materials)} onChange={handleChange}
                                                placeholder="0.00" className={inputClass('budget_for_materials') + " pl-8"} />
                                     </div>
+                                    {getFieldError('budget_for_materials') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('budget_for_materials')[0]}</p>}
                                 </div>
                             </div>
 
@@ -261,11 +299,13 @@ export default function NewProjectPage() {
                                         <label className="block text-sm font-semibold text-text-secondary ml-1">Start Date</label>
                                         <input type="date" name="start_date" value={form.start_date} onChange={handleChange}
                                                className={inputClass('start_date')} />
+                                        {getFieldError('start_date') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('start_date')[0]}</p>}
                                     </div>
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-text-secondary ml-1">End Date</label>
                                         <input type="date" name="end_date" value={form.end_date} onChange={handleChange}
                                                className={inputClass('end_date')} />
+                                        {getFieldError('end_date') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('end_date')[0]}</p>}
                                     </div>
                                 </div>
                                 <div className="space-y-1.5">
@@ -289,7 +329,7 @@ export default function NewProjectPage() {
                                             </svg>
                                         </div>
                                     </div>
-                                    {errors.project_in_charge_id && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.project_in_charge_id[0]}</p>}
+                                    {getFieldError('project_in_charge_id') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('project_in_charge_id')[0]}</p>}
                                 </div>
                             </div>
                         </div>
@@ -305,8 +345,8 @@ export default function NewProjectPage() {
                             </button>
                             <button
                                 type="submit"
-                                disabled={saving}
-                                className="bg-accent hover:opacity-90 disabled:opacity-60 text-white
+                                disabled={saving || hasRealTimeErrors}
+                                className="bg-accent hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed text-white
                                            font-bold py-3.5 px-12 rounded-2xl transition-all flex items-center gap-2
                                            shadow-lg shadow-accent/20 active:scale-[0.98]"
                             >

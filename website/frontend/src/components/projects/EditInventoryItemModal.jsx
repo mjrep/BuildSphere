@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function EditInventoryItemModal({ project, item, onClose, onSuccess }) {
@@ -19,7 +19,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
         e.preventDefault();
         setSubmitting(true);
         try {
-            await axios.put(`/api/projects/${project.id}/inventory/${item.id}`, formData);
+            await api.put(`/projects/${project.id}/inventory/${item.id}`, formData);
             onSuccess();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to edit item');

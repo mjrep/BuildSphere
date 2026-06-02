@@ -282,6 +282,30 @@ class ProjectApprovalController {
           requested_by: user.id,
           comments: comments || ''
         }]);
+
+        // Notify Accounting of the Executive's final decision
+        try {
+          const { data: accountingUsers } = await supabaseAdmin
+            .from('users')
+            .select('id')
+            .ilike('role', '%accounting%');
+
+          if (accountingUsers && accountingUsers.length > 0) {
+            for (const accUser of accountingUsers) {
+              await NotificationService.createNotification(
+                accUser.id,
+                decision === 'APPROVED' ? 'Project Fully Approved' : 'Project Rejected by Executive',
+                decision === 'APPROVED' 
+                  ? `Project '${project.project_name || 'Unnamed'}' has been fully approved by Executives and is now ongoing.`
+                  : `Project '${project.project_name || 'Unnamed'}' was rejected by Executives: ${comments}`,
+                decision === 'APPROVED' ? 'success' : 'error',
+                `/projects/${projectId}`
+              );
+            }
+          }
+        } catch (notifErr) {
+          console.error('Accounting Executive Decision Notification Error:', notifErr);
+        }
       } catch (logError) {
         console.error('Logging records failed:', logError);
       }

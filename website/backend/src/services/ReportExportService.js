@@ -246,76 +246,80 @@ class ReportExportService {
                 html += `
                     <div class="section">
                         <h3 class="section-title">Progress Analysis</h3>
-                        <table class="data-table">
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
                             <thead>
                                 <tr>
-                                    <th colspan="2" style="background: #f1f5f9; color: #475569; font-size: 11px; text-transform: uppercase;">Milestones</th>
-                                </tr>
-                                <tr>
-                                    <th>Milestone Name</th>
-                                    <th>Progress</th>
-                                    <th>Date Finished / Status</th>
+                                    <th style="background: #f8fafc; padding: 12px 20px; border-bottom: 2px solid #e2e8f0; text-align: left; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase;">Milestone Name</th>
+                                    <th style="background: #f8fafc; padding: 12px 20px; border-bottom: 2px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase;">Progress</th>
+                                    <th style="background: #f8fafc; padding: 12px 20px; border-bottom: 2px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase;">Status</th>
+                                    <th style="background: #f8fafc; padding: 12px 20px; border-bottom: 2px solid #e2e8f0; text-align: right; font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase;">Date Finished</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 ${milestones.length > 0 
                                     ? milestones.map(m => {
                                         const milestoneTasks = tasks.filter(t => t.milestone_id === m.id);
-                                        let rows = `
-                                            <tr>
-                                                <td style="font-weight: bold;">${m.milestone_name}</td>
-                                                <td style="text-align: center;">${m.progress_percentage || 0}%</td>
-                                                <td>${m.progress_percentage === 100 ? m.updated_at?.split('T')[0] || 'Completed' : '—'}</td>
-                                            </tr>
-                                        `;
+                                        const isDone = m.progress_percentage === 100;
+                                        let rows = "<tr>" +
+                                            "<td style='padding: 16px 20px; font-weight: 900; color: #1e293b; border-bottom: 1px solid #f1f5f9; font-size: 11px;'>" + m.milestone_name + "</td>" +
+                                            "<td style='padding: 16px 20px; text-align: center; font-weight: 600; color: #475569; border-bottom: 1px solid #f1f5f9; font-size: 11px;'>" + (m.progress_percentage || 0) + "%</td>" +
+                                            "<td style='padding: 16px 20px; text-align: center; border-bottom: 1px solid #f1f5f9;'>" + 
+                                                (isDone ? "<span style='background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>COMPLETED</span>"
+                                                        : "<span style='background: #fff7ed; color: #f97316; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>ONGOING</span>") +
+                                            "</td>" +
+                                            "<td style='padding: 16px 20px; text-align: right; color: #94a3b8; border-bottom: 1px solid #f1f5f9; font-size: 11px;'>" + (isDone ? (m.updated_at?.split('T')[0] || 'Completed') : '—') + "</td>" +
+                                            "</tr>";
                                         milestoneTasks.forEach(t => {
-                                            rows += `
-                                                <tr>
-                                                    <td style="padding-left: 20px; color: #64748b;">&#8226; ${t.title}</td>
-                                                    <td style="text-align: center; color: #64748b;"></td>
-                                                    <td style="color: #64748b;">${t.status === 'completed' ? (t.date || 'Completed') : '—'}</td>
-                                                </tr>
-                                            `;
+                                            const taskDone = t.status === 'completed';
+                                            rows += "<tr>" +
+                                                "<td style='padding: 12px 20px 12px 40px; color: #64748b; border-bottom: 1px solid #f8fafc; font-size: 11px;'><span style='color: #cbd5e1; margin-right: 8px;'>•</span>" + t.title + "</td>" +
+                                                "<td style='border-bottom: 1px solid #f8fafc;'></td>" +
+                                                "<td style='padding: 12px 20px; text-align: center; border-bottom: 1px solid #f8fafc;'>" +
+                                                    (taskDone ? "<span style='background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>COMPLETED</span>"
+                                                              : "<span style='background: #fff7ed; color: #f97316; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>ONGOING</span>") +
+                                                "</td>" +
+                                                "<td style='padding: 12px 20px; text-align: right; color: #94a3b8; border-bottom: 1px solid #f8fafc; font-size: 11px;'>" + (taskDone ? (t.date || 'Completed') : '—') + "</td>" +
+                                                "</tr>";
                                         });
                                         return rows;
                                     }).join('') 
-                                    : '<tr><td colspan="3" class="empty">No milestones found.</td></tr>'}
+                                    : '<tr><td colspan="4" class="empty">No milestones found.</td></tr>'}
                                 ${(() => {
                                     const unassignedTasks = tasks.filter(t => !t.milestone_id || !milestones.some(m => m.id === t.milestone_id));
                                     if (unassignedTasks.length > 0) {
-                                        return unassignedTasks.map(t => `
-                                            <tr>
-                                                <td style="padding-left: 20px; color: #64748b;">&#8226; ${t.title} (Uncategorized)</td>
-                                                <td style="text-align: center; color: #64748b;"></td>
-                                                <td style="color: #64748b;">${t.status === 'completed' ? (t.date || 'Completed') : '—'}</td>
-                                            </tr>
-                                        `).join('');
+                                        return unassignedTasks.map(t => {
+                                            const taskDone = t.status === 'completed';
+                                            return "<tr>" +
+                                                "<td style='padding: 12px 20px 12px 40px; color: #64748b; border-bottom: 1px solid #f8fafc; font-size: 11px;'><span style='color: #cbd5e1; margin-right: 8px;'>•</span>" + t.title + " (Uncategorized)</td>" +
+                                                "<td style='border-bottom: 1px solid #f8fafc;'></td>" +
+                                                "<td style='padding: 12px 20px; text-align: center; border-bottom: 1px solid #f8fafc;'>" +
+                                                    (taskDone ? "<span style='background: #ecfdf5; color: #10b981; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>COMPLETED</span>"
+                                                              : "<span style='background: #fff7ed; color: #f97316; padding: 4px 10px; border-radius: 12px; font-size: 9px; font-weight: 900; text-transform: uppercase;'>ONGOING</span>") +
+                                                "</td>" +
+                                                "<td style='padding: 12px 20px; text-align: right; color: #94a3b8; border-bottom: 1px solid #f8fafc; font-size: 11px;'>" + (taskDone ? (t.date || 'Completed') : '—') + "</td>" +
+                                                "</tr>";
+                                        }).join('');
                                     }
                                     return '';
                                 })()}
                             </tbody>
-
                             <thead>
                                 <tr>
-                                    <th colspan="2" style="background: #f1f5f9; color: #475569; font-size: 11px; text-transform: uppercase;">Executive Summary</th>
-                                </tr>
-                                <tr>
-                                    <th>Metric</th>
-                                    <th>Value</th>
+                                    <th colspan="4" style="background: #f8fafc; padding: 16px 20px; text-align: left; font-size: 11px; font-weight: 900; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; border-top: 2px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">Executive Summary</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>Milestones Completed</td>
-                                    <td>${milestonesCompleted}</td>
+                                    <td colspan="3" style="padding: 12px 20px; font-weight: 600; color: #475569; font-size: 11px; border-bottom: 1px solid #f1f5f9;">Milestones Completed</td>
+                                    <td style="padding: 12px 20px; text-align: right; font-weight: 900; color: #1e293b; font-size: 11px; border-bottom: 1px solid #f1f5f9;">${milestonesCompleted}</td>
                                 </tr>
                                 <tr>
-                                    <td>Tasks Completed</td>
-                                    <td>${tasksCompleted}</td>
+                                    <td colspan="3" style="padding: 12px 20px; font-weight: 600; color: #475569; font-size: 11px; border-bottom: 1px solid #f1f5f9;">Tasks Completed</td>
+                                    <td style="padding: 12px 20px; text-align: right; font-weight: 900; color: #1e293b; font-size: 11px; border-bottom: 1px solid #f1f5f9;">${tasksCompleted}</td>
                                 </tr>
                                 <tr>
-                                    <td style="font-weight: bold;">Overall Progress</td>
-                                    <td class="highlight-green" style="font-weight: bold;">${p.progress?.project_progress || 0}%</td>
+                                    <td colspan="3" style="padding: 16px 20px; font-weight: 900; color: #1e293b; font-size: 12px; text-transform: uppercase;">Overall Progress</td>
+                                    <td class="highlight-green" style="padding: 16px 20px; text-align: right; font-weight: 900; font-size: 14px;">${p.progress?.project_progress || 0}%</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -432,7 +436,7 @@ class ReportExportService {
                     #buildsphere-pdf-wrapper .marker { width: 8px; height: 35px; background: #4f46e5; border-radius: 4px; margin-right: 15px; display: inline-block; }
                     #buildsphere-pdf-wrapper .project-name { font-size: 28px; font-weight: 900; margin: 0; text-transform: uppercase; color: #0f172a; display: inline-block; vertical-align: middle; }
                     
-                    #buildsphere-pdf-wrapper .section { margin-bottom: 40px; page-break-inside: avoid; }
+                    #buildsphere-pdf-wrapper .section { margin-bottom: 40px; page-break-inside: auto; }
                     #buildsphere-pdf-wrapper .section-title { font-size: 14px; font-weight: 900; color: #4f46e5; text-transform: uppercase; letter-spacing: 0.1em; border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 20px; }
                     
                     #buildsphere-pdf-wrapper .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
@@ -457,9 +461,19 @@ class ReportExportService {
                     #buildsphere-pdf-wrapper .photo-footer p { margin: 0; font-size: 10px; color: #475569; }
                     #buildsphere-pdf-wrapper .photo-footer p strong { color: #1e293b; text-transform: uppercase; font-size: 9px; }
                 </style>
-                <div class="report-header">
-                    <h1>BuildSphere Project Report</h1>
-                    <div class="meta">${config.startDate} — ${config.endDate}</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding: 15px 0 15px 40px;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://buildsphere.cityscapebuildersinc.com/assets/logo-BTc8iO0L.png" style="height: 40px; margin-right: 12px;" />
+                        <div style="font-family: Arial, sans-serif;">
+                            <div style="font-size: 20px; font-weight: 900; color: #000; line-height: 1; margin-bottom: 2px;">CITYSCAPE</div>
+                            <div style="font-size: 12px; font-weight: bold; color: #000; letter-spacing: 1px;">BUILDERS INC.</div>
+                        </div>
+                    </div>
+                    <div style="flex-grow: 1; margin-left: 40px; height: 35px; background: linear-gradient(to right, #091f5b 80%, #d81b1b 80%); clip-path: polygon(25px 0, 100% 0, 100% 100%, 0 100%);"></div>
+                </div>
+                <div style="padding: 0 40px; margin-bottom: 40px;">
+                    <h1 style="font-size: 32px; font-weight: 900; color: #0f172a; margin: 0; margin-bottom: 8px; text-transform: uppercase; letter-spacing: -1px;">PROJECT REPORT PREVIEW</h1>
+                    <div style="color: #94a3b8; font-weight: bold; text-transform: uppercase; font-size: 12px; letter-spacing: 0.2em;">${config.startDate} — ${config.endDate}</div>
                 </div>
                 <div class="content">
                     ${sections}

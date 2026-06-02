@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
@@ -19,7 +19,7 @@ export default function AddInventoryItemModal({ project, onClose, onSuccess }) {
         e.preventDefault();
         setSubmitting(true);
         try {
-            await axios.post(`/api/projects/${project.id}/inventory`, formData);
+            await api.post(`/projects/${project.id}/inventory`, formData);
             onSuccess();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to add item');

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function InventoryTransactionModal({ project, item, onClose, onSuccess }) {
@@ -21,7 +21,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
     const fetchTasks = async () => {
         try {
             setLoadingTasks(true);
-            const res = await axios.get(`/api/tasks?project_id=${project.id}&per_page=100`);
+            const res = await api.get(`/tasks?project_id=${project.id}&per_page=100`);
             setTasks(res.data.data || []);
         } catch (err) {
             console.error('Failed to fetch tasks', err);
@@ -46,7 +46,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
 
         setSubmitting(true);
         try {
-            await axios.patch(`/api/projects/${project.id}/inventory/${item.id}/stock`, {
+            await api.patch(`/projects/${project.id}/inventory/${item.id}/stock`, {
                 action_type: actionType,
                 quantity: parseFloat(quantity),
                 reference_task_id: taskId || null,

@@ -813,7 +813,7 @@ class ProjectController {
         const { data: accountingUsers } = await supabase
           .from('users')
           .select('id')
-          .eq('role', 'Accounting');
+          .ilike('role', '%accounting%');
         
         if (accountingUsers && accountingUsers.length > 0) {
           for (const accUser of accountingUsers) {

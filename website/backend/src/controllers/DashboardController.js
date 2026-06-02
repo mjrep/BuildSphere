@@ -325,7 +325,7 @@ class DashboardController {
           const subStatus = (p.sub_status || '').toLowerCase();
           if (status === 'proposed') {
             if (subStatus === 'draft' || subStatus === '') pendingCount++;
-            else if (subStatus === 'pending_approval') forApprovalCount++;
+            else if (['pending_approval', 'for_accounting_approval', 'for_executives_approval'].includes(subStatus)) forApprovalCount++;
             else if (subStatus === 'for_revision') forRevisionsCount++;
             else if (subStatus === 'approved') approvedCount++;
           } else if (status === 'ongoing' && p.executive_approved_at !== null) {
@@ -340,7 +340,7 @@ class DashboardController {
           
           let displaySubStatus = 'Pending';
           const sub = (p.sub_status || '').toLowerCase();
-          if (sub === 'pending_approval') displaySubStatus = 'For Approval';
+          if (['pending_approval', 'for_accounting_approval', 'for_executives_approval'].includes(sub)) displaySubStatus = 'For Approval';
           else if (sub === 'for_revision') displaySubStatus = 'For Revisions';
           else if (sub === 'approved' || p.status === 'ongoing') displaySubStatus = 'Approved';
 

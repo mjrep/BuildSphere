@@ -35,7 +35,9 @@ class NotificationService {
                     date: dateStr,
                     time: timeStr,
                     created_at: now.toISOString(),
-                    updated_at: now.toISOString()
+                    updated_at: now.toISOString(),
+                    body: message, // Used for mobile push notification body
+                    data: { url: referenceUrl, type: type } // JSON payload for mobile deep linking
                 }])
                 .select()
                 .single();

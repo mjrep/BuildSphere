@@ -1,6 +1,10 @@
+@import url('https://api.fontshare.com/v2/css?f[]=poppins@900,500,400,300,800,700,600&display=swap');
 @import "tailwindcss";
 
 @theme {
+  /* Fonts */
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
   /* Semantic Colors */
   --color-bg-primary: var(--bg-primary);
   --color-bg-secondary: var(--bg-secondary);

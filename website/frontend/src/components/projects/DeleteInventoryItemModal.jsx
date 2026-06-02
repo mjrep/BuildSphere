@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function DeleteInventoryItemModal({ project, item, onClose, onSuccess }) {
@@ -8,7 +8,7 @@ export default function DeleteInventoryItemModal({ project, item, onClose, onSuc
     const handleDelete = async () => {
         setSubmitting(true);
         try {
-            await axios.delete(`/api/projects/${project.id}/inventory/${item.id}`);
+            await api.delete(`/projects/${project.id}/inventory/${item.id}`);
             onSuccess();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to delete item');
