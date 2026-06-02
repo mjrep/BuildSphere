@@ -137,6 +137,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
     const inputCls = (field) =>
         `w-full px-3 py-2.5 text-sm border rounded-xl bg-card focus:outline-none focus:ring-2
          focus:ring-[#5B5BD6]/30 placeholder:text-[#C0C0D8]
+         ${!form[field] ? 'text-text-muted' : 'text-text-primary'}
          ${errors[field] ? 'border-red-400' : 'border-border-primary'}`;
 
     const formatPhaseName = (name) => {
@@ -165,10 +166,10 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                    <h2 className="text-lg font-bold text-accent">{isEdit ? 'Update task' : 'Add a new task'}</h2>
+                    <h2 className="text-lg font-bold text-accent text-center flex-1 ml-6">{isEdit ? 'Update task' : 'Add a new task'}</h2>
                     <button onClick={onClose} className="text-text-muted hover:text-text-primary p-1 rounded-lg hover:bg-bg-secondary">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -178,7 +179,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                 <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
                     <div>
-                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project *</label>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project <span className="text-text-muted">*</span></label>
                         <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
                             <option value="">Select</option>
                             {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
@@ -188,7 +189,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Phase *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Phase <span className="text-text-muted">*</span></label>
                             <select value={form.phase_id} onChange={e => set('phase_id', e.target.value)} className={inputCls('phase_id')}>
                                 <option value="">Select</option>
                                 {phases.map(p => <option key={p.id} value={p.id}>{formatPhaseName(p.phase_title ?? p.phase_key)}</option>)}
@@ -196,7 +197,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             {errors.phase_id && <p className="text-red-500 text-xs mt-1">{errors.phase_id}</p>}
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Milestone *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Milestone <span className="text-text-muted">*</span></label>
                             <select value={form.milestone_id} onChange={e => set('milestone_id', e.target.value)} className={inputCls('milestone_id')}>
                                 <option value="">Select</option>
                                 {milestones.map(m => <option key={m.id} value={m.id}>{m.milestone_name}</option>)}
@@ -206,7 +207,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     </div>
 
                     <div>
-                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Title *</label>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Title <span className="text-text-muted">*</span></label>
                         <input
                             type="text"
                             value={form.title}
@@ -218,7 +219,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     </div>
 
                     <div>
-                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Description (optional)</label>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Description <span className="text-text-muted font-normal">(optional)</span></label>
                         <textarea
                             value={form.description}
                             onChange={e => set('description', e.target.value)}
@@ -231,7 +232,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To <span className="text-text-muted">*</span></label>
                             <select value={form.assigned_to} onChange={e => set('assigned_to', e.target.value)} className={inputCls('assigned_to')}>
                                 <option value="">Select</option>
                                 {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
@@ -239,7 +240,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             {errors.assigned_to && <p className="text-red-500 text-xs mt-1">{errors.assigned_to}</p>}
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Priority Level *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Priority Level <span className="text-text-muted">*</span></label>
                             <select value={form.priority} onChange={e => set('priority', e.target.value)} className={inputCls('priority')}>
                                 {Object.entries(TASK_PRIORITIES).map(([k, v]) => (
                                     <option key={k} value={k}>{v.label}</option>
@@ -250,7 +251,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start <span className="text-text-muted">*</span></label>
                             <input
                                 type="date" value={form.start_date}
                                 onChange={e => set('start_date', e.target.value)}
@@ -259,7 +260,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             {errors.start_date && <p className="text-red-500 text-xs mt-1">{errors.start_date}</p>}
                         </div>
                         <div>
-                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until *</label>
+                            <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until <span className="text-text-muted">*</span></label>
                             <input
                                 type="date" value={form.due_date}
                                 min={form.start_date || undefined}
@@ -272,7 +273,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
                     {/* Attachment */}
                     <div>
-                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Attachments (optional)</label>
+                        <label className="text-xs font-semibold text-text-primary mb-1.5 block">Attachments <span className="text-text-muted font-normal">(optional)</span></label>
                         <input
                             type="file" multiple
                             accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
@@ -285,7 +286,14 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     </div>
 
                     {/* Navigation */}
-                    <div className="flex justify-end pt-2">
+                    <div className="flex items-center justify-between pt-2">
+                        <button
+                            type="button"
+                            onClick={onClose}
+                            className="px-6 py-2.5 text-text-muted hover:text-text-primary text-sm font-semibold rounded-xl hover:bg-bg-secondary transition-colors"
+                        >
+                            Cancel
+                        </button>
                         <button
                             type="submit"
                             disabled={submitting}

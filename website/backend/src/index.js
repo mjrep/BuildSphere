@@ -79,6 +79,7 @@ app.put('/api/projects/:id', authenticateToken, projectLock('id'), projectContro
 app.patch('/api/projects/:id/complete', authenticateToken, projectController.complete);
 app.delete('/api/projects/:id', authenticateToken, projectLock('id'), projectController.destroy);
 app.post('/api/projects/:id/team', authenticateToken, projectLock('id'), projectController.addTeamMember);
+app.delete('/api/projects/:id/team/:userId', authenticateToken, projectLock('id'), projectController.removeTeamMember);
 
 // Project Files
 app.get('/api/projects/:id/files', authenticateToken, ProjectFileController.index);

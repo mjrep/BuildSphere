@@ -505,18 +505,50 @@ class ProjectController {
 
       const supabase = ProjectController.getSupabaseWithAuth(req);
       const { id } = req.params;
-      const { user_id, role_in_project } = req.body;
+      const { members } = req.body; // Expect an array of { user_id, role_in_project }
 
-      const { data, error } = await supabase
-        .from('project_user')
-        .insert([{ project_id: id, user_id, role_in_project }])
-        .select()
-        .single();
+      if (!members || !Array.isArray(members)) {
+          // fallback for single member
+          const { user_id, role_in_project } = req.body;
+          if (!user_id) return res.status(422).json({ message: 'User ID is required.' });
+          
+          const { data: existing } = await supabase.from('project_user').select('*').eq('project_id', id).eq('user_id', user_id).maybeSingle();
+          if (existing) return res.status(422).json({ message: 'User is already a member of this project.' });
 
-      if (error) throw error;
-      res.status(201).json(data);
+          const { error } = await supabase.from('project_user').insert([{ project_id: id, user_id, role_in_project }]);
+          if (error) throw error;
+          return res.json({ message: 'Team member added successfully.' });
+      }
+
+      // Bulk add
+      for (const m of members) {
+          const { data: existing } = await supabase.from('project_user').select('*').eq('project_id', id).eq('user_id', m.user_id).maybeSingle();
+          if (!existing) {
+              await supabase.from('project_user').insert([{ project_id: id, user_id: m.user_id, role_in_project: m.role_in_project }]);
+          }
+      }
+      res.status(201).json({ message: 'Team members added successfully.' });
     } catch (error) {
-      res.status(422).json({ error: error.message });
+      console.error('Add Team Member Error:', error);
+      res.status(500).json({ message: 'Error adding team member', error: error.message });
+    }
+  }
+
+  static async removeTeamMember(req, res) {
+    try {
+      const user = req.user;
+      const role = (user.role || '');
+      if (!['CEO', 'COO', 'HR', 'Admin'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized.' });
+      }
+      const { id, userId } = req.params;
+      const supabase = ProjectController.getSupabaseWithAuth(req);
+      const { error } = await supabase.from('project_user').delete().eq('project_id', id).eq('user_id', userId);
+      if (error) throw error;
+      res.json({ message: 'Team member removed successfully.' });
+    } catch (error) {
+      console.error('Remove Team Member Error:', error);
+      res.status(500).json({ message: 'Error removing team member', error: error.message });
     }
   }
 
@@ -886,44 +918,7 @@ class ProjectController {
     }
   }
 
-  static async addTeamMember(req, res) {
-    try {
-      const { id } = req.params;
-      const { user_id, role_in_project } = req.body;
-      const supabase = ProjectController.getSupabaseWithAuth(req);
 
-      if (!user_id) {
-        return res.status(422).json({ message: 'User ID is required.' });
-      }
-
-      // Check if user is already a member
-      const { data: existing } = await supabase
-        .from('project_user')
-        .select('*')
-        .eq('project_id', id)
-        .eq('user_id', user_id)
-        .maybeSingle();
-
-      if (existing) {
-        return res.status(422).json({ message: 'User is already a member of this project.' });
-      }
-
-      const { error } = await supabase
-        .from('project_user')
-        .insert([{
-          project_id: id,
-          user_id,
-          role_in_project
-        }]);
-
-      if (error) throw error;
-
-      res.json({ message: 'Team member added successfully.' });
-    } catch (error) {
-      console.error('Add Team Member Error:', error);
-      res.status(500).json({ message: 'Error adding team member', error: error.message });
-    }
-  }
 }
 
 module.exports = ProjectController;

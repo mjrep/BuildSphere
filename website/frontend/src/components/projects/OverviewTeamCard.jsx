@@ -18,10 +18,17 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
     const canManageTeam = ['ceo', 'coo', 'hr'].includes(user?.role?.toLowerCase()) && project.status !== 'completed';
     
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
     const [users, setUsers] = useState([]);
-    const [selectedUserId, setSelectedUserId] = useState('');
-    const [filterRole, setFilterRole] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // Dynamic selections per role
+    const [selections, setSelections] = useState({
+        Foreman: [],
+        'Project Coordinator': [],
+        'Procurement Manager': [],
+        Staff: []
+    });
 
     const members = project.team_members || [];
 
@@ -33,26 +40,136 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
         }
     }, [isModalOpen]);
 
+    const handleSelectUser = (role, userId) => {
+        if (!userId) return;
+        const selectedUser = users.find(u => u.id === userId);
+        if (selectedUser && !selections[role].some(u => u.id === userId)) {
+            // Also check if already in the project members
+            if (members.some(m => m.id === userId)) {
+                toast.error(`${selectedUser.name} is already in the project.`);
+                return;
+            }
+            setSelections(prev => ({
+                ...prev,
+                [role]: [...prev[role], selectedUser]
+            }));
+        }
+    };
+
+    const handleRemoveSelection = (role, userId) => {
+        setSelections(prev => ({
+            ...prev,
+            [role]: prev[role].filter(u => u.id !== userId)
+        }));
+    };
+
+    const handleRemoveMember = async (memberId) => {
+        if (!window.confirm('Are you sure you want to remove this team member from the project?')) return;
+        try {
+            await api.delete(`/projects/${project.id}/team/${memberId}`);
+            toast.success('Team member removed');
+            if (onMemberAdded) onMemberAdded(); // Refreshes project data
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to remove team member');
+        }
+    };
+
     const handleAddMember = async (e) => {
         e.preventDefault();
-        if (!selectedUserId) return;
+        
+        const membersToAdd = [];
+        Object.entries(selections).forEach(([roleName, selectedUsers]) => {
+            selectedUsers.forEach(u => {
+                membersToAdd.push({
+                    user_id: u.id,
+                    role_in_project: roleName
+                });
+            });
+        });
+
+        if (membersToAdd.length === 0) {
+            toast.error('Please select at least one employee.');
+            return;
+        }
         
         setIsSubmitting(true);
         try {
-            const selectedUser = users.find(u => u.id === selectedUserId);
-            await api.post(`/projects/${project.id}/team`, {
-                user_id: selectedUserId,
-                role_in_project: selectedUser?.role || ''
-            });
-            toast.success('Team member added successfully');
-            setIsModalOpen(false);
+            await api.post(`/projects/${project.id}/team`, { members: membersToAdd });
+            setShowSuccess(true);
             if (onMemberAdded) onMemberAdded();
+            
+            // Reset selections
+            setSelections({
+                Foreman: [],
+                'Project Coordinator': [],
+                'Procurement Manager': [],
+                Staff: []
+            });
         } catch (err) {
-            toast.error(err.response?.data?.message || 'Failed to add member');
+            toast.error(err.response?.data?.message || 'Failed to add members');
         } finally {
             setIsSubmitting(false);
         }
     };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setShowSuccess(false);
+        setSelections({
+            Foreman: [],
+            'Project Coordinator': [],
+            'Procurement Manager': [],
+            Staff: []
+        });
+    };
+
+    // Helper to render selection inputs
+    const renderRoleSelect = (roleName) => (
+        <div className="mb-4">
+            <label className="block text-xs font-semibold text-text-primary mb-2">{roleName}</label>
+            <div className="relative">
+                <select 
+                    className="w-full rounded-xl border-2 border-border-primary px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-[#706BFF] bg-card appearance-none transition-colors pr-10"
+                    onChange={(e) => {
+                        handleSelectUser(roleName, e.target.value);
+                        e.target.value = ''; // Reset select after picking
+                    }}
+                    defaultValue=""
+                >
+                    <option value="" disabled className="text-text-muted">Select an employee...</option>
+                    {users
+                        .filter(u => !selections[roleName].some(sel => sel.id === u.id))
+                        .map(u => (
+                            <option key={u.id} value={u.id}>{u.name} - {u.role || 'No Role'}</option>
+                        ))
+                    }
+                </select>
+                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                    <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </div>
+            </div>
+            
+            {/* Selected Chips */}
+            {selections[roleName].length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                    {selections[roleName].map(u => (
+                        <div key={u.id} className="flex items-center gap-1.5 bg-bg-secondary text-text-primary text-xs font-medium px-2.5 py-1 rounded-lg border border-border-primary">
+                            <span>{u.name}</span>
+                            <button 
+                                type="button" 
+                                onClick={() => handleRemoveSelection(roleName, u.id)}
+                                className="text-text-muted hover:text-red-500 font-bold ml-1 transition-colors"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col">
@@ -77,25 +194,32 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                 </span>
             </div>
 
-            <div className="flex gap-2.5 flex-wrap">
-                {members.slice(0, 5).map(member => {
+            <div className="flex gap-2 flex-wrap">
+                {members.map(member => {
                     const bgColor = getColorForString(member.name);
                     return (
-                        <div 
-                            key={member.id} 
-                            className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm"
-                            style={{ backgroundColor: bgColor }}
-                            title={`${member.name} - ${member.role_in_project || member.role}`}
-                        >
-                            {member.initials}
+                        <div key={member.id} className="relative group">
+                            <div 
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-sm transition-transform duration-200 group-hover:scale-105"
+                                style={{ backgroundColor: bgColor }}
+                                title={`${member.name} - ${member.role_in_project || member.role}`}
+                            >
+                                {member.initials}
+                            </div>
+                            
+                            {/* Remove button on hover */}
+                            {canManageTeam && (
+                                <button
+                                    onClick={() => handleRemoveMember(member.id)}
+                                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] font-black opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                    title="Remove member"
+                                >
+                                    ×
+                                </button>
+                            )}
                         </div>
                     );
                 })}
-                {members.length > 5 && (
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-bold text-gray-600 shadow-sm border border-gray-300">
-                        {members.length - 5}+
-                    </div>
-                )}
                 {members.length === 0 && (
                     <p className="text-sm text-gray-400 italic py-2">No team members assigned.</p>
                 )}
@@ -103,70 +227,54 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
 
             {/* Add Member Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                    <div className="bg-card rounded-2xl p-6 shadow-xl w-full max-w-sm relative pointer-events-auto">
-                        <button 
-                            onClick={() => setIsModalOpen(false)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
-                        >
-                            ✕
-                        </button>
-                        <h3 className="text-lg font-bold mb-4">Add Team Member</h3>
-                        <form onSubmit={handleAddMember} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">User Role</label>
-                                <select 
-                                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] bg-gray-50"
-                                    value={filterRole}
-                                    onChange={(e) => {
-                                        setFilterRole(e.target.value);
-                                        setSelectedUserId('');
-                                    }}
-                                >
-                                    <option value="">All Roles</option>
-                                    {['CEO', 'COO', 'Project Engineer', 'Project Coordinator', 'Foreman', 'Procurement', 'Accounting', 'HR', 'Sales'].map(r => (
-                                        <option key={r} value={r}>{r}</option>
-                                    ))}
-                                </select>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                    {!showSuccess ? (
+                        <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-lg relative pointer-events-auto">
+                            <button 
+                                onClick={closeModal}
+                                className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <h3 className="text-lg font-bold mb-6 text-accent text-center">Add an employee</h3>
+                            
+                            <form onSubmit={handleAddMember} className="space-y-2 max-h-[60vh] overflow-y-auto pr-2 scrollbar-thin">
+                                {renderRoleSelect('Foreman')}
+                                {renderRoleSelect('Project Coordinator')}
+                                {renderRoleSelect('Procurement Manager')}
+                                {renderRoleSelect('Staff')}
+                                
+                                <div className="pt-4 flex justify-center">
+                                    <button
+                                        type="submit"
+                                        disabled={isSubmitting}
+                                        className="w-full py-3 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-xl disabled:opacity-50 transition-colors"
+                                    >
+                                        {isSubmitting ? 'Adding...' : 'Add Members'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    ) : (
+                        <div className="bg-card rounded-3xl p-10 shadow-2xl w-full max-w-sm relative pointer-events-auto text-center flex flex-col items-center">
+                            <div className="w-24 h-24 bg-[#706BFF] rounded-full flex items-center justify-center mb-6 shadow-lg shadow-accent/30">
+                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                                </svg>
                             </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Select User</label>
-                                <select 
-                                    className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF]"
-                                    value={selectedUserId}
-                                    onChange={(e) => setSelectedUserId(e.target.value)}
-                                    required
-                                >
-                                    <option value="" disabled>Select a user...</option>
-                                    {users
-                                        .filter(u => !filterRole || u.role === filterRole)
-                                        .map(u => (
-                                            <option key={u.id} value={u.id}>{u.name}</option>
-                                        ))
-                                    }
-                                </select>
-                                {filterRole && users.filter(u => u.role === filterRole).length === 0 && (
-                                    <p className="mt-1 text-xs text-red-500 font-medium">No users found with this role.</p>
-                                )}
-                            </div>
-                            <div className="pt-2 flex justify-end gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    className="px-4 py-2 text-sm font-semibold text-gray-500 hover:bg-gray-100 rounded-lg"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting || !selectedUserId}
-                                    className="px-4 py-2 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-lg disabled:opacity-50"
-                                >
-                                    {isSubmitting ? 'Adding...' : 'Add Member'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
+                            <h3 className="text-xl font-bold text-text-primary mb-2">Employee/s added!</h3>
+                            <p className="text-sm text-text-muted mb-8 font-medium">Employee/s added to the project.</p>
+                            
+                            <button
+                                onClick={closeModal}
+                                className="w-full py-3 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-xl transition-colors"
+                            >
+                                Back to Project
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

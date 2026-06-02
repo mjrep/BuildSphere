@@ -37,7 +37,7 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
     };
 
     return (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 mb-2">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
             {/* Left Side: Master Toggle */}
             <button
                 onClick={() => onSelect('all')}
@@ -54,7 +54,7 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
             <div className="hidden sm:block w-px h-8 bg-accent/10 mx-1" />
 
             {/* Right Side: Specific Selector (Combobox) */}
-            <div className="relative flex-1 max-w-md" ref={dropdownRef}>
+            <div className="relative w-full sm:w-auto flex-1 max-w-sm sm:max-w-md ml-auto" ref={dropdownRef}>
                 <div 
                     onClick={() => setIsOpen(!isOpen)}
                     className={`group flex items-center justify-between px-4 py-2.5 bg-card border-2 rounded-xl cursor-pointer transition-all duration-200 ${

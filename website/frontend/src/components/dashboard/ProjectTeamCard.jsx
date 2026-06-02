@@ -1,6 +1,8 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
-export default function ProjectTeamCard({ project_name, location, engr_name, memberCount, tasksDone, tasksTotal, members, milestone_segments }) {
+export default function ProjectTeamCard({ project_id, project_name, location, engr_name, memberCount, tasksDone, tasksTotal, members, milestone_segments }) {
+    const navigate = useNavigate();
     const pct = tasksTotal > 0 ? Math.round((tasksDone / tasksTotal) * 100) : 0;
 
     // Use milestone-specific segments if available, fallback to a single primary color if not
@@ -13,12 +15,21 @@ export default function ProjectTeamCard({ project_name, location, engr_name, mem
         return name.replace(/^PRJ-[A-Z0-9-]+\s*\/\s*/i, '');
     };
 
+    const cleanLocation = (loc) => {
+        if (!loc) return '';
+        const words = loc.split(' ');
+        return words.length > 3 ? words.slice(0, 3).join(' ') + '...' : loc;
+    };
+
     return (
-        <div className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary">
-            <h4 className="font-bold text-text-primary text-sm mb-0.5 truncate" title={project_name}>
+        <div 
+            onClick={() => navigate(`/tasks?project=${project_id}`)}
+            className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary cursor-pointer hover:shadow-md hover:border-[#706BFF]/30 transition-all"
+        >
+            <h4 className="font-semibold text-text-primary text-sm mb-0.5 truncate" title={project_name}>
                 {cleanProjectName(project_name)}
             </h4>
-            <p className="text-xs text-text-muted truncate" title={location}>{location}</p>
+            <p className="text-xs text-text-muted truncate" title={location}>{cleanLocation(location)}</p>
             <div className="flex items-center gap-1 mt-0.5 mb-4">
                 <svg className="w-3 h-3 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -39,13 +50,14 @@ export default function ProjectTeamCard({ project_name, location, engr_name, mem
             {/* Avatar circles */}
             <div className="flex items-center gap-1.5">
                 {members.map((m, i) => (
-                    <div
+                    <span
                         key={i}
                         className="w-7 h-7 rounded-full border-2 border-card flex items-center justify-center text-[10px] font-bold text-white shadow-sm"
                         style={{ backgroundColor: m.color }}
+                        title={m.initials}
                     >
                         {m.initials}
-                    </div>
+                    </span>
                 ))}
             </div>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 const statusStyles = {
     'On Track': 'bg-green-500 text-white',
@@ -6,7 +7,7 @@ const statusStyles = {
     'Near Due': 'bg-orange-400 text-white',
 };
 
-export default function OngoingProjectRow({ project_name, status, progress, daysLeft }) {
+export default function OngoingProjectRow({ project_id, project_name, status, progress, daysLeft }) {
     const badgeClass = statusStyles[status] ?? 'bg-gray-400 text-white';
 
     const cleanProjectName = (name) => {
@@ -15,10 +16,10 @@ export default function OngoingProjectRow({ project_name, status, progress, days
     };
 
     return (
-        <div className="bg-bg-secondary rounded-2xl p-4 mb-3 flex flex-col justify-center min-h-[96px] transition-colors duration-200">
+        <Link to={`/projects/${project_id}`} className="bg-bg-secondary rounded-2xl p-4 mb-3 flex flex-col justify-center min-h-[96px] transition-colors duration-200 hover:bg-bg-hover group block">
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                    <p className="text-sm font-bold text-text-primary max-w-[200px] truncate" title={project_name}>
+                    <p className="text-sm font-bold text-text-primary max-w-[200px] truncate group-hover:text-accent transition-colors" title={project_name}>
                         {cleanProjectName(project_name)}
                     </p>
                     <span className={`text-xs font-semibold px-3 py-1 rounded-full ${badgeClass}`}>
@@ -39,6 +40,6 @@ export default function OngoingProjectRow({ project_name, status, progress, days
                 </div>
                 <p className="text-xs font-semibold text-text-muted shrink-0">{progress}%</p>
             </div>
-        </div>
+        </Link>
     );
 }

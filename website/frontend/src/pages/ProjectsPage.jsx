@@ -71,10 +71,9 @@ export default function ProjectsPage() {
 
     return (
         <DashboardLayout pageTitle="Projects">
-            {/* Top bar: View toggle + New Project button */}
-            <div className="flex items-center justify-between mb-5">
-                <ViewToggle view={view} onChange={setView} />
-                {canCreateProject && (
+            {/* Top bar: New Project button */}
+            {canCreateProject && (
+                <div className="flex items-center justify-end mb-3">
                     <button
                         onClick={() => navigate('/projects/new')}
                         className="px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl
@@ -82,12 +81,13 @@ export default function ProjectsPage() {
                     >
                         New Project
                     </button>
-                )}
-            </div>
+                </div>
+            )}
 
             {/* Content card */}
-            <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 p-8">
-                <div className="flex items-center gap-8 border-b border-border-primary/50 mb-8">
+            <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 pt-4 pb-6 px-6 lg:pt-5 lg:pb-8 lg:px-8">
+                <div className="flex items-end justify-between border-b border-border-primary/50 mb-6">
+                    <div className="flex items-center gap-8">
                     {STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
                         const count = tab.key === ''
@@ -140,10 +140,14 @@ export default function ProjectsPage() {
                             </div>
                         );
                     })}
+                    </div>
+                    <div className="pb-3">
+                        <ViewToggle view={view} onChange={setView} />
+                    </div>
                 </div>
 
                 {/* Search bar */}
-                <form onSubmit={handleSearch} className="mb-8">
+                <form onSubmit={handleSearch} className="mb-6">
                     <div className="relative max-w-md group">
                         <input
                             type="text"

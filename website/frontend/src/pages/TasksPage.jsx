@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../layouts/DashboardLayout';
@@ -17,6 +18,9 @@ import useAuth from '../hooks/useAuth';
 import { getTaskMeta, updateTaskStatus, createTaskComment, uploadTaskAttachments, deleteTask } from '../services/taskApi';
 
 export default function TasksPage() {
+    const [searchParams] = useSearchParams();
+    const initialProject = searchParams.get('project') || 'all';
+
     const { user }        = useAuth();
     const permissions     = useTaskPermissions(user);
     const { tasks, meta, loading, error, fetchTasks, setTasks } = useTasks();
@@ -33,7 +37,7 @@ export default function TasksPage() {
     const [showAddModal, setShowAddModal]= useState(false);
     const [taskToEdit, setTaskToEdit]   = useState(null);
     const [selectedTask, setSelectedTask]= useState(null);
-    const [selectedProject, setSelectedProject] = useState('all');
+    const [selectedProject, setSelectedProject] = useState(initialProject);
 
     // Initial data fetch
     const loadTasks = useCallback(() => {
@@ -118,11 +122,14 @@ export default function TasksPage() {
                     />
                 </div>
 
-                <TaskProjectFilter 
-                    projects={metaData?.projects || []} 
-                    selected={selectedProject} 
-                    onSelect={setSelectedProject} 
-                />
+                {/* Project Filter */}
+                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-6">
+                    <TaskProjectFilter 
+                        projects={metaData?.projects || []} 
+                        selected={selectedProject} 
+                        onSelect={setSelectedProject} 
+                    />
+                </div>
 
                 {/* Content area */}
                 <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-8">

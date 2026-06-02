@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import logo from '../../assets/images/logo.png';
 import useAuth from '../../hooks/useAuth';
 
@@ -63,12 +63,12 @@ export default function Sidebar({ onLogout }) {
     return (
         <aside className="w-64 flex flex-col bg-bg-secondary border-r border-border-primary shadow-sm h-full shrink-0 transition-colors duration-200">
             {/* Logo */}
-            <div className="flex items-center gap-3 px-6 py-6 border-b border-border-primary">
+            <Link to="/dashboard" className="h-[81px] flex items-center gap-3 px-6 border-b border-border-primary hover:opacity-80 transition-opacity">
                 <div className="flex items-center justify-center">
                     <img src={logo} alt="BS" className="w-8 h-8 object-contain" />
                 </div>
                 <span className="font-bold text-text-primary text-lg tracking-tight">BuildSphere</span>
-            </div>
+            </Link>
 
             {/* Nav links */}
             <nav className="flex-1 px-3 py-4 space-y-1">

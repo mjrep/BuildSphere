@@ -21,10 +21,10 @@ export default function OverviewActivityCard({ project }) {
     };
 
     return (
-        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col mt-4">
-            <h3 className="text-base font-bold text-text-primary mb-6">Activity Feed</h3>
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col mt-4 flex-1 min-h-0">
+            <h3 className="text-base font-bold text-text-primary mb-6 flex-shrink-0">Activity Feed</h3>
             
-            <div className="flex flex-col gap-6 relative">
+            <div className="flex flex-col gap-6 relative overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-border-primary scrollbar-track-transparent flex-1 min-h-0">
                 {/* Vertical Line */}
                 {activities.length > 1 && (
                     <div className="absolute left-4 top-2 bottom-2 w-px bg-slate-100 -translate-x-1/2"></div>

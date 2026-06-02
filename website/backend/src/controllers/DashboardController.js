@@ -615,6 +615,7 @@ class DashboardController {
           if (daysLeft <= 0 && progress < 100) displayStatus = 'Delayed';
  
           return {
+            project_id: project.id,
             project_name: project.project_name,
             progress,
             daysLeft,
@@ -636,6 +637,7 @@ class DashboardController {
           });
         });
         return {
+          project_id: project.id,
           project_name: project.project_name,
           updates_today: updatesToday
         };

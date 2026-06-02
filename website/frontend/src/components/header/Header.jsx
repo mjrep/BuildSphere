@@ -4,16 +4,16 @@ import NotificationBell from './NotificationBell';
 import { useTheme } from '../../context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
-export default function Header({ pageTitle, user, loading }) {
+export default function Header({ pageTitle, user, loading, scrolled }) {
     const { theme, toggleTheme } = useTheme();
     const initials = user
         ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase()
         : '';
 
     return (
-        <header className="flex items-center justify-between bg-bg-primary px-8 py-5 shrink-0 transition-colors duration-200">
+        <header className={`h-[81px] flex items-center justify-between bg-bg-secondary px-8 shrink-0 transition-all duration-200 border-b border-border-primary ${scrolled ? 'shadow-sm' : ''}`}>
             {/* Page title */}
-            <h1 className="text-2xl font-black text-text-primary tracking-tight">{pageTitle}</h1>
+            <h1 className="text-2xl font-semibold text-text-primary tracking-tight">{pageTitle}</h1>
 
             {/* Clickable user section → /profile */}
             {loading ? (
