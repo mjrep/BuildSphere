@@ -128,7 +128,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
         // Map UI roles to actual backend user roles
         const roleMapping = {
             'Foreman': ['foreman'],
-            'Project Coordinator': ['project coordinator', 'project engineer'],
+            'Project Coordinator': ['project coordinator'],
             'Procurement Manager': ['procurement manager', 'procurement'],
             'Staff': ['staff']
         };
