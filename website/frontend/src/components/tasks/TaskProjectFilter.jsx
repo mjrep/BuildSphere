@@ -17,7 +17,7 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
     );
 
     // Get the name of the currently selected project (if not 'all')
-    const selectedProjectName = projects.find(p => p.id === selected)?.name;
+    const selectedProjectName = projects.find(p => String(p.id) === String(selected))?.name;
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -108,7 +108,7 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
                                         key={project.id}
                                         onClick={() => handleProjectSelect(project.id)}
                                         className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-colors ${
-                                            selected === project.id
+                                            String(selected) === String(project.id)
                                                 ? 'bg-accent/10 text-accent'
                                                 : 'hover:bg-bg-tertiary text-text-secondary'
                                         }`}
@@ -119,7 +119,7 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
                                                 <span className="text-[10px] uppercase tracking-wider opacity-60 font-bold">{project.project_code}</span>
                                             )}
                                         </div>
-                                        {selected === project.id && <Check className="w-4 h-4" />}
+                                        {String(selected) === String(project.id) && <Check className="w-4 h-4" />}
                                     </div>
                                 ))
                             ) : (
