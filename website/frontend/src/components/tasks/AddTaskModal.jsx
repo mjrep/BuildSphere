@@ -286,20 +286,13 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                     </div>
 
                     {/* Navigation */}
-                    <div className="flex items-center justify-between pt-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-6 py-2.5 text-text-muted hover:text-text-primary text-sm font-semibold rounded-xl hover:bg-bg-secondary transition-colors"
-                        >
-                            Cancel
-                        </button>
+                    <div className="flex justify-center pt-2 mt-4">
                         <button
                             type="submit"
                             disabled={submitting}
-                            className="px-6 py-2.5 bg-accent text-white text-sm font-semibold rounded-xl hover:opacity-90 disabled:opacity-50 transition-colors"
+                            className="w-full py-3.5 bg-accent text-white text-sm font-bold rounded-xl hover:opacity-90 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:shadow-none disabled:hover:translate-y-0 transition-all duration-200"
                         >
-                            {submitting ? 'Saving…' : 'Submit'}
+                            {submitting ? 'Saving...' : 'Submit'}
                         </button>
                     </div>
                 </form>
