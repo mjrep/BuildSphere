@@ -42,10 +42,10 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
 
     const handleSelectUser = (role, userId) => {
         if (!userId) return;
-        const selectedUser = users.find(u => u.id === userId);
-        if (selectedUser && !selections[role].some(u => u.id === userId)) {
+        const selectedUser = users.find(u => u.id.toString() === userId.toString());
+        if (selectedUser && !selections[role].some(u => u.id === selectedUser.id)) {
             // Also check if already in the project members
-            if (members.some(m => m.id === userId)) {
+            if (members.some(m => m.user_id === selectedUser.id || m.id === selectedUser.id)) {
                 toast.error(`${selectedUser.name} is already in the project.`);
                 return;
             }
@@ -124,52 +124,74 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
     };
 
     // Helper to render selection inputs
-    const renderRoleSelect = (roleName) => (
-        <div className="mb-4">
-            <label className="block text-xs font-semibold text-text-primary mb-2">{roleName}</label>
-            <div className="relative">
-                <select 
-                    className="w-full rounded-xl border-2 border-border-primary px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-[#706BFF] bg-card appearance-none transition-colors pr-10"
-                    onChange={(e) => {
-                        handleSelectUser(roleName, e.target.value);
-                        e.target.value = ''; // Reset select after picking
-                    }}
-                    defaultValue=""
-                >
-                    <option value="" disabled className="text-text-muted">Select an employee...</option>
-                    {users
-                        .filter(u => !selections[roleName].some(sel => sel.id === u.id))
-                        .map(u => (
-                            <option key={u.id} value={u.id}>{u.name} - {u.role || 'No Role'}</option>
-                        ))
-                    }
-                </select>
-                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-                    <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                    </svg>
+    const renderRoleSelect = (roleName) => {
+        // Map UI roles to actual backend user roles
+        const roleMapping = {
+            'Foreman': ['foreman'],
+            'Project Coordinator': ['project coordinator', 'project engineer'],
+            'Procurement Manager': ['procurement manager', 'procurement'],
+            'Staff': ['staff']
+        };
+        const allowedRoles = roleMapping[roleName] || [];
+        
+        const filteredUsers = users.filter(u => {
+            if (!u.role) return false;
+            const userRole = u.role.toLowerCase();
+            return allowedRoles.some(ar => userRole.includes(ar));
+        });
+
+        return (
+            <div className="mb-4">
+                <label className="block text-xs font-semibold text-text-primary mb-2">{roleName}</label>
+                <div className="relative">
+                    <select 
+                        className="w-full rounded-xl border-2 border-border-primary px-3 py-2.5 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-[#706BFF] bg-card appearance-none transition-colors pr-10"
+                        onChange={(e) => {
+                            handleSelectUser(roleName, e.target.value);
+                            e.target.value = ''; // Reset select after picking
+                        }}
+                        defaultValue=""
+                    >
+                        <option value="" disabled className="text-text-muted">Select an employee...</option>
+                        {filteredUsers
+                            .filter(u => !selections[roleName].some(sel => sel.id === u.id))
+                            .map(u => (
+                                <option key={u.id} value={u.id}>{u.name} - {u.role || 'No Role'}</option>
+                            ))
+                        }
+                    </select>
+                    <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
                 </div>
+                
+                {/* Selected Chips */}
+                {selections[roleName].length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3 p-3 bg-bg-secondary/50 rounded-xl border border-border-primary/30">
+                        {selections[roleName].map(u => (
+                            <div key={u.id} className="flex items-center gap-2 bg-white text-text-primary text-xs font-semibold px-3 py-1.5 rounded-lg border border-border-primary/50 shadow-sm">
+                                <div className="w-5 h-5 rounded-full bg-accent/10 text-accent flex items-center justify-center text-[10px] font-black">
+                                    {u.name.substring(0, 2).toUpperCase()}
+                                </div>
+                                <span>{u.name}</span>
+                                <button 
+                                    type="button" 
+                                    onClick={() => handleRemoveSelection(roleName, u.id)}
+                                    className="text-text-muted hover:text-red-500 hover:bg-red-50 rounded-full p-0.5 transition-colors"
+                                >
+                                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
-            
-            {/* Selected Chips */}
-            {selections[roleName].length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                    {selections[roleName].map(u => (
-                        <div key={u.id} className="flex items-center gap-1.5 bg-bg-secondary text-text-primary text-xs font-medium px-2.5 py-1 rounded-lg border border-border-primary">
-                            <span>{u.name}</span>
-                            <button 
-                                type="button" 
-                                onClick={() => handleRemoveSelection(roleName, u.id)}
-                                className="text-text-muted hover:text-red-500 font-bold ml-1 transition-colors"
-                            >
-                                ×
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            )}
-        </div>
-    );
+        );
+    };;
 
     return (
         <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-5 w-full flex flex-col">
