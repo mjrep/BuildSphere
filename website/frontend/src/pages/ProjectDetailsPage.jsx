@@ -25,16 +25,16 @@ export default function ProjectDetailsPage() {
     const [showCompleteModal, setShowCompleteModal] = useState(false);
     const [completing, setCompleting] = useState(false);
 
-    const fetchProject = () => {
-        setLoading(true);
+    const fetchProject = (silent = false) => {
+        if (silent !== true) setLoading(true);
         getProject(id)
             .then(res => {
                 setProject(res.data.data);
-                setLoading(false);
+                if (silent !== true) setLoading(false);
             })
             .catch(err => {
                 console.error('Error fetching project:', err);
-                setLoading(false);
+                if (silent !== true) setLoading(false);
             });
     };
 
