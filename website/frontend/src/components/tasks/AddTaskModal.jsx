@@ -148,14 +148,19 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
     // Success screen
     if (success) {
         return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                <div className="bg-card rounded-2xl shadow-2xl p-10 w-full max-w-sm text-center">
-                    <div className="w-16 h-16 rounded-full bg-accent text-white flex items-center justify-center mx-auto mb-5 text-3xl">✓</div>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                <div className="bg-card rounded-3xl p-10 shadow-2xl w-full max-w-sm relative pointer-events-auto text-center flex flex-col items-center">
+                    <div className="w-24 h-24 bg-accent rounded-full flex items-center justify-center mb-6 shadow-lg shadow-accent/30">
+                        <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
                     <h3 className="text-xl font-bold text-text-primary mb-2">Task {isEdit ? 'Updated' : 'Created'}!</h3>
-                    <p className="text-sm text-text-muted mb-6">Task {isEdit ? 'updated' : 'created'} successfully and added to the project.</p>
+                    <p className="text-sm text-text-muted mb-8 font-medium">Task {isEdit ? 'updated' : 'created'} successfully and added to the project.</p>
+                    
                     <button
                         onClick={() => { onSuccess(); onClose(); }}
-                        className="w-full py-2.5 bg-accent text-white font-semibold rounded-xl hover:opacity-90 transition-colors"
+                        className="w-full py-3 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-xl transition-colors"
                     >
                         Back to Tasks
                     </button>
