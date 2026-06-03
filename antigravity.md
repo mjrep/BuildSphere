@@ -154,3 +154,10 @@ The following credentials can be used for testing various role-based workflows:
 - **Role-Based Notification System**: Launched the real-time notification hub with a dedicated Bell component and comprehensive RBAC trigger logic.
 - **Time-Based Alerts**: Integrated `node-cron` for automated deadline tracking and coordinator escalations.
 - **UI Consistency**: Standardized relative time formatting (Intl API) and bell animations matching the BuildSphere premium design system.
+
+## 📝 8. Implementation Notes (June 2026)
+- **Unified Toolbar UX**: Merged the task tools and project filter components into a single styled container on the Tasks Page, eliminating layout discrepancies and harmonizing border radiuses.
+- **Dynamic Grid Height Matching**: Refactored the Project Overview layout using CSS Grid and absolute positioning to natively synchronize the height of the Activity Feed column with the varying height of the left content column, completely eliminating dead whitespace.
+- **Team Management Modal Overhaul**: Fixed a strict equality bug preventing employee selection, implemented role-based dropdown filtering, and completely redesigned the multi-select chips into elegant pills with avatars and SVG remove buttons.
+- **Optimized Success Modals**: Redesigned success confirmation screens (Add Task & Add Employee) to strictly adhere to design principles for effective space utilization (narrower containers, larger balanced icons).
+- **Data-Fetch Unmount Fix**: Resolved a critical bug where background API refreshes triggered global loading states, which was causing confirmation modals to be instantly destroyed from the React tree before the user could see them. Introduced silent background fetching `fetchProject(silent=true)`.
