@@ -103,8 +103,9 @@ export default function TasksPage() {
             <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
 
             <div className="space-y-6">
-                {/* Toolbar */}
-                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-6">
+                {/* Controls Area */}
+                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-6 flex flex-col gap-6">
+                    {/* Top Toolbar */}
                     <TaskToolbar
                         view={view}
                         onViewChange={setView}
@@ -120,10 +121,11 @@ export default function TasksPage() {
                         canCreate={permissions.canCreateTask}
                         onAddTask={() => setShowAddModal(true)}
                     />
-                </div>
 
-                {/* Project Filter */}
-                <div className="bg-card rounded-[2rem] border border-border-primary/50 shadow-xl p-6">
+                    {/* Divider */}
+                    <div className="w-full h-px bg-border-primary/30"></div>
+
+                    {/* Bottom Project Filter */}
                     <TaskProjectFilter 
                         projects={metaData?.projects || []} 
                         selected={selectedProject} 

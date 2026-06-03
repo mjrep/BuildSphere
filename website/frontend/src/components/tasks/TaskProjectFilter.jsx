@@ -37,32 +37,32 @@ export default function TaskProjectFilter({ projects = [], selected = 'all', onS
     };
 
     return (
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-start gap-4">
             {/* Left Side: Master Toggle */}
             <button
                 onClick={() => onSelect('all')}
-                className={`flex-shrink-0 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 border-2 ${
+                className={`flex-shrink-0 px-6 py-2.5 rounded-2xl text-[11px] uppercase tracking-widest font-black transition-all duration-200 border ${
                     selected === 'all'
-                        ? 'bg-accent border-[#706BFF] text-white shadow-lg shadow-[#706BFF]/20'
-                        : 'bg-card border-border-primary text-text-muted hover:border-[#706BFF]/30 hover:bg-bg-tertiary'
+                        ? 'bg-accent border-accent text-white shadow-lg shadow-accent/20'
+                        : 'bg-bg-secondary border-border-primary/50 text-text-muted hover:border-accent hover:text-accent hover:bg-bg-hover'
                 }`}
             >
                 All Projects
             </button>
 
             {/* Divider (Desktop Only) */}
-            <div className="hidden sm:block w-px h-8 bg-accent/10 mx-1" />
+            <div className="hidden sm:block w-px h-8 bg-border-primary/50" />
 
             {/* Right Side: Specific Selector (Combobox) */}
-            <div className="relative w-full sm:w-auto flex-1 max-w-sm sm:max-w-md ml-auto" ref={dropdownRef}>
+            <div className="relative w-full sm:w-[350px]" ref={dropdownRef}>
                 <div 
                     onClick={() => setIsOpen(!isOpen)}
-                    className={`group flex items-center justify-between px-4 py-2.5 bg-card border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                    className={`group flex items-center justify-between px-4 py-2.5 bg-bg-tertiary border rounded-2xl cursor-pointer transition-all duration-200 ${
                         isOpen 
-                            ? 'border-[#706BFF] ring-4 ring-[#706BFF]/5' 
+                            ? 'border-accent ring-4 ring-accent/10' 
                             : selected !== 'all' 
-                                ? 'border-[#706BFF]/50 bg-accent/5' 
-                                : 'border-border-primary hover:border-[#706BFF]/30'
+                                ? 'border-accent bg-accent/5' 
+                                : 'border-border-primary/50 hover:border-accent/50'
                     }`}
                 >
                     <div className="flex items-center gap-3 overflow-hidden">
