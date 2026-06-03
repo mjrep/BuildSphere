@@ -42,7 +42,7 @@ export default function ProjectOverviewTab({ project, fetchProject }) {
 
                 {/* Right (1/3) */}
                 <div className="xl:col-span-1 relative">
-                    <div className="flex flex-col gap-6 xl:absolute xl:inset-0 h-full">
+                    <div className="flex flex-col gap-4 xl:absolute xl:inset-0 h-full">
                         <OverviewTeamCard project={project} onMemberAdded={fetchProject} />
                         <OverviewFilesCard project={project} onFileUploaded={fetchProject} />
                         <OverviewActivityCard project={project} />

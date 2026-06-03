@@ -110,8 +110,8 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
     };
 
     return (
-        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col mt-4">
-            <div className="flex justify-between items-center mb-5">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-5 w-full flex flex-col">
+            <div className="flex justify-between items-center mb-3">
                 <h3 className="text-base font-bold text-text-primary">Files</h3>
                 
                 <input 

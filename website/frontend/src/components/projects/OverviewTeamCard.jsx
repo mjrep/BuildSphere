@@ -172,8 +172,8 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
     );
 
     return (
-        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-6 w-full flex flex-col">
-            <div className="flex justify-between items-center mb-4">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-5 w-full flex flex-col">
+            <div className="flex justify-between items-center mb-3">
                 <h3 className="text-base font-bold text-text-primary">Team</h3>
                 {canManageTeam && (
                     <button 
