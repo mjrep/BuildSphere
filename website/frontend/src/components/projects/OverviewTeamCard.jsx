@@ -280,18 +280,18 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                             </form>
                         </div>
                     ) : (
-                        <div className="bg-card rounded-3xl p-10 shadow-2xl w-full max-w-sm relative pointer-events-auto text-center flex flex-col items-center">
-                            <div className="w-24 h-24 bg-[#706BFF] rounded-full flex items-center justify-center mb-6 shadow-lg shadow-accent/30">
-                                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-[320px] relative pointer-events-auto text-center flex flex-col items-center">
+                            <div className="w-20 h-20 bg-accent rounded-full flex items-center justify-center mb-5 shadow-lg shadow-accent/30">
+                                <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" d="M5 13l4 4L19 7" />
                                 </svg>
                             </div>
                             <h3 className="text-xl font-bold text-text-primary mb-2">Employee/s added!</h3>
-                            <p className="text-sm text-text-muted mb-8 font-medium">Employee/s added to the project.</p>
+                            <p className="text-sm text-text-muted mb-6 font-medium">Successfully added to the project.</p>
                             
                             <button
                                 onClick={closeModal}
-                                className="w-full py-3 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-xl transition-colors"
+                                className="w-full py-2.5 text-sm font-semibold text-white bg-accent hover:opacity-90 rounded-xl transition-colors"
                             >
                                 Back to Project
                             </button>
