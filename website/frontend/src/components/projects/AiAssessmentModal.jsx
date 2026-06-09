@@ -28,7 +28,7 @@ export default function AiAssessmentModal({ assessment, onClose }) {
                         </div>
                         <h2 className="text-xl font-bold font-display tracking-tight">Project Intelligence Report</h2>
                     </div>
-                    <p className="text-white/80 text-sm font-medium">Powered by Gemini 2.0 Flash</p>
+                    <p className="text-white/80 text-sm font-medium">Powered by Gemini 2.5 Flash</p>
                     
                     <button 
                         onClick={onClose}

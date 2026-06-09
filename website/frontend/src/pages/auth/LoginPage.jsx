@@ -40,11 +40,26 @@ export default function LoginPage() {
     ];
 
     useEffect(() => {
+        const searchParams = new URLSearchParams(window.location.search);
+        const code = searchParams.get('code');
+        const hash = window.location.hash || sessionStorage.getItem('supabase_recovery_hash');
+
+        if (code) {
+            navigate('/reset-password' + window.location.search, { replace: true });
+            return;
+        }
+
+        if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
+            sessionStorage.removeItem('supabase_recovery_hash');
+            navigate('/reset-password' + (hash.startsWith('#') ? hash : '#' + hash), { replace: true });
+            return;
+        }
+
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % slides.length);
         }, 5000);
         return () => clearInterval(timer);
-    }, [slides.length]);
+    }, [slides.length, navigate]);
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });

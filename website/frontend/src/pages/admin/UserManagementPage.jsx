@@ -7,6 +7,13 @@ export default function UserManagementPage() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showInviteModal, setShowInviteModal] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    
+    // Status Modals
+    const [statusModalInfo, setStatusModalInfo] = useState({ isOpen: false, user: null, isActivating: false, loading: false });
+    const [showStatusSuccessModal, setShowStatusSuccessModal] = useState({ isOpen: false, isActivating: false, name: '' });
+
     const [inviting, setInviting] = useState(false);
     const [inviteForm, setInviteForm] = useState({
         email: '',
@@ -43,13 +50,18 @@ export default function UserManagementPage() {
         }
     };
 
-    const handleInviteSubmit = async (e) => {
+    const handleInviteSubmit = (e) => {
         e.preventDefault();
+        setShowConfirmModal(true);
+    };
+
+    const confirmInvite = async () => {
         setInviting(true);
         try {
             await api.post('/admin/users/invite', inviteForm);
-            toast.success('Invitation sent to ' + inviteForm.email);
+            setShowConfirmModal(false);
             setShowInviteModal(false);
+            setShowSuccessModal(true);
             setInviteForm({ 
                 email: '', 
                 first_name: '', 
@@ -70,14 +82,31 @@ export default function UserManagementPage() {
         }
     };
 
-    const toggleUserStatus = async (userId, currentStatus) => {
+    const handleStatusClick = (user) => {
+        setStatusModalInfo({ isOpen: true, user, isActivating: !user.is_active, loading: false });
+    };
+
+    const confirmToggleStatus = async () => {
+        const { user, isActivating } = statusModalInfo;
+        setStatusModalInfo(prev => ({ ...prev, loading: true }));
         try {
-            const newStatus = !currentStatus;
-            await api.patch(`/admin/users/${userId}/status`, { is_active: newStatus });
-            toast.success(`Account ${newStatus ? 'activated' : 'deactivated'}`);
+            await api.patch(`/admin/users/${user.id}/status`, { is_active: isActivating });
+            setStatusModalInfo({ isOpen: false, user: null, isActivating: false, loading: false });
+            setShowStatusSuccessModal({ isOpen: true, isActivating, name: `${user.first_name} ${user.last_name}` });
             fetchUsers();
         } catch (err) {
             toast.error(err.response?.data?.message || 'Failed to update status');
+            setStatusModalInfo(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const updateRole = async (userId, role) => {
+        try {
+            await api.patch(`/admin/users/${userId}/role`, { role });
+            toast.success('Designation updated successfully');
+            fetchUsers();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Failed to update role');
         }
     };
 
@@ -244,14 +273,16 @@ export default function UserManagementPage() {
                                                         </>
                                                     ) : (
                                                         <>
+                                                            {user.is_active && (
+                                                                <button 
+                                                                    onClick={() => handleEditClick(user)}
+                                                                    className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg text-accent hover:bg-accent/10 transition-all border border-accent/20"
+                                                                >
+                                                                    Edit
+                                                                </button>
+                                                            )}
                                                             <button 
-                                                                onClick={() => handleEditClick(user)}
-                                                                className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg text-accent hover:bg-accent/10 transition-all border border-accent/20"
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                            <button 
-                                                                onClick={() => toggleUserStatus(user.id, user.is_active)}
+                                                                onClick={() => handleStatusClick(user)}
                                                                 className={`text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all border ${
                                                                     user.is_active 
                                                                         ? 'text-red-500 border-red-500/20 hover:bg-red-500/10' 
@@ -405,13 +436,132 @@ export default function UserManagementPage() {
                                     </button>
                                     <button 
                                         type="submit"
-                                        disabled={inviting}
-                                        className="flex-[2] py-3 text-[10px] font-black text-white bg-accent hover:opacity-90 rounded-xl shadow-lg transition-all disabled:opacity-50 uppercase tracking-widest"
+                                        className="flex-[2] py-3 text-[10px] font-black text-white bg-accent hover:opacity-90 rounded-xl shadow-lg transition-all uppercase tracking-widest"
                                     >
-                                        {inviting ? 'Adding...' : 'Add Personnel'}
+                                        Add Personnel
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                )}
+
+                {/* Confirm Add Personnel Modal */}
+                {showConfirmModal && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                        <div className="bg-card rounded-3xl shadow-2xl w-full max-w-md border border-border-primary overflow-hidden p-8 text-center animate-in zoom-in-95 duration-300 relative">
+                            <div className="w-16 h-16 bg-accent/10 text-accent rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                                </svg>
+                            </div>
+                            <h3 className="text-2xl font-black text-text-primary tracking-tight mb-2">Add New Personnel?</h3>
+                            <p className="text-sm font-semibold text-text-muted mb-6 leading-relaxed">
+                                You are about to add <span className="text-accent font-black">{inviteForm.first_name} {inviteForm.last_name}</span> as a <span className="font-bold text-text-primary">{inviteForm.role}</span>. An invitation email will be sent automatically.
+                            </p>
+                            <div className="flex gap-4">
+                                <button 
+                                    onClick={() => setShowConfirmModal(false)}
+                                    className="flex-1 py-3.5 text-xs font-black text-text-muted bg-bg-tertiary hover:bg-bg-hover rounded-2xl transition-all uppercase tracking-widest border border-border-primary hover:text-text-primary"
+                                    disabled={inviting}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={confirmInvite}
+                                    disabled={inviting}
+                                    className="flex-1 py-3.5 text-xs font-black text-white bg-accent hover:opacity-90 rounded-2xl shadow-lg transition-all uppercase tracking-widest disabled:opacity-50 active:scale-95"
+                                >
+                                    {inviting ? 'Processing...' : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Success Modal */}
+                {showSuccessModal && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm border border-border-primary overflow-hidden p-6 text-center animate-in zoom-in-95 duration-300">
+                            <div className="w-16 h-16 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-black text-text-primary mb-2">Personnel Added</h3>
+                            <p className="text-sm text-text-muted mb-6">
+                                A new employee has been successfully registered and an invitation email has been sent.
+                            </p>
+                            <button 
+                                onClick={() => setShowSuccessModal(false)}
+                                className="w-full py-3 text-[10px] font-black text-white bg-emerald-500 hover:bg-emerald-600 rounded-xl shadow-lg transition-all uppercase tracking-widest"
+                            >
+                                Continue
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Status Toggle Confirm Modal */}
+                {statusModalInfo.isOpen && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                        <div className="bg-card rounded-3xl shadow-2xl w-full max-w-md border border-border-primary overflow-hidden p-8 text-center animate-in zoom-in-95 duration-300 relative">
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-5 shadow-inner ${statusModalInfo.isActivating ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                                {statusModalInfo.isActivating ? (
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+                                ) : (
+                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                                )}
+                            </div>
+                            <h3 className="text-2xl font-black text-text-primary tracking-tight mb-2">
+                                {statusModalInfo.isActivating ? 'Activate Account?' : 'Deactivate Account?'}
+                            </h3>
+                            <p className="text-sm font-semibold text-text-muted mb-6 leading-relaxed">
+                                Are you sure you want to {statusModalInfo.isActivating ? 'activate' : 'deactivate'} <span className={`font-black ${statusModalInfo.isActivating ? 'text-emerald-500' : 'text-red-500'}`}>{statusModalInfo.user?.first_name} {statusModalInfo.user?.last_name}</span>'s account?
+                            </p>
+                            <div className="flex gap-4">
+                                <button 
+                                    onClick={() => setStatusModalInfo({ isOpen: false, user: null, isActivating: false, loading: false })}
+                                    className="flex-1 py-3.5 text-xs font-black text-text-muted bg-bg-tertiary hover:bg-bg-hover rounded-2xl transition-all uppercase tracking-widest border border-border-primary hover:text-text-primary"
+                                    disabled={statusModalInfo.loading}
+                                >
+                                    Cancel
+                                </button>
+                                <button 
+                                    onClick={confirmToggleStatus}
+                                    disabled={statusModalInfo.loading}
+                                    className={`flex-1 py-3.5 text-xs font-black text-white rounded-2xl shadow-lg transition-all uppercase tracking-widest disabled:opacity-50 active:scale-95 ${
+                                        statusModalInfo.isActivating ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'
+                                    }`}
+                                >
+                                    {statusModalInfo.loading ? 'Processing...' : 'Confirm'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Status Toggle Success Modal */}
+                {showStatusSuccessModal.isOpen && (
+                    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-bg-primary/60 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+                        <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm border border-border-primary overflow-hidden p-6 text-center animate-in zoom-in-95 duration-300">
+                            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${showStatusSuccessModal.isActivating ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
+                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-black text-text-primary mb-2">Account {showStatusSuccessModal.isActivating ? 'Activated' : 'Deactivated'}</h3>
+                            <p className="text-sm text-text-muted mb-6">
+                                <span className="font-bold text-text-primary">{showStatusSuccessModal.name}</span>'s account has been successfully {showStatusSuccessModal.isActivating ? 'activated' : 'deactivated'}.
+                            </p>
+                            <button 
+                                onClick={() => setShowStatusSuccessModal({ isOpen: false, isActivating: false, name: '' })}
+                                className={`w-full py-3 text-[10px] font-black text-white rounded-xl shadow-lg transition-all uppercase tracking-widest ${
+                                    showStatusSuccessModal.isActivating ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-red-500 hover:bg-red-600'
+                                }`}
+                            >
+                                Continue
+                            </button>
                         </div>
                     </div>
                 )}

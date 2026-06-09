@@ -181,7 +181,20 @@ export default function SiteUpdatesTab({ project }) {
     const [logs, setLogs] = useState([]);
     const [loading, setLoading] = useState(true);
     const [periodTab, setPeriodTab] = useState('Today');    // 'Today' | 'Past'
-    const [selectedBlock, setSelectedBlock] = useState('Noon');
+    
+    // React Router location for responding to query changes
+    const location = window.location;
+    const initialBlock = new URLSearchParams(location.search).get('time') || 'Noon';
+    const [selectedBlock, setSelectedBlock] = useState(initialBlock);
+
+    useEffect(() => {
+        const timeParam = new URLSearchParams(location.search).get('time');
+        if (timeParam) {
+            setSelectedBlock(timeParam);
+            setPeriodTab('Today');
+            setSelectedLogId(null);
+        }
+    }, [location.search]);
     const [selectedPastDate, setSelectedPastDate] = useState(() => {
         const d = new Date();
         d.setDate(d.getDate() - 1); // default to yesterday
@@ -189,6 +202,7 @@ export default function SiteUpdatesTab({ project }) {
     });
     const [selectedLogId, setSelectedLogId] = useState(null);
     const [commentText, setCommentText] = useState('');
+    const [photoIndex, setPhotoIndex] = useState(0);
     
     // Edit state
     const [isEditingQuantity, setIsEditingQuantity] = useState(false);
@@ -198,7 +212,7 @@ export default function SiteUpdatesTab({ project }) {
     const userRole = currentUser?.role;
     const isAuthorized = (
         project?.project_in_charge_id === currentUser?.id ||
-        ['CEO', 'COO', 'Admin'].includes(userRole)
+        ['CEO', 'COO', 'Admin', 'Project Coordinator'].includes(userRole)
     ) && project.status !== 'completed';
 
     // ── Fetch real data from API ──────────────────────────────────────
@@ -275,6 +289,16 @@ export default function SiteUpdatesTab({ project }) {
         }
         return filteredLogs[0] || null;
     }, [filteredLogs, selectedLogId]);
+
+    // Reset photoIndex when active log changes
+    useEffect(() => {
+        setPhotoIndex(0);
+    }, [activeLog?.id]);
+
+    const activeLogImages = useMemo(() => {
+        if (!activeLog || !activeLog.evidence_image_url) return [];
+        return activeLog.evidence_image_url.split(',').map(u => u.trim()).filter(Boolean);
+    }, [activeLog]);
 
     // ── Loading State ─────────────────────────────────────────────────
     if (loading) {
@@ -389,7 +413,7 @@ export default function SiteUpdatesTab({ project }) {
                                         <div className="w-8 h-8 rounded-lg bg-indigo-500 overflow-hidden flex items-center justify-center flex-shrink-0 relative group-hover:shadow-md transition-shadow">
                                             {log.evidence_image_url ? (
                                                 <img 
-                                                    src={log.evidence_image_url} 
+                                                    src={log.evidence_image_url.split(',')[0].trim()} 
                                                     alt="" 
                                                     className="w-full h-full object-cover"
                                                     onError={(e) => {
@@ -490,17 +514,40 @@ export default function SiteUpdatesTab({ project }) {
 
                         {/* Evidence Image - 16:9 */}
                         <div className="px-6">
-                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-border-primary">
-                                {activeLog.evidence_image_url ? (
-                                    <img
-                                        src={activeLog.evidence_image_url}
-                                        alt="Site evidence"
-                                        className="w-full h-full object-cover"
-                                        onError={(e) => {
-                                            e.target.onerror = null;
-                                            e.target.src = '/images/construction-placeholder.png';
-                                        }}
-                                    />
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-border-primary group">
+                                {activeLogImages.length > 0 ? (
+                                    <>
+                                        <img
+                                            src={activeLogImages[photoIndex]}
+                                            alt="Site evidence"
+                                            className="w-full h-full object-contain bg-black/5"
+                                            onError={(e) => {
+                                                e.target.onerror = null;
+                                                e.target.src = '/images/construction-placeholder.png';
+                                            }}
+                                        />
+                                        {activeLogImages.length > 1 && (
+                                            <>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setPhotoIndex(p => Math.max(0, p - 1)); }}
+                                                    disabled={photoIndex === 0}
+                                                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10"
+                                                >
+                                                    <ChevronLeft size={20} />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); setPhotoIndex(p => Math.min(activeLogImages.length - 1, p + 1)); }}
+                                                    disabled={photoIndex === activeLogImages.length - 1}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10"
+                                                >
+                                                    <ChevronRight size={20} />
+                                                </button>
+                                                <div className="absolute top-3 right-3 px-2 py-1 rounded bg-black/40 backdrop-blur-sm text-white text-[10px] font-bold z-10">
+                                                    {photoIndex + 1} / {activeLogImages.length}
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
                                 ) : (
                                     <div className="w-full h-full flex items-center justify-center">
                                         <div className="text-center">
@@ -519,16 +566,26 @@ export default function SiteUpdatesTab({ project }) {
                             </div>
                         </div>
 
-                        {/* 2×2 Metadata Grid */}
+                        {/* Metadata Grid */}
                         <div className="px-6 pt-4 pb-3">
-                            <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                            <div className="grid grid-cols-3 gap-x-6 gap-y-4">
                                 {/* Date */}
                                 <div>
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Date</p>
                                     <p className="text-sm font-semibold text-text-primary">{activeLog.work_date || formatDate(activeLog.created_at)}</p>
                                 </div>
-                                {/* Taken By */}
+                                {/* Shift */}
                                 <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Shift</p>
+                                    <p className="text-sm font-semibold text-text-primary">{activeLog.shift || getTimeBlock(activeLog)}</p>
+                                </div>
+                                {/* Time */}
+                                <div>
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Time</p>
+                                    <p className="text-sm font-semibold text-text-primary">{activeLog.created_at ? formatTime(activeLog.created_at) : activeLog.shift}</p>
+                                </div>
+                                {/* Taken By */}
+                                <div className="col-span-1">
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Taken By</p>
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
@@ -537,13 +594,13 @@ export default function SiteUpdatesTab({ project }) {
                                         <p className="text-sm font-semibold text-text-primary">{activeLog.created_by?.name ?? 'Unknown'}</p>
                                     </div>
                                 </div>
-                                {/* Time */}
-                                <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Time</p>
-                                    <p className="text-sm font-semibold text-text-primary">{activeLog.created_at ? formatTime(activeLog.created_at) : activeLog.shift}</p>
+                                {/* Task */}
+                                <div className="col-span-2">
+                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Task</p>
+                                    <p className="text-sm font-semibold text-text-primary truncate">{activeLog.task?.title || '—'}</p>
                                 </div>
                                 {/* Notes */}
-                                <div>
+                                <div className="col-span-3">
                                     <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Notes</p>
                                     <p className="text-sm font-semibold text-text-primary leading-snug">{activeLog.remarks || '—'}</p>
                                 </div>

@@ -41,25 +41,22 @@ export default function ResetPasswordPage() {
                     return;
                 }
 
-                // Flow 2: Hash fragment tokens (#access_token=...&type=recovery)
-                // Supabase may redirect with tokens in the hash fragment.
-                // The Supabase client auto-detects these and fires onAuthStateChange
-                // with PASSWORD_RECOVERY event. We listen for that below.
-                // Also check if hash contains recovery-related tokens.
-                const hash = window.location.hash;
-                if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
-                    // Supabase JS client will automatically pick up the hash tokens
-                    // and trigger onAuthStateChange. We wait for that event.
-                    return;
-                }
-
-                // Flow 3: Check if there's already an active session (e.g., page refresh)
+                // Flow 2: Check if there's already an active session (e.g., page refresh or already processed hash)
                 const { data } = await supabase.auth.getSession();
                 if (!isMounted) return;
 
                 if (data.session) {
                     setSessionReady(true);
                     setLoading(false);
+                    return;
+                }
+
+                // Flow 3: Hash fragment tokens (#access_token=...&type=recovery)
+                // If Supabase hasn't processed it yet, it will fire onAuthStateChange
+                const hash = window.location.hash || sessionStorage.getItem('supabase_recovery_hash');
+                if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
+                    // Supabase JS client will automatically pick up the hash tokens
+                    // and trigger onAuthStateChange. We wait for that event.
                     return;
                 }
 
@@ -84,8 +81,9 @@ export default function ResetPasswordPage() {
             } else if (event === 'SIGNED_IN' && session) {
                 // Some Supabase versions fire SIGNED_IN instead of PASSWORD_RECOVERY
                 // when processing recovery tokens from hash fragments
-                const hashParams = new URLSearchParams(window.location.hash.substring(1));
-                if (hashParams.get('type') === 'recovery') {
+                const currentHash = window.location.hash || sessionStorage.getItem('supabase_recovery_hash') || '';
+                const hashParams = new URLSearchParams(currentHash.substring(1));
+                if (hashParams.get('type') === 'recovery' || hashParams.get('type') === 'invite') {
                     setSessionReady(true);
                     setLoading(false);
                 }
@@ -149,7 +147,6 @@ export default function ResetPasswordPage() {
     return (
         <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12 transition-colors duration-200">
             <div className="w-full max-w-[520px] bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-8 md:p-12 border border-border-primary relative overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-accent via-[#8F89FF] to-[#67D4FF]" />
 
                 <div className="flex flex-col items-center mb-8 text-center">
                     <img src={logo} alt="BuildSphere Logo" className="w-16 h-16 mb-5 object-contain" />

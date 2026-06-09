@@ -56,9 +56,15 @@ class ProjectController {
 
       let orderColumn = 'created_at';
       let ascending = false;
-      if (sort === 'oldest') ascending = true;
+      if (req.query.status) {
+        orderColumn = 'project_name';
+        ascending = true;
+      }
+
+      if (sort === 'oldest') { orderColumn = 'created_at'; ascending = true; }
       if (sort === 'start_date') { orderColumn = 'start_date'; ascending = true; }
       if (sort === 'end_date') { orderColumn = 'end_date'; ascending = true; }
+      if (sort === 'alphabetical') { orderColumn = 'project_name'; ascending = true; }
       query = query.order(orderColumn, { ascending });
 
       // Pagination
@@ -69,17 +75,32 @@ class ProjectController {
       const { data: projects, error, count } = await query;
       if (error) throw error;
 
-      // Map to snake_case relations for frontend parity
-      const formattedProjects = projects.map(p => ({
-        ...p,
-        created_by: p.created_by_user ? {
-          id: p.created_by_user.id,
-          name: `${p.created_by_user.first_name} ${p.created_by_user.last_name}`
-        } : null,
-        project_in_charge: p.project_in_charge ? {
-          id: p.project_in_charge.id,
-          name: `${p.project_in_charge.first_name} ${p.project_in_charge.last_name}`
-        } : null
+      // Map to snake_case relations for frontend parity and calculate progress
+      const formattedProjects = await Promise.all(projects.map(async p => {
+        let progress = 0;
+        if (p.status === 'ongoing') {
+            try {
+                const progressData = await MilestoneService.getProjectMilestonesProgress(p.id);
+                progress = progressData.project_progress || 0;
+            } catch (err) {
+                console.error(`Error calculating progress for project ${p.id}`, err);
+            }
+        } else if (p.status === 'completed') {
+            progress = 100;
+        }
+
+        return {
+          ...p,
+          progress,
+          created_by: p.created_by_user ? {
+            id: p.created_by_user.id,
+            name: `${p.created_by_user.first_name} ${p.created_by_user.last_name}`
+          } : null,
+          project_in_charge: p.project_in_charge ? {
+            id: p.project_in_charge.id,
+            name: `${p.project_in_charge.first_name} ${p.project_in_charge.last_name}`
+          } : null
+        };
       }));
 
       res.json({
@@ -132,7 +153,7 @@ class ProjectController {
       // 3. Fetch Inventory for "Actual" cost calculation
       const { data: inventory } = await supabase
         .from('project_inventory_items')
-        .select('price, current_stock')
+        .select('id, price, current_stock')
         .eq('project_id', id);
 
       // 4. Fetch Progress Logs for Activity Feed
@@ -184,9 +205,29 @@ class ProjectController {
 
       // C. Cost Data
       const plannedCost = parseFloat(project.budget_for_materials || 0);
-      const actualCost = (inventory || []).reduce((sum, item) => {
-        return sum + (parseFloat(item.price || 0) * parseFloat(item.current_stock || 0));
-      }, 0);
+      let actualCost = 0;
+      
+      if (inventory && inventory.length > 0) {
+        const itemIds = inventory.map(item => item.id);
+        const { data: invLogs } = await supabase
+          .from('project_inventory_logs')
+          .select('item_id, quantity')
+          .eq('action_type', 'RECEIVING')
+          .in('item_id', itemIds);
+        
+        const receivedMap = {};
+        if (invLogs) {
+          invLogs.forEach(log => {
+            receivedMap[log.item_id] = (receivedMap[log.item_id] || 0) + parseFloat(log.quantity || 0);
+          });
+        }
+
+        actualCost = inventory.reduce((sum, item) => {
+          const totalReceived = receivedMap[item.id] || 0;
+          const purchasedQty = Math.max(totalReceived, parseFloat(item.current_stock || 0));
+          return sum + (parseFloat(item.price || 0) * purchasedQty);
+        }, 0);
+      }
 
       // D. Recent Activities (Unified Approvals + Logs)
       const helperFormatDate = (dateStr) => {
@@ -333,10 +374,10 @@ class ProjectController {
       // --- Notification Trigger: New Project Proposal ---
       if (newProject.status === 'proposed' || newProject.status !== 'active') {
         try {
-          const supabase = ProjectController.getSupabaseWithAuth(req);
+          const supabaseAdmin = ProjectController.getSupabaseAdmin();
           
           // 1. Notify Executives
-          const { data: execs } = await supabase
+          const { data: execs } = await supabaseAdmin
             .from('users')
             .select('id')
             .in('role', ['CEO', 'COO']);
@@ -358,7 +399,7 @@ class ProjectController {
             await NotificationService.createNotification(
               newProject.project_in_charge_id,
               'New Project Assignment',
-              `You have been assigned as the Project-in-Charge for '${newProject.project_name}'.`,
+              `You have been assigned as the Project-in-Charge for '${newProject.project_name}'. Please input the milestone plan.`,
               'info',
               `/projects/${newProject.id}`
             );
@@ -395,7 +436,7 @@ class ProjectController {
           await NotificationService.createNotification(
             updatedProject.project_in_charge_id,
             'New Project Assignment',
-            `You have been assigned as the Project-in-Charge for '${updatedProject.project_name}'.`,
+            `You have been assigned as the Project-in-Charge for '${updatedProject.project_name}'. Please input the milestone plan.`,
             'info',
             `/projects/${updatedProject.id}`
           );
@@ -842,7 +883,8 @@ class ProjectController {
 
       // 3. Notify Accounting users
       try {
-        const { data: accountingUsers } = await supabase
+        const supabaseAdmin = ProjectController.getSupabaseAdmin();
+        const { data: accountingUsers } = await supabaseAdmin
           .from('users')
           .select('id')
           .ilike('role', '%accounting%');

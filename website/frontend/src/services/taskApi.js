@@ -12,11 +12,7 @@ export const getTaskById = (id) =>
     api.get(`${BASE}/${id}`).then(r => r.data);
 
 export const createTask = (payload) => {
-    // If payload is FormData (has files), send as multipart
-    const isFormData = payload instanceof FormData;
-    return api.post(BASE, payload, {
-        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
-    }).then(r => r.data);
+    return api.post(BASE, payload).then(r => r.data);
 };
 
 export const updateTask = (id, payload) => {
@@ -24,9 +20,7 @@ export const updateTask = (id, payload) => {
     // Laravel needs _method=PUT for multipart updates via POST
     if (isFormData) {
         payload.append('_method', 'PUT');
-        return api.post(`${BASE}/${id}`, payload, {
-            headers: { 'Content-Type': 'multipart/form-data' },
-        }).then(r => r.data);
+        return api.post(`${BASE}/${id}`, payload).then(r => r.data);
     }
     return api.put(`${BASE}/${id}`, payload).then(r => r.data);
 };
@@ -47,6 +41,4 @@ export const getTaskAttachments = (id) =>
     api.get(`${BASE}/${id}/attachments`).then(r => r.data);
 
 export const uploadTaskAttachments = (id, formData) =>
-    api.post(`${BASE}/${id}/attachments`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-    }).then(r => r.data);
+    api.post(`${BASE}/${id}/attachments`, formData).then(r => r.data);

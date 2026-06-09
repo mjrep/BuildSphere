@@ -7,6 +7,12 @@
     <title>BuildSphere</title>
   </head>
   <body>
+    <!-- Capture hash before any JS module loads -->
+    <script>
+      if (window.location.hash && (window.location.hash.includes('type=recovery') || window.location.hash.includes('type=invite'))) {
+        sessionStorage.setItem('supabase_recovery_hash', window.location.hash);
+      }
+    </script>
     <!-- The exact target element from the existing React app.jsx -->
     <div id="app"></div>
     <!-- Point to the migrated entry source -->

@@ -116,7 +116,11 @@ export default function ReportPreview({ reportData, config, onBack }) {
             beforeDate: config?.startDate ? new Date(config.startDate) : new Date(),
             afterDate: config?.endDate ? new Date(config.endDate) : new Date(),
             showBeforeCalendar: false,
-            showAfterCalendar: false
+            showAfterCalendar: false,
+            beforeShift: 'All',
+            afterShift: 'All',
+            beforePhotoIndex: 0,
+            afterPhotoIndex: 0
         }
     ]);
 
@@ -132,7 +136,11 @@ export default function ReportPreview({ reportData, config, onBack }) {
                 beforeDate: new Date(),
                 afterDate: new Date(),
                 showBeforeCalendar: false,
-                showAfterCalendar: false
+                showAfterCalendar: false,
+                beforeShift: 'All',
+                afterShift: 'All',
+                beforePhotoIndex: 0,
+                afterPhotoIndex: 0
             }
         ]);
     };
@@ -193,6 +201,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
             const formattedViews = accomplishmentViews.map(v => ({
                 beforeDate: toDateString(v.beforeDate),
                 afterDate: toDateString(v.afterDate),
+                beforeShift: v.beforeShift,
+                afterShift: v.afterShift,
                 taskId: v.taskId
             }));
 
@@ -213,7 +223,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
               image:        { type: 'jpeg', quality: 0.98 },
               html2canvas:  { scale: 2, useCORS: true },
               jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-              pagebreak:    { mode: ['css', 'legacy'] }
+              pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             await html2pdf().set(opt).from(htmlContent).save();
@@ -237,6 +247,8 @@ export default function ReportPreview({ reportData, config, onBack }) {
             const formattedViews = accomplishmentViews.map(v => ({
                 beforeDate: toDateString(v.beforeDate),
                 afterDate: toDateString(v.afterDate),
+                beforeShift: v.beforeShift,
+                afterShift: v.afterShift,
                 taskId: v.taskId
             }));
 
@@ -423,7 +435,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                     const milestoneTasks = project.completedTasks?.filter(t => t.milestone_id === m.id) || [];
                                                     return (
                                                         <React.Fragment key={`m-${m.id}-${i}`}>
-                                                            <tr className="bg-bg-secondary/10 hover:bg-bg-hover transition-colors">
+                                                            <tr className="bg-bg-secondary/10 hover:bg-bg-hover transition-colors page-break-inside-avoid">
                                                                 <td className="px-8 py-4 text-xs font-bold text-text-primary">{m.milestone_name}</td>
                                                                 <td className="px-8 py-4 text-xs font-bold text-text-secondary text-center">{m.progress_percentage || 0}%</td>
                                                                 <td className="px-8 py-4 text-xs font-bold text-center">
@@ -436,7 +448,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                 </td>
                                                             </tr>
                                                             {milestoneTasks.map((task, tIdx) => (
-                                                                <tr key={`t-${task.id}-${tIdx}`} className="hover:bg-bg-hover transition-colors">
+                                                                <tr key={`t-${task.id}-${tIdx}`} className="hover:bg-bg-hover transition-colors page-break-inside-avoid">
                                                                     <td className="px-8 py-3 text-[11px] font-medium text-text-secondary pl-12 flex items-center gap-2">
                                                                         <div className="w-1 h-1 rounded-full bg-text-muted/50"></div>
                                                                         {task.title}
@@ -459,7 +471,7 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                     const unassignedTasks = project.completedTasks?.filter(t => !t.milestone_id || !project.progress?.phases?.flatMap(p => p.milestones).some(m => m.id === t.milestone_id)) || [];
                                                     if (unassignedTasks.length > 0) {
                                                         return unassignedTasks.map((task, tIdx) => (
-                                                            <tr key={`t-u-${tIdx}`} className="hover:bg-bg-hover transition-colors">
+                                                            <tr key={`t-u-${tIdx}`} className="hover:bg-bg-hover transition-colors page-break-inside-avoid">
                                                                 <td className="px-8 py-3 text-[11px] font-medium text-text-secondary pl-12 flex items-center gap-2">
                                                                     <div className="w-1 h-1 rounded-full bg-text-muted/50"></div>
                                                                     {task.title} (Uncategorized)
@@ -588,8 +600,20 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                 .filter(a => !view.taskId || String(a.task_id) === String(view.taskId))
                                                 .map(a => a.date);
 
-                                            const filteredBefore = project.accomplishments.filter(a => isSameDay(a.date, view.beforeDate) && (!view.taskId || String(a.task_id) === String(view.taskId)));
-                                            const filteredAfter = project.accomplishments.filter(a => isSameDay(a.date, view.afterDate) && (!view.taskId || String(a.task_id) === String(view.taskId)));
+                                            const filteredBefore = project.accomplishments.filter(a => 
+                                                isSameDay(a.date, view.beforeDate) && 
+                                                (!view.taskId || String(a.task_id) === String(view.taskId)) &&
+                                                (view.beforeShift === 'All' || a.shift === view.beforeShift)
+                                            );
+                                            const filteredAfter = project.accomplishments.filter(a => 
+                                                isSameDay(a.date, view.afterDate) && 
+                                                (!view.taskId || String(a.task_id) === String(view.taskId)) &&
+                                                (view.afterShift === 'All' || a.shift === view.afterShift)
+                                            );
+
+                                            const beforeImages = filteredBefore[0]?.image_url ? filteredBefore[0].image_url.split(',').map(u => u.trim()).filter(Boolean) : [];
+                                            const afterImages = filteredAfter[0]?.image_url ? filteredAfter[0].image_url.split(',').map(u => u.trim()).filter(Boolean) : [];
+
 
                                             return (
                                                 <div key={view.id} className="space-y-8 relative group">
@@ -643,6 +667,18 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     />
                                                                 </div>
                                                             )}
+                                                            <div className="flex items-center gap-2 mt-2">
+                                                                <select
+                                                                    value={view.beforeShift}
+                                                                    onChange={(e) => { updateViewDate(view.id, 'beforeShift', e.target.value); updateViewDate(view.id, 'beforePhotoIndex', 0); }}
+                                                                    className="flex-1 px-3 py-2 bg-bg-secondary/50 border border-border-primary rounded-xl text-[10px] font-black text-text-primary uppercase tracking-widest focus:outline-none focus:border-accent"
+                                                                >
+                                                                    <option value="All">All Shifts</option>
+                                                                    <option value="Morning">Morning</option>
+                                                                    <option value="Noon">Noon</option>
+                                                                    <option value="Afternoon">Afternoon</option>
+                                                                </select>
+                                                            </div>
                                                         </div>
                                                         <div className="flex-1 space-y-3 relative">
                                                             <label className="text-[10px] font-black text-text-muted uppercase tracking-widest pl-4">After Date</label>
@@ -664,6 +700,18 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     />
                                                                 </div>
                                                             )}
+                                                            <div className="flex items-center gap-2 mt-2">
+                                                                <select
+                                                                    value={view.afterShift}
+                                                                    onChange={(e) => { updateViewDate(view.id, 'afterShift', e.target.value); updateViewDate(view.id, 'afterPhotoIndex', 0); }}
+                                                                    className="flex-1 px-3 py-2 bg-bg-secondary/50 border border-border-primary rounded-xl text-[10px] font-black text-text-primary uppercase tracking-widest focus:outline-none focus:border-accent"
+                                                                >
+                                                                    <option value="All">All Shifts</option>
+                                                                    <option value="Morning">Morning</option>
+                                                                    <option value="Noon">Noon</option>
+                                                                    <option value="Afternoon">Afternoon</option>
+                                                                </select>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -680,13 +728,36 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     {filteredBefore.length} updates
                                                                 </span>
                                                             </div>
-                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-accent/30 transition-all">
-                                                                {filteredBefore.length > 0 ? (
-                                                                    <img
-                                                                        src={filteredBefore[0].image_url}
-                                                                        alt="Before Progress"
-                                                                        className="w-full h-full object-cover"
-                                                                    />
+                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-accent/30 transition-all group/img">
+                                                                {beforeImages.length > 0 ? (
+                                                                    <>
+                                                                        <img
+                                                                            src={beforeImages[view.beforePhotoIndex]}
+                                                                            alt="Before Progress"
+                                                                            className="w-full h-full object-contain bg-black/5"
+                                                                        />
+                                                                        {beforeImages.length > 1 && (
+                                                                            <>
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); updateViewDate(view.id, 'beforePhotoIndex', Math.max(0, view.beforePhotoIndex - 1)); }}
+                                                                                    disabled={view.beforePhotoIndex === 0}
+                                                                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover/img:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10 no-print"
+                                                                                >
+                                                                                    <ChevronLeft size={18} />
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); updateViewDate(view.id, 'beforePhotoIndex', Math.min(beforeImages.length - 1, view.beforePhotoIndex + 1)); }}
+                                                                                    disabled={view.beforePhotoIndex === beforeImages.length - 1}
+                                                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover/img:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10 no-print"
+                                                                                >
+                                                                                    <ChevronRight size={18} />
+                                                                                </button>
+                                                                                <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/40 backdrop-blur-sm text-white text-[9px] font-bold z-10 no-print">
+                                                                                    {view.beforePhotoIndex + 1} / {beforeImages.length}
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                    </>
                                                                 ) : (
                                                                     <div className="text-center p-8">
                                                                         <Camera size={32} className="text-text-muted/30 mx-auto mb-2" />
@@ -722,13 +793,36 @@ export default function ReportPreview({ reportData, config, onBack }) {
                                                                     {filteredAfter.length} updates
                                                                 </span>
                                                             </div>
-                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-emerald-500/30 transition-all">
-                                                                {filteredAfter.length > 0 ? (
-                                                                    <img
-                                                                        src={filteredAfter[0].image_url}
-                                                                        alt="After Progress"
-                                                                        className="w-full h-full object-cover"
-                                                                    />
+                                                            <div className="aspect-video bg-bg-tertiary rounded-3xl overflow-hidden mb-8 border border-border-primary flex items-center justify-center relative shadow-inner group-hover/card:border-emerald-500/30 transition-all group/img">
+                                                                {afterImages.length > 0 ? (
+                                                                    <>
+                                                                        <img
+                                                                            src={afterImages[view.afterPhotoIndex]}
+                                                                            alt="After Progress"
+                                                                            className="w-full h-full object-contain bg-black/5"
+                                                                        />
+                                                                        {afterImages.length > 1 && (
+                                                                            <>
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); updateViewDate(view.id, 'afterPhotoIndex', Math.max(0, view.afterPhotoIndex - 1)); }}
+                                                                                    disabled={view.afterPhotoIndex === 0}
+                                                                                    className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover/img:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10 no-print"
+                                                                                >
+                                                                                    <ChevronLeft size={18} />
+                                                                                </button>
+                                                                                <button
+                                                                                    onClick={(e) => { e.stopPropagation(); updateViewDate(view.id, 'afterPhotoIndex', Math.min(afterImages.length - 1, view.afterPhotoIndex + 1)); }}
+                                                                                    disabled={view.afterPhotoIndex === afterImages.length - 1}
+                                                                                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 text-white backdrop-blur-sm opacity-0 group-hover/img:opacity-100 disabled:opacity-30 transition-all hover:bg-black/60 z-10 no-print"
+                                                                                >
+                                                                                    <ChevronRight size={18} />
+                                                                                </button>
+                                                                                <div className="absolute top-2 right-2 px-2 py-1 rounded bg-black/40 backdrop-blur-sm text-white text-[9px] font-bold z-10 no-print">
+                                                                                    {view.afterPhotoIndex + 1} / {afterImages.length}
+                                                                                </div>
+                                                                            </>
+                                                                        )}
+                                                                    </>
                                                                 ) : (
                                                                     <div className="text-center p-8">
                                                                         <Camera size={32} className="text-text-muted/30 mx-auto mb-2" />

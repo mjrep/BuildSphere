@@ -131,21 +131,29 @@ async function sendPasswordResetEmail({ to, name, actionLink }) {
 
   const emailSubject = 'Reset Your BuildSphere Password';
   const emailHtml = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
-      <h2 style="color: #7c74ff; text-align: center;">BuildSphere Password Reset</h2>
-      <p>Hello <strong>${name}</strong>,</p>
-      <p>We received a request to reset the password for your BuildSphere account. Click the button below to set a new password:</p>
-      
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="${actionLink}" style="background-color: #7c74ff; color: white; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 6px; display: inline-block;">Reset Password</a>
-      </p>
-      
-      <p>If you did not request this, you can safely ignore this email. Your password will remain unchanged.</p>
-      
-      <p style="font-size: 11px; color: #a0a0c0; text-align: center; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-        BuildSphere Administration
-      </p>
+<div style="background:#f6f4ff;padding:32px;font-family:Arial,sans-serif;color:#1f1f29;">
+  <div style="max-width:480px;margin:0 auto;background:#ffffff;border-radius:20px;padding:32px;text-align:center;border:1px solid #e5e0ff;box-shadow:0 12px 28px rgba(30,30,30,0.04);">
+    <div style="width:72px;height:72px;border-radius:20px;background:#745CFF;margin:0 auto 20px;display:table;">
+      <div style="display:table-cell;vertical-align:middle;color:white;font-size:32px;font-weight:700;">
+        B
+      </div>
     </div>
+    <h1 style="margin:0 0 8px;font-size:26px;color:#1f1f29;">Reset your password</h1>
+    <p style="margin:0 0 28px;color:#6b6b7a;font-size:15px;">BuildSphere account security</p>
+    <p style="font-size:16px;line-height:1.6;text-align:left;color:#374151;">
+      Hello <strong>${name}</strong>,<br><br>
+      We received a request to reset the password for your BuildSphere account. Tap the button below to choose a new password and get back to your projects.
+    </p>
+    <div style="text-align:center;margin:32px 0;">
+      <a href="${actionLink}" style="display:inline-block;background:#745CFF;color:#FFFFFF;text-decoration:none;font-size:16px;font-weight:700;padding:14px 32px;border-radius:12px;">
+        Reset Password
+      </a>
+    </div>
+    <p style="font-size:13px;line-height:1.6;color:#9ca3af;margin-top:32px;border-top:1px solid #e5e0ff;padding-top:24px;">
+      If you did not request this password reset, you can safely ignore this email.
+    </p>
+  </div>
+</div>
   `;
 
   if (mailConfig) {

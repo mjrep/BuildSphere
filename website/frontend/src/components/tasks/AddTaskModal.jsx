@@ -187,7 +187,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                         <label className="text-xs font-semibold text-text-primary mb-1.5 block">Project <span className="text-text-muted">*</span></label>
                         <select value={form.project_id} onChange={e => set('project_id', e.target.value)} className={inputCls('project_id')}>
                             <option value="">Select</option>
-                            {projects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                            {projects.filter(p => p.status === 'ongoing' || p.id == form.project_id).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
                         </select>
                         {errors.project_id && <p className="text-red-500 text-xs mt-1">{errors.project_id}</p>}
                     </div>

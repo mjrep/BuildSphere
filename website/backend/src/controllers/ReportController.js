@@ -190,6 +190,7 @@ class ReportController {
                   task_id: log.task?.id || null,
                   date: log.work_date || (log.created_at ? log.created_at.split('T')[0] : null),
                   time: log.created_at ? log.created_at.split('T')[1].substring(0, 5) : null,
+                  shift: log.shift || (log.created_at ? (new Date(log.created_at).getHours() < 12 ? 'Morning' : new Date(log.created_at).getHours() < 17 ? 'Noon' : 'Afternoon') : 'Morning'),
                   title: log.task?.title || 'Site Update',
                   notes: log.remarks || log.notes || 'Progress update recorded.',
                   image_url: imageUrl,

@@ -43,7 +43,6 @@ export default function ForgotPasswordPage() {
     return (
         <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12 transition-colors duration-200">
             <div className="w-full max-w-[520px] bg-card rounded-[2.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.05)] p-8 md:p-12 border border-border-primary relative overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-2 bg-gradient-to-r from-accent via-[#8F89FF] to-[#67D4FF]" />
 
                 <div className="flex flex-col items-center mb-8 text-center">
                     <img src={logo} alt="BuildSphere Logo" className="w-16 h-16 mb-5 object-contain" />

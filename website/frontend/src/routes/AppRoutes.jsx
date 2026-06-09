@@ -37,11 +37,28 @@ function ProtectedRoute({ children }) {
     return children;
 }
 
+function RootRedirect() {
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get('code');
+    const hash = window.location.hash || sessionStorage.getItem('supabase_recovery_hash');
+
+    if (code) {
+        return <Navigate to={`/reset-password${window.location.search}`} replace />;
+    }
+
+    if (hash && (hash.includes('type=recovery') || hash.includes('type=invite'))) {
+        sessionStorage.removeItem('supabase_recovery_hash');
+        return <Navigate to={`/reset-password${hash.startsWith('#') ? hash : '#' + hash}`} replace />;
+    }
+    
+    return <Navigate to="/login" replace />;
+}
+
 export default function AppRoutes() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/" element={<RootRedirect />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage />} />
                 <Route path="/reset-password" element={<ResetPasswordPage />} />

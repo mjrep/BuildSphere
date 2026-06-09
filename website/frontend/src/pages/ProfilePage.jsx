@@ -166,14 +166,6 @@ export default function ProfilePage() {
                         Edit Profile
                     </h3>
 
-                    {/* Success banner */}
-                    {success && (
-                        <div className="mb-8 px-6 py-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 text-sm font-bold flex items-center gap-3 animate-in zoom-in-95 duration-300">
-                            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black">✓</div>
-                            Profile updated successfully.
-                        </div>
-                    )}
-
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Name Grid */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -405,6 +397,14 @@ export default function ProfilePage() {
                                 {saving ? 'Processing…' : (!isEditing ? 'Update Profile' : (isDirty ? 'Save Changes' : 'Update Profile'))}
                             </button>
                         </div>
+                        
+                        {/* Success banner */}
+                        {success && (
+                            <div className="mt-4 px-6 py-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 text-sm font-bold flex items-center gap-3 animate-in zoom-in-95 duration-300">
+                                <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-black">✓</div>
+                                Profile updated successfully.
+                            </div>
+                        )}
                     </form>
                 </div>
 

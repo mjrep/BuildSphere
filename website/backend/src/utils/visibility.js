@@ -3,7 +3,7 @@
  * Matches the BuildSphere visibility matrix.
  */
 
-const FULL_ACCESS_ROLES = ['CEO', 'COO', 'HR', 'Admin'];
+const FULL_ACCESS_ROLES = ['CEO', 'COO', 'Admin'];
 
 /**
  * Helper to fetch all project IDs where the user is a team member.
@@ -75,6 +75,11 @@ function applyProjectVisibility(query, user, memberProjectIds = []) {
     return query;
   }
 
+  // 1.5. HR: Ongoing and completed projects
+  if (role === 'HR') {
+    return query.or('status.eq.ongoing,status.eq.completed');
+  }
+
   // 2. Accounting: Full access but hide 'draft' projects
   if (role === 'Accounting') {
     return query.or('sub_status.is.null,and(sub_status.neq.draft,sub_status.neq.Draft)');
@@ -83,6 +88,15 @@ function applyProjectVisibility(query, user, memberProjectIds = []) {
   // 3. Sales: Only projects they created
   if (role === 'Sales') {
     return query.eq('created_by', user.id);
+  }
+
+  // 3.5. Staff: Only projects they are a member of
+  if (role === 'Staff') {
+    if (memberProjectIds.length > 0) {
+      return query.in('id', memberProjectIds);
+    } else {
+      return query.eq('id', -1);
+    }
   }
 
   // 4. Project Engineer, Project Coordinator & Others: Only projects they created, PIC, or are members of
@@ -101,21 +115,23 @@ function applyTaskVisibility(query, user, allVisibleProjectIds = [], salesProjec
 
   const role = user.role;
 
-  // 1. Full Access Roles (including Accounting for tasks)
-  if (FULL_ACCESS_ROLES.includes(role) || role === 'Accounting') {
+  // 1. Full Access Roles
+  if (FULL_ACCESS_ROLES.includes(role)) {
     return query;
   }
 
-  // 2. Sales: Tasks in projects they created
-  if (role === 'Sales') {
-    if (salesProjectIds.length > 0) {
-      return query.in('project_id', salesProjectIds);
-    } else {
-      return query.eq('id', -1);
-    }
+  // 2. Tasks created by them OR assigned to them
+  const createdOrAssignedRoles = ['Procurement', 'HR', 'Accounting', 'Sales', 'Project Coordinator'];
+  if (createdOrAssignedRoles.includes(role)) {
+    return query.or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`);
   }
 
-  // 3. Project Engineer, Project Coordinator & Others: Tasks in projects they created, are PIC of, or are team members, or assigned directly to the user
+  // 3. Tasks assigned to them ONLY
+  if (['Staff', 'Foreman'].includes(role)) {
+    return query.eq('assigned_to', user.id);
+  }
+
+  // 4. Project Engineer & Others: Tasks in projects they created, are PIC of, or are team members, or assigned directly to the user
   if (allVisibleProjectIds.length > 0) {
     return query.or(`assigned_to.eq.${user.id},project_id.in.(${allVisibleProjectIds.join(',')})`);
   } else {

@@ -151,7 +151,7 @@ class TaskProgressLogController {
       try {
         const { data: projectData } = await supabase
           .from('projects')
-          .select('project_name, project_coordinator_id')
+          .select('project_name, project_coordinator_id, project_in_charge_id')
           .eq('id', milestone.project_id)
           .single();
 
@@ -164,19 +164,27 @@ class TaskProgressLogController {
               'You were mentioned',
               `${user.first_name} ${user.last_name} mentioned you in a site update on ${task?.title || 'Task'}.`,
               'info',
-              `/projects/${milestone.project_id}/progress-logs`
+              `/projects/${milestone.project_id}?tab=site-updates`
             );
           }
         }
 
-        // 2. Site Update Alert (to Project Coordinator)
-        if (projectData?.project_coordinator_id) {
+        // 2. Site Update Alert (to relevant roles)
+        const targets = new Set();
+        if (projectData?.project_coordinator_id) targets.add(projectData.project_coordinator_id);
+        if (projectData?.project_in_charge_id) targets.add(projectData.project_in_charge_id);
+        
+        const { data: execs } = await supabase.from('users').select('id').in('role', ['CEO', 'COO', 'Admin']);
+        if (execs) execs.forEach(e => targets.add(e.id));
+
+        for (const targetId of targets) {
+          if (targetId === user.id) continue;
           await NotificationService.createNotification(
-            projectData.project_coordinator_id,
+            targetId,
             'New Site Update',
-            `A new site update has been posted for ${projectData.project_name} and is ready for review.`,
+            `A new site update has been posted for ${projectData?.project_name || 'a project'} and is ready for review.`,
             'info',
-            `/projects/${milestone.project_id}/progress-logs`
+            `/projects/${milestone.project_id}?tab=site-updates`
           );
         }
       } catch (notifErr) {
@@ -391,12 +399,16 @@ class TaskProgressLogController {
   static formatLog(log) {
     let imageUrl = null;
     if (log.evidence_image_path) {
-      if (log.evidence_image_path.startsWith('http')) {
-        imageUrl = log.evidence_image_path;
-      } else {
-        const bucket = process.env.SUPABASE_BUCKET_PROGRESS || 'site-progress';
-        imageUrl = `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${log.evidence_image_path.replace(/^\/+/, '')}`;
-      }
+      const paths = log.evidence_image_path.split(',').map(p => p.trim()).filter(Boolean);
+      const bucket = process.env.SUPABASE_BUCKET_PROGRESS || 'site-progress';
+      
+      imageUrl = paths.map(p => {
+        if (p.startsWith('http')) {
+          return p;
+        } else {
+          return `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${p.replace(/^\/+/, '')}`;
+        }
+      }).join(',');
     }
 
     return {

@@ -195,10 +195,10 @@ export default function EngineerMilestoneInputPage() {
 
             // Phase dates must be within Project dates
             if (project?.start_date && phase.start_date && phase.start_date < project.start_date) {
-                newErrors[`phases.${pIdx}.start_date`] = 'Cannot start before project';
+                newErrors[`phases.${pIdx}.start_date`] = `Cannot start before project (${project.start_date})`;
             }
             if (project?.end_date && phase.end_date && phase.end_date > project.end_date) {
-                newErrors[`phases.${pIdx}.end_date`] = 'Cannot end after project';
+                newErrors[`phases.${pIdx}.end_date`] = `Cannot end after project (${project.end_date})`;
             }
             
             let msTotalWeight = 0;

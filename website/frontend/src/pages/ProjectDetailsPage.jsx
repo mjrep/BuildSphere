@@ -18,7 +18,6 @@ export default function ProjectDetailsPage() {
     const { user } = useAuth();
     const [project, setProject] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [cooldown, setCooldown] = useState(0);
     const [activeTab, setActiveTab] = useState('Overview');
     const [analyzing, setAnalyzing] = useState(false);
     const [aiResult, setAiResult] = useState(null);
@@ -38,41 +37,15 @@ export default function ProjectDetailsPage() {
             });
     };
 
-    const checkCooldown = () => {
-        const lastRun = localStorage.getItem(`ai_cooldown_${id}`);
-        if (lastRun) {
-            const elapsed = Math.floor((Date.now() - parseInt(lastRun)) / 1000);
-            if (elapsed < 60) {
-                setCooldown(60 - elapsed);
-                return true;
-            }
-        }
-        return false;
-    };
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            const lastRun = localStorage.getItem(`ai_cooldown_${id}`);
-            if (lastRun) {
-                const elapsed = Math.floor((Date.now() - parseInt(lastRun)) / 1000);
-                if (elapsed < 60) {
-                    setCooldown(60 - elapsed);
-                } else {
-                    setCooldown(0);
-                }
-            }
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [id]);
 
     const handleAnalyze = () => {
-        if (analyzing || cooldown > 0) return;
+        if (analyzing) return;
         
         setAnalyzing(true);
         getAiAssessment(id)
             .then((res) => {
                 setAiResult(res.data);
-                localStorage.setItem(`ai_cooldown_${id}`, Date.now().toString());
             })
             .catch((err) => {
                 console.error('AI Assessment failed:', err);
@@ -228,9 +201,9 @@ export default function ProjectDetailsPage() {
                         {/* Analyze button */}
                         <button 
                             onClick={handleAnalyze}
-                            disabled={analyzing || cooldown > 0}
+                            disabled={analyzing}
                             className={`px-5 py-2 text-sm font-bold rounded-xl transition-colors flex items-center gap-2 ${
-                                analyzing || cooldown > 0 
+                                analyzing 
                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
                                     : 'bg-accent/10 text-accent hover:bg-accent/20'
                             }`}
@@ -242,14 +215,6 @@ export default function ProjectDetailsPage() {
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                     Thinking...
-                                </>
-                            ) : cooldown > 0 ? (
-                                <>
-                                    Wait {cooldown}s
-                                    <svg className="w-4 h-4 opacity-50" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path d="M12 6v6l4 2" />
-                                    </svg>
                                 </>
                             ) : (
                                 <>

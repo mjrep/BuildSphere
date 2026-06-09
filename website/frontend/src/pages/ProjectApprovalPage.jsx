@@ -15,6 +15,7 @@ export default function ProjectApprovalPage() {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
+    const [showApproveModal, setShowApproveModal] = useState(false);
     const [comments, setComments] = useState('');
     const [error, setError] = useState('');
 
@@ -162,9 +163,9 @@ export default function ProjectApprovalPage() {
 
                         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
-                        {!showRejectModal ? (
+                        {!showRejectModal && !showApproveModal ? (
                             <div className="flex gap-3">
-                                <button onClick={handleApprove} disabled={submitting}
+                                <button onClick={() => setShowApproveModal(true)} disabled={submitting}
                                         className="px-8 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 transition-colors disabled:opacity-60">
                                     {submitting ? 'Processing...' : 'Approve'}
                                 </button>
@@ -172,6 +173,20 @@ export default function ProjectApprovalPage() {
                                         className="px-8 py-2.5 bg-red-500 text-white text-sm font-bold rounded-xl hover:bg-red-600 transition-colors disabled:opacity-60">
                                     Reject
                                 </button>
+                            </div>
+                        ) : showApproveModal ? (
+                            <div className="space-y-3 bg-green-50/50 p-4 rounded-xl border border-green-100">
+                                <p className="text-sm text-text-primary font-medium">Are you sure you want to approve this project?</p>
+                                <div className="flex gap-3">
+                                    <button onClick={handleApprove} disabled={submitting}
+                                            className="px-6 py-2.5 bg-green-600 text-white text-sm font-bold rounded-xl hover:bg-green-700 disabled:opacity-60">
+                                        {submitting ? 'Approving...' : 'Confirm Approval'}
+                                    </button>
+                                    <button onClick={() => setShowApproveModal(false)}
+                                            className="px-6 py-2.5 border border-border-primary text-[#6B6B6B] text-sm font-semibold rounded-xl hover:bg-bg-secondary">
+                                        Cancel
+                                    </button>
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-3">

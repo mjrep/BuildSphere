@@ -32,6 +32,7 @@ export default function DashboardLayout({ children, pageTitle, noPadding = false
             <div className="flex flex-col flex-1 overflow-hidden">
                 <Header pageTitle={pageTitle} user={user} loading={loading} scrolled={scrolled} />
                 <main 
+                    id="main-scroll-container"
                     onScroll={handleScroll}
                     className={`flex-1 overflow-y-auto bg-bg-primary ${noPadding ? 'p-0' : 'p-6'}`}
                 >

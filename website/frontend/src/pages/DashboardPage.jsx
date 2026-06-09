@@ -42,22 +42,22 @@ export default function DashboardPage() {
     }, []);
 
     const stats = [
-        { label: 'Ongoing Projects',   value: statsData.ongoing_projects_count,  color: 'text-orange-400' },
-        { label: 'Proposed Projects',  value: statsData.proposed_projects_count, color: 'text-red-500' },
-        { label: 'Completed Projects', value: statsData.completed_projects_count, color: 'text-green-500' },
+        { label: 'Ongoing Projects',   value: statsData.ongoing_projects_count,  color: 'text-amber-500' },
+        { label: 'Proposed Projects',  value: statsData.proposed_projects_count, color: 'text-rose-500' },
+        { label: 'Completed Projects', value: statsData.completed_projects_count, color: 'text-emerald-500' },
     ];
 
     const salesStats = [
-        { label: 'Pending Projects',       value: statsData.pending_count,       color: 'text-red-500' },
-        { label: 'For Approval Projects',  value: statsData.for_approval_count,  color: 'text-yellow-500' },
-        { label: 'For Revisions Projects', value: statsData.for_revisions_count, color: 'text-red-500' },
-        { label: 'Approved Projects',      value: statsData.approved_count,      color: 'text-green-500' },
+        { label: 'Pending Projects',       value: statsData.pending_count,       color: 'text-rose-500' },
+        { label: 'For Approval Projects',  value: statsData.for_approval_count,  color: 'text-amber-500' },
+        { label: 'For Revisions Projects', value: statsData.for_revisions_count, color: 'text-rose-500' },
+        { label: 'Approved Projects',      value: statsData.approved_count,      color: 'text-emerald-500' },
     ];
 
     const accountingStats = [
-        { label: 'Ongoing Projects',  value: statsData.ongoing_projects_count,  color: 'text-yellow-500' },
-        { label: 'Proposed Projects', value: statsData.proposed_projects_count, color: 'text-red-500' },
-        { label: 'Approved Projects', value: statsData.completed_projects_count, color: 'text-green-500' },
+        { label: 'Ongoing Projects',  value: statsData.ongoing_projects_count,  color: 'text-amber-500' },
+        { label: 'Proposed Projects', value: statsData.proposed_projects_count, color: 'text-rose-500' },
+        { label: 'Approved Projects', value: statsData.completed_projects_count, color: 'text-emerald-500' },
     ];
 
     const filteredAllocations = (statsData.budget_allocations || []).filter(item => {
@@ -91,7 +91,7 @@ export default function DashboardPage() {
 
     return (
         <DashboardLayout pageTitle="Dashboard">
-            <div className="space-y-5 animate-in fade-in duration-500">
+            <div className="flex flex-col h-full space-y-5 animate-in fade-in duration-500 overflow-hidden">
 
                 {/* Loading Skeleton State */}
                 {loading ? (
@@ -139,15 +139,15 @@ export default function DashboardPage() {
                 ) : statsData.role === 'accounting' ? (
                     <>
                         {/* Accounting Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
                             {accountingStats.map((s) => (
                                 <StatCard key={s.label} {...s} />
                             ))}
                         </div>
 
                         {/* Budget Allocations Container */}
-                        <div className="bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 space-y-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-primary/30 pb-5">
+                        <div className="flex-1 min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-primary/30 pb-5 shrink-0">
                                 <div>
                                     <h2 className="text-base font-black text-accent uppercase tracking-wider">Budget Allocations</h2>
                                     <p className="text-xs text-text-muted mt-1 font-bold">Monitor real-time project actual material costs against approved budgets</p>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
 
                             {/* Responsive Wrap Grid to guarantee perfect layout scalability */}
                             {filteredAllocations.length > 0 ? (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+                                <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {filteredAllocations.map((p) => {
                                         const percent = p.budget > 0 ? Math.min(100, Math.round((p.actual_cost / p.budget) * 100)) : 0;
                                         return (
@@ -285,7 +285,7 @@ export default function DashboardPage() {
                 ) : statsData.role === 'staff' ? (
                     <>
                         {/* Staff Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
                             <StatCard
                                 label="Total Assigned Tasks"
                                 value={statsData.total_assigned}
@@ -294,24 +294,24 @@ export default function DashboardPage() {
                             <StatCard
                                 label="Tasks In Progress"
                                 value={statsData.ongoing_tasks}
-                                color="text-orange-400"
+                                color="text-amber-500"
                             />
                             <StatCard
                                 label="Tasks Completed"
                                 value={statsData.completed_tasks}
-                                color="text-green-500"
+                                color="text-emerald-500"
                             />
                         </div>
 
                         {/* Bottom: Tasks Checklist (60%) + Submitted Logs (40%) */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
                             {/* Left Panel: Assigned Tasks Checklist (7 columns) */}
-                            <div className="lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 space-y-5">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4">
+                            <div className="min-h-0 lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4 shrink-0">
                                     <div>
-                                        <h2 className="text-base font-black text-accent uppercase tracking-wider">My Assigned Tasks</h2>
-                                        <p className="text-xs text-text-muted mt-1 font-bold">List of tasks assigned to you for execution</p>
+                                        <h2 className="text-base font-bold text-accent uppercase tracking-wider">My Assigned Tasks</h2>
+                                        <p className="text-xs text-text-muted mt-1 font-medium">List of tasks assigned to you for execution</p>
                                     </div>
                                     
                                     {/* Task Search Bar */}
@@ -329,25 +329,25 @@ export default function DashboardPage() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-3 max-h-[550px] overflow-y-auto pr-1 scrollbar-thin">
+                                <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {filteredStaffTasks.length > 0 ? (
                                         filteredStaffTasks.map((t) => (
                                             <div key={t.id} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 border border-border-primary/50 rounded-2xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between group">
                                                 <div className="space-y-1">
-                                                    <h3 className="text-base font-black text-text-primary group-hover:text-accent transition-colors">{t.title}</h3>
-                                                    <p className="text-xs text-text-muted font-bold">{t.project_name}</p>
-                                                    <p className="text-[11px] text-text-muted mt-1 font-bold">Assigned: {t.created_at}</p>
+                                                    <h3 className="text-base font-bold text-text-primary group-hover:text-accent transition-colors">{t.title}</h3>
+                                                    <p className="text-xs text-text-muted font-medium">{t.project_name}</p>
+                                                    <p className="text-[11px] text-text-muted mt-1 font-medium">Assigned: {t.created_at}</p>
                                                 </div>
 
                                                 <div className="flex items-center gap-3">
-                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                                         (t.status || '').toLowerCase() === 'completed' || (t.status || '').toLowerCase() === 'approved'
-                                                            ? 'bg-green-500/10 text-green-500 border border-green-500/20'
-                                                            : (t.status || '').toLowerCase() === 'in progress' || (t.status || '').toLowerCase() === 'ongoing'
-                                                            ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20'
-                                                            : 'bg-red-500/10 text-red-500 border border-red-500/20'
+                                                            ? 'bg-emerald-50 text-emerald-600 border border-emerald-200/50'
+                                                            : (t.status || '').toLowerCase() === 'in progress' || (t.status || '').toLowerCase() === 'ongoing' || (t.status || '').toLowerCase() === 'in_progress'
+                                                            ? 'bg-amber-50 text-amber-600 border border-amber-200/50'
+                                                            : 'bg-rose-50 text-rose-600 border border-rose-200/50'
                                                     }`}>
-                                                        {t.status}
+                                                        {t.status?.replace(/_/g, ' ')}
                                                     </span>
                                                 </div>
                                             </div>
@@ -361,23 +361,22 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Right Panel: Submitted Progress Logs (5 columns) */}
-                            <div className="lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col justify-between space-y-5">
-                                <div>
-                                    <div className="border-b border-border-primary/30 pb-4 mb-4">
-                                        <h2 className="text-base font-black text-accent uppercase tracking-wider">My Task Submissions</h2>
-                                        <p className="text-[10px] text-text-muted mt-0.5 font-bold">Recent progress updates and accomplishments logged by you</p>
+                            <div className="min-h-0 lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="border-b border-border-primary/30 pb-4 shrink-0">
+                                    <h2 className="text-base font-bold text-accent uppercase tracking-wider">My Task Submissions</h2>
+                                        <p className="text-[10px] text-text-muted mt-0.5 font-medium">Recent progress updates and accomplishments logged by you</p>
                                     </div>
 
-                                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                                <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {statsData.recent_submissions?.length > 0 ? (
                                             statsData.recent_submissions.map((log) => (
                                                 <div key={log.id} className="p-4 rounded-2xl border border-border-primary/50 bg-bg-secondary/20 flex flex-col space-y-2 shadow-sm transition-all duration-300 hover:scale-[1.01] group">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h3 className="text-xs font-black text-text-primary group-hover:text-accent transition-colors">{log.task_title}</h3>
-                                                            <p className="text-[9px] text-text-muted font-bold uppercase tracking-wider">{log.project_name}</p>
+                                                            <h3 className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">{log.task_title}</h3>
+                                                            <p className="text-[9px] text-text-muted font-medium uppercase tracking-wider">{log.project_name}</p>
                                                         </div>
-                                                        <span className="text-[10px] text-text-muted font-bold">{log.date}</span>
+                                                        <span className="text-[10px] text-text-muted font-medium">{log.date}</span>
                                                     </div>
                                                     <p className="text-xs text-text-primary/90 font-bold bg-bg-secondary/40 p-2.5 rounded-xl border border-border-primary/30 italic">
                                                         "{log.remarks}"
@@ -393,7 +392,6 @@ export default function DashboardPage() {
                                             <p className="text-sm text-text-muted py-4 text-center">No progress log submissions found yet.</p>
                                         )}
                                     </div>
-                                </div>
                             </div>
 
                         </div>
@@ -401,7 +399,7 @@ export default function DashboardPage() {
                 ) : statsData.role === 'procurement' ? (
                     <>
                         {/* Procurement Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
                             <StatCard
                                 label="Ongoing Projects"
                                 value={statsData.ongoing_projects_count}
@@ -410,11 +408,11 @@ export default function DashboardPage() {
                         </div>
 
                         {/* Bottom: Materials Stock (60%) + Critical Stock Alerts (40%) */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+                        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
                             {/* Left Panel: Materials Stock (7 columns) */}
-                            <div className="lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 space-y-5">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4">
+                            <div className="min-h-0 lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4 shrink-0">
                                     <div>
                                         <h2 className="text-base font-black text-accent uppercase tracking-wider">Materials Stock</h2>
                                         <p className="text-xs text-text-muted mt-1 font-bold">Classified count of material inventory items per project</p>
@@ -436,7 +434,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 {filteredProcurementStock.length > 0 ? (
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[550px] overflow-y-auto pr-1 scrollbar-thin">
+                                    <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {filteredProcurementStock.map((p) => {
                                             const total = p.in_stock + p.low_stock + p.no_stock;
                                             const inStockPct = total > 0 ? (p.in_stock / total) * 100 : 0;
@@ -530,9 +528,8 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Right Panel: Critical Stock Alerts Board */}
-                            <div className="lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col justify-between space-y-5">
-                                <div>
-                                    <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 mb-4 gap-4">
+                            <div className="min-h-0 lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
                                         <div>
                                             <h2 className="text-base font-black text-accent uppercase tracking-wider">Critical Alerts</h2>
                                             <p className="text-[10px] text-text-muted mt-0.5 font-bold">Materials running dangerously low across sites</p>
@@ -553,7 +550,7 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                                    <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {filteredAlerts.length > 0 ? (
                                             filteredAlerts.map((alert, i) => (
                                                 <div key={i} className={`p-4 rounded-2xl border ${
@@ -594,42 +591,40 @@ export default function DashboardPage() {
                                             <p className="text-sm text-text-muted py-4 text-center">No critical stock alerts found.</p>
                                         )}
                                     </div>
-                                </div>
-                            </div>
+                                    </div>
 
                         </div>
                     </>
                 ) : statsData.role === 'hr' ? (
                     <>
                         {/* HR Custom Stat Cards Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
                             {/* Card 1: Active Staff */}
-                            <div className="bg-card rounded-2xl p-6 shadow-xl border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
+                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
                                 <div>
-                                    <p className="text-sm font-black text-text-primary group-hover:text-accent transition-colors">Total number of active staff</p>
-                                    <p className="text-xs text-text-muted mt-1 font-bold">Been active for the last month.</p>
+                                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">Total number of active staff</p>
+                                    <p className="text-xs text-text-muted mt-1 font-medium">Been active for the last month.</p>
                                 </div>
-                                <p className="text-4xl font-black leading-none text-green-500">{statsData.active_last_month}</p>
+                                <p className="text-4xl font-bold leading-none text-emerald-500">{statsData.active_last_month}</p>
                             </div>
                             
                             {/* Card 2: Inactive Staff */}
-                            <div className="bg-card rounded-2xl p-6 shadow-xl border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
+                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
                                 <div>
-                                    <p className="text-sm font-black text-text-primary group-hover:text-accent transition-colors">Total number of active staff</p>
-                                    <p className="text-xs text-text-muted mt-1 font-bold">Hasn't been active for the last month.</p>
+                                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">Total number of inactive staff</p>
+                                    <p className="text-xs text-text-muted mt-1 font-medium">Hasn't been active for the last month.</p>
                                 </div>
-                                <p className="text-4xl font-black leading-none text-red-500">{statsData.inactive_last_month}</p>
+                                <p className="text-4xl font-bold leading-none text-rose-500">{statsData.inactive_last_month}</p>
                             </div>
                         </div>
 
                         {/* Bottom: Team Members (Project Allocations) + Active Staffs */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Left Panel: Team Members */}
-                            <div className="bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 mb-4 gap-4">
-                                        <h2 className="text-base font-black text-accent uppercase tracking-wider">Team Members</h2>
+                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
+                                        <h2 className="text-base font-bold text-accent uppercase tracking-wider">Team Members</h2>
                                         
                                         {/* Project Search Bar */}
                                         <div className="relative">
@@ -646,15 +641,15 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                                    <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {filteredHrAllocations.length > 0 ? (
                                             filteredHrAllocations.map((p, i) => (
                                                 <div key={i} className="bg-bg-secondary/40 hover:bg-bg-secondary/60 rounded-2xl p-5 border border-border-primary/50 flex items-center justify-between shadow-sm transition-all duration-300">
                                                     <div>
-                                                        <h3 className="text-base font-black text-text-primary mb-1">{p.project_name}</h3>
-                                                        <p className="text-xs text-text-muted font-bold">{p.member_count} Team member in {p.project_name}.</p>
+                                                        <h3 className="text-base font-bold text-text-primary mb-1">{p.project_name}</h3>
+                                                        <p className="text-xs text-text-muted font-medium">{p.member_count} Team member in {p.project_name}.</p>
                                                     </div>
-                                                    <span className="text-3xl font-black text-text-primary pr-2">
+                                                    <span className="text-3xl font-bold text-text-primary pr-2">
                                                         {p.member_count}
                                                     </span>
                                                 </div>
@@ -663,14 +658,12 @@ export default function DashboardPage() {
                                             <p className="text-sm text-text-muted py-4 text-center">No projects found.</p>
                                         )}
                                     </div>
-                                </div>
                             </div>
 
                             {/* Right Panel: Active Staffs */}
-                            <div className="bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col justify-between">
-                                <div>
-                                    <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 mb-4 gap-4">
-                                        <h2 className="text-base font-black text-accent uppercase tracking-wider">Active Staffs</h2>
+                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
+                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
+                                        <h2 className="text-base font-bold text-accent uppercase tracking-wider">Active Staffs</h2>
                                         
                                         {/* Staff Search Bar */}
                                         <div className="relative">
@@ -687,7 +680,7 @@ export default function DashboardPage() {
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3 max-h-[500px] overflow-y-auto pr-1 scrollbar-thin">
+                                    <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {filteredStaff.length > 0 ? (
                                             filteredStaff.map((staff, i) => {
                                                 const initials = (staff.name || '')
@@ -718,27 +711,25 @@ export default function DashboardPage() {
                                             <p className="text-sm text-text-muted py-4 text-center">No active staff found.</p>
                                         )}
                                     </div>
-                                </div>
                             </div>
-
                         </div>
                     </>
                 ) : statsData.role === 'sales' ? (
                     <>
                         {/* Sales Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
                             {salesStats.map((s) => (
                                 <StatCard key={s.label} {...s} />
                             ))}
                         </div>
 
                         {/* Bottom: Proposed Projects Status + Proposed Project Updates */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Left Panel: Proposed Projects Status */}
-                            <div className="bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50">
-                                <h2 className="text-base font-black text-accent uppercase tracking-wider mb-5">Proposed Projects Status</h2>
-                                <div className="space-y-3">
+                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
+                                <h2 className="text-base font-black text-accent uppercase tracking-wider shrink-0 mb-0">Proposed Projects Status</h2>
+                                <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {statsData.proposed_projects_status?.length > 0 ? (
                                         statsData.proposed_projects_status.map((p, i) => (
                                             <div key={i} className="bg-bg-secondary/40 hover:bg-bg-secondary/60 rounded-2xl p-5 border border-border-primary/50 flex items-center justify-between shadow-sm transition-all duration-300">
@@ -747,10 +738,10 @@ export default function DashboardPage() {
                                                     <p className="text-xs text-text-muted font-bold">Project-In-Charge: {p.engr_name}</p>
                                                 </div>
                                                 <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-                                                    p.sub_status === 'Pending' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                                                    p.sub_status === 'For Approval' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
-                                                    p.sub_status === 'For Revisions' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
-                                                    'bg-green-500/10 text-green-500 border border-green-500/20'
+                                                    p.sub_status === 'Pending' ? 'bg-rose-50 text-rose-600 border border-rose-200/50' :
+                                                    p.sub_status === 'For Approval' ? 'bg-amber-50 text-amber-600 border border-amber-200/50' :
+                                                    p.sub_status === 'For Revisions' ? 'bg-rose-50 text-rose-600 border border-rose-200/50' :
+                                                    'bg-emerald-50 text-emerald-600 border border-emerald-200/50'
                                                 }`}>
                                                     {p.sub_status}
                                                 </span>
@@ -763,21 +754,21 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Right Panel: Proposed Project Updates */}
-                            <div className="bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50">
-                                <h2 className="text-base font-black text-accent uppercase tracking-wider mb-5">Proposed Project Updates</h2>
-                                <div className="space-y-3">
+                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
+                                <h2 className="text-base font-black text-accent uppercase tracking-wider shrink-0 mb-0">Proposed Project Updates</h2>
+                                <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {statsData.proposed_project_updates?.length > 0 ? (
                                         statsData.proposed_project_updates.map((update, i) => (
                                             <div key={i} className={`p-4 rounded-2xl border ${
-                                                update.color === 'red' ? 'bg-red-500/5 border-red-500/20' :
-                                                update.color === 'orange' ? 'bg-yellow-500/5 border-yellow-500/20' :
-                                                'bg-green-500/5 border-green-500/20'
-                                            } flex gap-2 text-sm leading-relaxed shadow-sm transition-all duration-300 hover:scale-[1.01]`}>
+                                                update.color === 'red' ? 'bg-rose-50/80 border-rose-200/60' :
+                                                update.color === 'orange' ? 'bg-amber-50/80 border-amber-200/60' :
+                                                'bg-emerald-50/80 border-emerald-200/60'
+                                            } flex gap-2 text-sm leading-relaxed shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]`}>
                                                 <div className="w-full">
                                                     <span className={`font-black uppercase tracking-tight mr-1 ${
-                                                        update.color === 'red' ? 'text-red-500' :
-                                                        update.color === 'orange' ? 'text-yellow-500' :
-                                                        'text-green-500'
+                                                        update.color === 'red' ? 'text-rose-600' :
+                                                        update.color === 'orange' ? 'text-amber-600' :
+                                                        'text-emerald-600'
                                                     }`}>
                                                         {update.project_name}
                                                     </span>
@@ -797,51 +788,82 @@ export default function DashboardPage() {
                 ) : (
                     <>
                         {/* Stat Cards Row */}
-                        <div className="flex gap-4">
+                        <div className="flex gap-4 shrink-0">
                             {stats.map((s) => (
                                 <StatCard key={s.label} {...s} />
                             ))}
                         </div>
 
-                        {/* Project Teams */}
-                        <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
-                            <h2 className="text-base font-bold text-accent mb-4">Project Teams</h2>
-                            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                                {statsData.project_teams?.length > 0 ? (
-                                    statsData.project_teams.map((t, i) => (
-                                        <ProjectTeamCard key={i} {...t} />
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-text-muted col-span-full">No active project teams found.</p>
-                                )}
+                        <div className="flex-1 min-h-0 flex flex-col gap-5">
+
+                            {/* Project Teams */}
+                            <div className="shrink-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col">
+                                <div className="flex items-center justify-between mb-4 shrink-0">
+                                    <h2 className="text-base font-bold text-accent">Project Teams</h2>
+                                    {statsData.project_teams?.length > 3 && (
+                                        <div className="flex items-center gap-2">
+                                            <button 
+                                                onClick={() => {
+                                                    document.getElementById('project-teams-scroll').scrollBy({ left: -320, behavior: 'smooth' });
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-bg-secondary text-text-primary hover:bg-bg-hover transition-colors"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" /></svg>
+                                            </button>
+                                            <button 
+                                                onClick={() => {
+                                                    document.getElementById('project-teams-scroll').scrollBy({ left: 320, behavior: 'smooth' });
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-full bg-bg-secondary text-text-primary hover:bg-bg-hover transition-colors"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 5l7 7-7 7" /></svg>
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                                <div id="project-teams-scroll" className="flex gap-4 overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                                    {statsData.project_teams?.length > 0 ? (
+                                        statsData.project_teams.map((t, i) => (
+                                            <div key={i} className="w-[300px] shrink-0">
+                                                <ProjectTeamCard {...t} />
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-text-muted w-full">No active project teams found.</p>
+                                    )}
+                                </div>
                             </div>
-                        </div>
 
-                        {/* Bottom: Ongoing Projects + Project Updates */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                            {/* Bottom: Ongoing Projects + Project Updates */}
+                            <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                            {/* Ongoing Projects (left) */}
-                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
-                                <h2 className="text-base font-bold text-accent mb-4">Ongoing Projects</h2>
-                                {statsData.ongoing_projects?.length > 0 ? (
-                                    statsData.ongoing_projects.map((p, i) => (
-                                        <OngoingProjectRow key={i} {...p} />
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-text-muted">No ongoing projects found.</p>
-                                )}
-                            </div>
+                                {/* Ongoing Projects (left) */}
+                                <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col">
+                                    <h2 className="text-base font-bold text-accent mb-4 shrink-0">Ongoing Projects</h2>
+                                    <div className="flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin space-y-3">
+                                        {statsData.ongoing_projects?.length > 0 ? (
+                                            statsData.ongoing_projects.map((p, i) => (
+                                                <OngoingProjectRow key={i} {...p} />
+                                            ))
+                                        ) : (
+                                            <p className="text-sm text-text-muted">No ongoing projects found.</p>
+                                        )}
+                                    </div>
+                                </div>
 
-                            {/* Project Updates (right) */}
-                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary">
-                                <h2 className="text-base font-bold text-accent mb-4">Project Updates</h2>
-                                {statsData.project_updates?.length > 0 ? (
-                                    statsData.project_updates.map((update, i) => (
-                                        <ProjectUpdateCard key={i} projectName={update.project_name} count={update.updates_today} index={i} />
-                                    ))
-                                ) : (
-                                    <p className="text-sm text-text-muted">No updates received today.</p>
-                                )}
+                                {/* Project Updates (right) */}
+                                <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col">
+                                    <h2 className="text-base font-bold text-accent mb-4 shrink-0">Project Updates</h2>
+                                    <div className="flex-1 min-h-0 overflow-y-auto pr-2 scrollbar-thin space-y-3">
+                                        {statsData.project_updates?.length > 0 ? (
+                                            statsData.project_updates.map((update, i) => (
+                                                <ProjectUpdateCard key={i} project_id={update.project_id} projectName={update.project_name} count={update.updates_today} time={update.latest_shift} index={i} />
+                                            ))
+                                        ) : (
+                                            <p className="text-sm text-text-muted">No updates received today.</p>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </>

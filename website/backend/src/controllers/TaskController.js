@@ -60,7 +60,7 @@ class TaskController {
       // Projects - Apply visibility so users only see projects they can assign tasks to
       let query = supabase
         .from('projects')
-        .select('id, project_name, project_code');
+        .select('id, project_name, project_code, status');
       
       const memberProjectIds = await getMemberProjectIds(supabase, req.user.id);
       query = applyProjectVisibility(query, req.user, memberProjectIds);
@@ -70,7 +70,8 @@ class TaskController {
 
       const projects = (projectsData || []).map(p => ({
         id: p.id,
-        name: p.project_name
+        name: p.project_name,
+        status: p.status
       }));
 
       // Users
@@ -88,7 +89,7 @@ class TaskController {
       res.json({
         projects,
         users,
-        priorities: ['low', 'medium', 'high', 'urgent'],
+        priorities: ['low', 'medium', 'high'],
         statuses: ['todo', 'in_progress', 'in_review', 'completed']
       });
     } catch (err) {

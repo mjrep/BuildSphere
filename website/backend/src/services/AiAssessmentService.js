@@ -92,7 +92,7 @@ class AiAssessmentService {
 
   static buildPrompt(evmData) {
     return `
-You are an expert Construction Project Manager and AI Progress Assessor specializing in Earned Value Management (EVM).
+You are an elite Construction Project Management Executive and Lead Data Analyst specializing in Earned Value Management (EVM). Your goal is to synthesize raw project data into a high-level, board-ready intelligence report.
 
 Carefully analyze the following WPM-EVM data for a construction project:
 
@@ -100,25 +100,30 @@ Carefully analyze the following WPM-EVM data for a construction project:
 ${JSON.stringify(evmData, null, 2)}
 \`\`\`
 
-Using the WPM-EVM framework, please evaluate:
-1. **Time Performance**: Compare elapsed_project_time_days against planned_duration_days. Calculate the Schedule Performance Index (SPI = actual_progress / planned_progress).
-2. **Cost Performance**: Compare the budget_at_completion against the contract_price to determine financial risk.
-3. **Milestone Health**: Review each phase and milestone's weight_percentage and completion_percentage. Identify if high-weight phases are lagging.
-4. **Overall Status**: Determine one of: "Ahead of Schedule", "On Schedule", or "Delayed".
+**Core EVM Calculations & Analysis Rules:**
+1. **Time Performance (SPI):** Calculate the Schedule Performance Index. Compare \`elapsed_time\` against \`planned_duration\`. Determine if the overall phase completion aligns with the time spent. SPI > 1.0 means ahead of schedule; SPI < 1.0 means delayed.
+2. **Cost Performance (CPI):** Evaluate the \`budget\` against the \`actual_cost\`. Determine the financial burn rate. Identify if there are severe cost overruns early in the project lifecycle.
+3. **Milestone Health:** Do not treat all phases equally. Identify bottlenecks by finding phases with 0% completion that should have started by now based on the elapsed time.
 
-Provide your analysis as a strict JSON object (no markdown, no code fences, no extra text) using the following snake_case keys:
+**Output Constraints & Formatting:**
+- **Executive Summary:** Write a 3-sentence C-level executive summary. **Do not** just repeat the numbers. Explain *why* the numbers matter and what the immediate impact is on the project's delivery and profit margin. Use a professional, authoritative tone.
+- **Suggested Actions:** Provide exactly 3 highly concrete, actionable recommendations. **Do not** use vague phrases like "monitor closely" or "ensure communication." Use strong action verbs (e.g., "Audit the procurement phase...", "Mobilize the framing crew...", "Renegotiate vendor contracts...").
+- **Overall Status:** Strictly evaluate to exactly one of: "Ahead of Schedule", "On Schedule", or "Delayed".
+- **Risk Level:** Strictly evaluate to exactly one of: "Low", "Medium", or "High" based on combined cost and schedule variance.
+
+Return the output **strictly as a raw JSON object** (without markdown formatting, without \`\`\`json wrappers, and no conversational text) matching this exact schema:
 {
   "project_status": "Ahead of Schedule | On Schedule | Delayed",
   "schedule_performance_index": 0.00,
-  "executive_summary": "A 2-3 sentence narrative for non-technical management...",
+  "executive_summary": "String",
   "risk_level": "Low | Medium | High",
-  "suggested_actions": ["Action 1", "Action 2", "Action 3"],
+  "suggested_actions": ["Concrete Action 1", "Concrete Action 2", "Concrete Action 3"],
   "milestone_flags": [
     {
-      "phase_name": "Phase Name",
-      "milestone_name": "Milestone Name",
+      "phase_name": "Name of the phase",
+      "milestone_name": "Name of the milestone",
       "flag": "At Risk | Critical | On Track",
-      "reason": "Brief reason..."
+      "reason": "1-sentence specific reason based on data."
     }
   ]
 }
@@ -144,7 +149,7 @@ Provide your analysis as a strict JSON object (no markdown, no code fences, no e
     if (!keys.length) throw new Error('GEMINI_API_KEY is not configured in .env');
 
     // Matrix to explore - Based on user's AI Studio dashboard
-    const models = ['gemini-3.5-flash', 'gemini-3.0-flash-preview', 'gemini-3-flash-preview', 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2-flash-lite', 'gemini-3-flash'];
+    const models = ['gemini-3.5-flash', 'gemini-3.0-flash-preview', 'gemini-3-flash-preview', 'gemini-2.5-flash'];
     const errors = [];
 
     // Exhaustive search through Matrix[Model][Key]

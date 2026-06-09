@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 
 export default function ProjectTeamCard({ project_id, project_name, location, engr_name, memberCount, tasksDone, tasksTotal, members, milestone_segments }) {
     const navigate = useNavigate();
+    
+    // Percentage based STRICTLY on tasks for this specific card
     const pct = tasksTotal > 0 ? Math.round((tasksDone / tasksTotal) * 100) : 0;
 
-    // Use milestone-specific segments if available, fallback to a single primary color if not
+    // Use segments if available, fallback to a single primary color if not
     const segments = (milestone_segments && milestone_segments.length > 0) 
         ? milestone_segments.map(s => ({ color: s.color, width: `${s.percentage}%` }))
         : [{ color: 'bg-accent', width: `${pct}%` }];

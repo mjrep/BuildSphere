@@ -21,7 +21,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                         error?.milestone_name ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
-                {error?.milestone_name && <p className="text-red-500 text-xs ml-1">{error.milestone_name}</p>}
+                {error?.milestone_name && <p className="text-red-500 text-[10px] ml-1">{error.milestone_name}</p>}
             </div>
 
             {/* Start Date */}
@@ -37,7 +37,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                         error?.start_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
-                {error?.start_date && <p className="text-red-500 text-xs ml-1">{error.start_date}</p>}
+                {error?.start_date && <p className="text-red-500 text-[10px] ml-1">{error.start_date}</p>}
             </div>
 
             {/* End Date */}
@@ -53,7 +53,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                         error?.end_date ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                     } focus:outline-none focus:ring-2`}
                 />
-                {error?.end_date && <p className="text-red-500 text-xs ml-1">{error.end_date}</p>}
+                {error?.end_date && <p className="text-red-500 text-[10px] ml-1">{error.end_date}</p>}
             </div>
 
             {/* Weight Percentage */}
@@ -110,7 +110,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                                 error?.quantity_target ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                             } focus:outline-none focus:ring-2`}
                         />
-                        {error?.quantity_target && <p className="text-red-500 text-xs ml-1">{error.quantity_target}</p>}
+                        {error?.quantity_target && <p className="text-red-500 text-[10px] ml-1">{error.quantity_target}</p>}
                     </div>
                 </div>
             )}

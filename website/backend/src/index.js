@@ -50,6 +50,7 @@ app.get('/api/admin/users', authenticateToken, AdminUserController.index);
 app.post('/api/admin/users/invite', authenticateToken, AdminUserController.invite);
 app.patch('/api/admin/users/:id/status', authenticateToken, AdminUserController.toggleStatus);
 app.patch('/api/admin/users/:id/role', authenticateToken, AdminUserController.updateRole);
+app.patch('/api/admin/users/:id', authenticateToken, AdminUserController.updateUser);
 
 // Protected Core Routes
 app.get('/api/dashboard/stats', authenticateToken, dashboardController.stats);

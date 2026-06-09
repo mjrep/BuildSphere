@@ -8,10 +8,9 @@ export const TASK_STATUSES = {
 
 // Task priority values and display config
 export const TASK_PRIORITIES = {
-    low:    { label: 'Low',    bg: 'bg-slate-100',  text: 'text-slate-600'  },
-    medium: { label: 'Medium', bg: 'bg-blue-100',   text: 'text-blue-600'   },
-    high:   { label: 'High',   bg: 'bg-orange-100', text: 'text-orange-600' },
-    urgent: { label: 'Urgent', bg: 'bg-red-100',    text: 'text-red-600'    },
+    low:    { label: 'Low',    bg: 'bg-emerald-100', text: 'text-emerald-600' },
+    medium: { label: 'Medium', bg: 'bg-blue-100',    text: 'text-blue-600'    },
+    high:   { label: 'High',   bg: 'bg-red-100',     text: 'text-red-600'     },
 };
 
 export const KANBAN_COLUMNS = ['todo', 'in_progress', 'in_review', 'completed'];

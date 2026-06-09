@@ -202,6 +202,42 @@ class AdminUserController {
       res.status(500).json({ message: err.message });
     }
   }
+
+  static async updateUser(req, res) {
+    try {
+      AdminUserController.checkAccess(req.user);
+      const { id } = req.params;
+      const { first_name, last_name, email, role } = req.body;
+
+      if (!first_name || !last_name || !email || !role) {
+        return res.status(422).json({ message: 'All fields are required.' });
+      }
+
+      const { data: user, error } = await supabaseAdmin
+        .from('users')
+        .update({ first_name, last_name, email, role })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Also update Auth metadata
+      const { data: userListData } = await supabaseAdmin.auth.admin.listUsers();
+      const authUser = userListData?.users?.find(u => u.email === user.email || u.user_metadata?.email === user.email);
+      if (authUser) {
+        await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+          email,
+          user_metadata: { first_name, last_name, role }
+        });
+      }
+
+      res.json({ message: 'Personnel details updated successfully.', data: user });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: err.message });
+    }
+  }
 }
 
 module.exports = AdminUserController;

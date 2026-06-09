@@ -539,26 +539,22 @@ class DashboardController {
         };
       };
       
-      const projectTeams = ongoingItems.slice(0, 4).map((project) => {
+      const projectTeams = ongoingItems.map((project) => {
         const progressData = getProgressForProject(project.id, project.tasks || []);
         const tasksDone = project.tasks?.filter(t => t.status === 'completed').length || 0;
         const tasksTotal = project.tasks?.length || 0;
  
-        // Map milestone progress to segments for the multi-colored progress bar
-        const totalProjectMilestones = progressData.phases.reduce((acc, p) => acc + p.milestones.length, 0);
-        const milestoneSegments = [];
-        
-        progressData.phases.forEach((phase) => {
-          phase.milestones.forEach((ms, idx) => {
-            if (ms.progress_percentage > 0) {
-              milestoneSegments.push({
-                milestone_id: ms.id,
-                color: colorPalette[milestoneSegments.length % colorPalette.length],
-                percentage: (ms.progress_percentage * (ms.weight_percentage / 100) * (parseFloat(phase.weight_percentage || 0) / 100))
-              });
-            }
-          });
-        });
+        // Create colorful segments for each completed task
+        const taskSegments = [];
+        if (tasksTotal > 0) {
+          const segmentWidth = 100 / tasksTotal;
+          for (let i = 0; i < tasksDone; i++) {
+            taskSegments.push({
+              color: colorPalette[i % colorPalette.length],
+              percentage: segmentWidth
+            });
+          }
+        }
  
         let teamMembers = [];
         if (project.project_in_charge) {
@@ -591,7 +587,7 @@ class DashboardController {
           tasksDone,
           tasksTotal,
           progress: progressData.project_progress,
-          milestone_segments: milestoneSegments,
+          milestone_segments: taskSegments,
           memberCount: mappedMembers.length + (project.project_in_charge ? 1 : 0),
           members: formattedMembers
         };
@@ -627,19 +623,38 @@ class DashboardController {
       const today = new Date().toISOString().split('T')[0];
       const updatesList = ongoingItems.map(project => {
         let updatesToday = 0;
+        let latestLogTime = null;
+
         (project.updates || []).forEach(task => {
           (task.progress_logs || []).forEach(log => {
              const createdDate = log.created_at ? log.created_at.split('T')[0] : null;
              const workDate = log.work_date ? log.work_date.split('T')[0] : null;
              if (createdDate === today || workDate === today) {
                updatesToday++;
+               if (!latestLogTime || new Date(log.created_at) > new Date(latestLogTime.created_at)) {
+                 latestLogTime = log;
+               }
              }
           });
         });
+
+        let latestShift = 'Morning';
+        if (latestLogTime) {
+            if (latestLogTime.shift) {
+                latestShift = latestLogTime.shift;
+            } else {
+                const h = new Date(latestLogTime.created_at).getHours();
+                if (h < 12) latestShift = 'Morning';
+                else if (h < 14) latestShift = 'Noon';
+                else latestShift = 'Afternoon';
+            }
+        }
+
         return {
           project_id: project.id,
           project_name: project.project_name,
-          updates_today: updatesToday
+          updates_today: updatesToday,
+          latest_shift: latestShift
         };
       })
       .filter(p => p.updates_today > 0)

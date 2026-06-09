@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../utils/supabase';
-import axios from 'axios';
+import api from '../../services/api';
 
 /**
  * Native relative time formatter to avoid external dependencies like date-fns
@@ -70,7 +70,7 @@ export default function NotificationBell({ user }) {
 
     const fetchNotifications = async () => {
         try {
-            const res = await axios.get('/api/notifications');
+            const res = await api.get('/notifications');
             setNotifications(res.data.data || []);
         } catch (err) {
             console.error('Failed to fetch notifications', err);
@@ -81,7 +81,7 @@ export default function NotificationBell({ user }) {
         setIsOpen(false);
         if (!notif.is_read) {
             try {
-                await axios.patch(`/api/notifications/${notif.id}/read`);
+                await api.patch(`/notifications/${notif.id}/read`);
                 // Update local state immediately
                 setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
             } catch (err) {
@@ -96,7 +96,7 @@ export default function NotificationBell({ user }) {
 
     const handleMarkAllRead = async () => {
         try {
-            await axios.patch('/api/notifications/read-all');
+            await api.patch('/notifications/read-all');
             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
         } catch (err) {
             console.error('Failed to mark all as read', err);
@@ -134,14 +134,6 @@ export default function NotificationBell({ user }) {
                 <div className="absolute right-0 mt-3 w-80 bg-card rounded-3xl shadow-2xl border border-border-primary overflow-hidden z-50 animate-in fade-in slide-in-from-top-4 duration-300">
                     <div className="px-5 py-4 border-b border-border-primary flex items-center justify-between bg-bg-secondary/50">
                         <h4 className="text-sm font-bold text-text-primary">Notifications</h4>
-                        {unreadCount > 0 && (
-                            <button 
-                                onClick={handleMarkAllRead}
-                                className="text-[10px] font-bold text-accent hover:underline"
-                            >
-                                Mark all as read
-                            </button>
-                        )}
                     </div>
 
                     <div className="max-h-[360px] overflow-y-auto">
@@ -185,8 +177,12 @@ export default function NotificationBell({ user }) {
                     </div>
 
                     <div className="px-5 py-3 border-t border-border-primary bg-bg-secondary/50 text-center">
-                        <button className="text-[10px] font-bold text-text-muted hover:text-accent transition-colors uppercase tracking-widest">
-                            View All Activity
+                        <button 
+                            onClick={handleMarkAllRead}
+                            disabled={unreadCount === 0}
+                            className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${unreadCount > 0 ? 'text-accent hover:text-accent/80' : 'text-text-muted cursor-not-allowed opacity-50'}`}
+                        >
+                            Mark all as read
                         </button>
                     </div>
                 </div>

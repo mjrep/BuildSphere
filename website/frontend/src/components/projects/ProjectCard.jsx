@@ -125,18 +125,20 @@ export default function ProjectCard({ project }) {
                 </div>
 
                 {/* Progress */}
-                <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[10px]">
-                        <span className="text-text-muted font-medium">Progress</span>
-                        <span className="text-text-primary font-bold">{progress}%</span>
+                {(project.status === 'ongoing' || project.status === 'completed') && (
+                    <div className="space-y-1.5">
+                        <div className="flex justify-between items-center text-[10px]">
+                            <span className="text-text-muted font-medium">Progress</span>
+                            <span className="text-text-primary font-bold">{progress}%</span>
+                        </div>
+                        <div className="h-1.5 bg-bg-primary rounded-full overflow-hidden shadow-inner">
+                            <div 
+                                className={`h-full rounded-full shadow-[0_0_8px_rgba(124,116,255,0.4)] transition-all duration-700 ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-accent'}`} 
+                                style={{ width: `${progress}%` }} 
+                            />
+                        </div>
                     </div>
-                    <div className="h-1.5 bg-bg-primary rounded-full overflow-hidden shadow-inner">
-                        <div 
-                            className="h-full bg-accent rounded-full shadow-[0_0_8px_rgba(124,116,255,0.4)] transition-all duration-700" 
-                            style={{ width: `${progress}%` }} 
-                        />
-                    </div>
-                </div>
+                )}
             </div>
         </div>
     );
