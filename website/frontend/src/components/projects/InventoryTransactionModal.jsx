@@ -61,9 +61,9 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
     };
 
     const actionOptions = [
-        { id: 'RECEIVING', label: 'Receive', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-        { id: 'CONSUMPTION', label: 'Consume', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
-        { id: 'SPOILAGE', label: 'Spoilage', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+        { id: 'RECEIVING', label: 'Received', color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+        { id: 'CONSUMPTION', label: 'Consumed', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
+        { id: 'SPOILAGE', label: 'Defective', color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
     ];
 
     return (

@@ -162,8 +162,8 @@ export default function UserManagementPage() {
 
                 {/* Users Table */}
                 <div className="bg-card rounded-2xl shadow-sm border border-border-primary overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                    <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                        <table className="w-full min-w-[800px] text-left border-collapse">
                             <thead>
                                 <tr className="bg-bg-secondary/50 border-b border-border-primary">
                                     <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Personnel</th>

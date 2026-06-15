@@ -51,7 +51,16 @@ export default function TaskListTable({ tasks, onTaskClick, onEdit, onDelete }) 
                                 <td className="px-4 py-3"><PriorityBadge priority={task.priority} /></td>
                                 <td className="px-4 py-3"><StatusBadge status={task.status} /></td>
                                 <td className="px-4 py-3 text-xs text-text-muted whitespace-nowrap">{formatDate(task.start_date)}</td>
-                                <td className="px-4 py-3 text-xs text-text-muted whitespace-nowrap">{formatDate(task.due_date)}</td>
+                                <td className="px-4 py-3 text-xs text-text-muted whitespace-nowrap">
+                                    <div className="flex flex-col gap-1 items-start">
+                                        <span>{formatDate(task.due_date)}</span>
+                                        {task.status !== 'completed' && task.due_date && task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && (
+                                            <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wide">
+                                                Past Due
+                                            </span>
+                                        )}
+                                    </div>
+                                </td>
                                 <td className="px-4 py-3 text-xs text-text-muted whitespace-nowrap">{createdBy}</td>
                                 <td className="px-4 py-3">
                                     <TaskActionsDropdown 

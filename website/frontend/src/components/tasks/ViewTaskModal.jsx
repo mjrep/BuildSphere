@@ -454,7 +454,16 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                     <div className="space-y-3">
                         <Detail label="Priority"    value={<PriorityBadge priority={task.priority} />} />
                         <Detail label="Start Date"  value={formatDate(task.start_date)} />
-                        <Detail label="Due Date"    value={formatDate(task.due_date)} />
+                        <Detail label="Due Date"    value={
+                            <div className="flex items-center gap-2">
+                                <span>{formatDate(task.due_date)}</span>
+                                {task.status !== 'completed' && task.due_date && task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && (
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wide">
+                                        Past Due
+                                    </span>
+                                )}
+                            </div>
+                        } />
                         <Detail label="Assigned by" value={
                             <div className="flex items-center gap-1.5">
                                 <div className="w-6 h-6 rounded-full bg-accent/10 text-accent text-[9px] font-bold flex items-center justify-center">

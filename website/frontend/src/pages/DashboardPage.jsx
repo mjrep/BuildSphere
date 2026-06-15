@@ -109,7 +109,7 @@ export default function DashboardPage() {
                         {/* Project Teams Skeleton */}
                         <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary animate-pulse">
                             <div className="h-6 bg-bg-secondary rounded w-32 mb-4" />
-                            <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                                 {[1, 2, 3, 4].map((i) => (
                                     <div key={i} className="h-48 bg-bg-secondary rounded-2xl border border-border-primary/50" />
                                 ))}
@@ -192,7 +192,8 @@ export default function DashboardPage() {
                             {filteredAllocations.length > 0 ? (
                                 <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {filteredAllocations.map((p) => {
-                                        const percent = p.budget > 0 ? Math.min(100, Math.round((p.actual_cost / p.budget) * 100)) : 0;
+                                        const rawPercent = p.budget > 0 ? (p.actual_cost / p.budget) * 100 : 0;
+                                        const percent = p.actual_cost > 0 && rawPercent < 1 ? 1 : Math.min(100, Math.round(rawPercent));
                                         return (
                                             <div key={p.id} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 border border-border-primary/50 rounded-[1.5rem] p-5 shadow-sm transition-all duration-300 flex flex-col justify-between group">
                                                 <div>
@@ -434,7 +435,7 @@ export default function DashboardPage() {
                                 </div>
 
                                 {filteredProcurementStock.length > 0 ? (
-                                    <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto pr-2 scrollbar-thin pb-4">
+                                    <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 gap-4 items-start content-start overflow-y-auto pr-2 scrollbar-thin pb-4">
                                         {filteredProcurementStock.map((p) => {
                                             const total = p.in_stock + p.low_stock + p.no_stock;
                                             const inStockPct = total > 0 ? (p.in_stock / total) * 100 : 0;
@@ -575,16 +576,6 @@ export default function DashboardPage() {
                                                         </p>
                                                     </div>
 
-                                                    {/* Quick replenishment action trigger */}
-                                                    <button className={`w-8 h-8 rounded-xl flex items-center justify-center border transition-all ${
-                                                        alert.status === 'Out of Stock'
-                                                            ? 'bg-red-500/10 text-red-500 border-red-500/20 hover:bg-red-500 hover:text-white'
-                                                            : 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20 hover:bg-yellow-500 hover:text-white'
-                                                    }`} title="Order Restock">
-                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                        </svg>
-                                                    </button>
                                                 </div>
                                             ))
                                         ) : (

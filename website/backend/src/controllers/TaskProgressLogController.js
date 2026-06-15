@@ -151,7 +151,7 @@ class TaskProgressLogController {
       try {
         const { data: projectData } = await supabase
           .from('projects')
-          .select('project_name, project_coordinator_id, project_in_charge_id')
+          .select('project_name, project_in_charge_id')
           .eq('id', milestone.project_id)
           .single();
 
@@ -171,7 +171,6 @@ class TaskProgressLogController {
 
         // 2. Site Update Alert (to relevant roles)
         const targets = new Set();
-        if (projectData?.project_coordinator_id) targets.add(projectData.project_coordinator_id);
         if (projectData?.project_in_charge_id) targets.add(projectData.project_in_charge_id);
         
         const { data: execs } = await supabase.from('users').select('id').in('role', ['CEO', 'COO', 'Admin']);
@@ -221,12 +220,12 @@ class TaskProgressLogController {
       if (fetchError || !log) throw fetchError || new Error('Log not found.');
 
       const inChargeId = log.task?.project?.project_in_charge_id;
-      const role = (user.role || '').toLowerCase().replace(' ', '_');
+      const role = (user.role || '').toLowerCase().replace(/ /g, '_');
       
-      const isAuthorized = inChargeId === user.id || ['ceo', 'coo', 'admin'].includes(role);
+      const isAuthorized = inChargeId === user.id || ['ceo', 'coo', 'admin', 'project_coordinator'].includes(role);
       
       if (!isAuthorized) {
-        return res.status(403).json({ message: 'Unauthorized. Only the Project in Charge or Executives can verify updates.' });
+        return res.status(403).json({ message: 'Unauthorized. Only the Project in Charge, Coordinator, or Executives can verify updates.' });
       }
 
       const updates = {};

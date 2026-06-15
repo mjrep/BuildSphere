@@ -444,13 +444,15 @@ class DashboardController {
             project_id,
             phase_key,
             weight_percentage,
+            end_date,
             milestones:project_milestones(
               id,
               milestone_name,
               weight_percentage,
               has_quantity,
               target_quantity,
-              current_quantity
+              current_quantity,
+              end_date
             )
           `)
           .in('project_id', ongoingProjectIds);
@@ -594,21 +596,56 @@ class DashboardController {
       });
  
       // 3. Ongoing Projects details
+      const currentDate = new Date();
+      currentDate.setHours(0, 0, 0, 0);
+
       const ongoingProjectsList = [...ongoingItems]
         .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
         .map((project) => {
           const progressData = getProgressForProject(project.id, project.tasks || []);
           const progress = progressData.project_progress;
           
-          let daysLeft = 0;
+          let daysLeft = null;
+          let displayStatus = 'On Track';
+          
           if (project.end_date) {
-            const diffTime = Math.max(0, new Date(project.end_date) - new Date());
+            const endDate = new Date(project.end_date);
+            const diffTime = Math.max(0, endDate - currentDate);
             daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
           }
+
+          let hasDelayedMilestoneOrPhase = false;
+          const projectPhases = phasesByProject.get(project.id) || [];
+          
+          projectPhases.forEach(phase => {
+            const phaseProgressData = progressData.phases.find(p => p.id === phase.id);
+            const isPhaseComplete = phaseProgressData && phaseProgressData.progress === 100;
+
+            if (!isPhaseComplete && phase.end_date) {
+               const pEndDate = new Date(phase.end_date);
+               pEndDate.setHours(23, 59, 59, 999);
+               if (currentDate > pEndDate) hasDelayedMilestoneOrPhase = true;
+            }
+
+            (phase.milestones || []).forEach(ms => {
+                const msProgressData = phaseProgressData?.milestones?.find(m => m.id === ms.id);
+                const isMsComplete = msProgressData && msProgressData.progress_percentage === 100;
+                
+                if (!isMsComplete && ms.end_date) {
+                   const mEndDate = new Date(ms.end_date);
+                   mEndDate.setHours(23, 59, 59, 999);
+                   if (currentDate > mEndDate) hasDelayedMilestoneOrPhase = true;
+                }
+            });
+          });
  
-          let displayStatus = 'On Track';
-          if (daysLeft < 14 && progress < 80) displayStatus = 'Near Due';
-          if (daysLeft <= 0 && progress < 100) displayStatus = 'Delayed';
+          if (daysLeft !== null && daysLeft < 14 && progress < 100) {
+            displayStatus = 'Near Due';
+          }
+          
+          if ((daysLeft !== null && daysLeft <= 0 && progress < 100) || hasDelayedMilestoneOrPhase) {
+            displayStatus = 'Delayed';
+          }
  
           return {
             project_id: project.id,

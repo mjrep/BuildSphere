@@ -28,5 +28,5 @@ export const SORT_OPTIONS = [
 // Roles that can create/manage tasks
 export const CREATOR_ROLES = [
     'ceo', 'coo', 'project_engineer', 'project_coordinator',
-    'sales', 'accounting', 'human_resource', 'procurement',
+    'sales', 'accounting', 'human_resource', 'hr', 'procurement',
 ];

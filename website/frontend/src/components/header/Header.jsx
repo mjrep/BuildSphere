@@ -2,18 +2,26 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import NotificationBell from './NotificationBell';
 import { useTheme } from '../../context/ThemeContext';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Menu } from 'lucide-react';
 
-export default function Header({ pageTitle, user, loading, scrolled }) {
+export default function Header({ pageTitle, user, loading, scrolled, onMenuToggle }) {
     const { theme, toggleTheme } = useTheme();
     const initials = user
         ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}`.toUpperCase()
         : '';
 
     return (
-        <header className={`h-[81px] flex items-center justify-between bg-bg-secondary px-8 shrink-0 transition-all duration-200 border-b border-border-primary ${scrolled ? 'shadow-sm' : ''}`}>
-            {/* Page title */}
-            <h1 className="text-2xl font-semibold text-text-primary tracking-tight">{pageTitle}</h1>
+        <header className={`h-[81px] flex items-center justify-between bg-bg-secondary px-4 md:px-8 shrink-0 transition-all duration-200 border-b border-border-primary ${scrolled ? 'shadow-sm' : ''}`}>
+            <div className="flex items-center gap-3">
+                <button
+                    onClick={onMenuToggle}
+                    className="p-2 -ml-2 rounded-xl text-text-secondary hover:bg-bg-hover hover:text-text-primary transition-colors lg:hidden"
+                >
+                    <Menu size={24} />
+                </button>
+                {/* Page title */}
+                <h1 className="text-xl md:text-2xl font-semibold text-text-primary tracking-tight truncate">{pageTitle}</h1>
+            </div>
 
             {/* Clickable user section → /profile */}
             {loading ? (

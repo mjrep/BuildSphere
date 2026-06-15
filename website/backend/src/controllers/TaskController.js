@@ -15,7 +15,7 @@ class TaskController {
     const role = (user.role || '').toLowerCase().replace(/ /g, '_');
     const allowed = [
       'ceo', 'coo', 'project_engineer', 'project_coordinator',
-      'sales', 'accounting', 'human_resource', 'procurement', 'admin'
+      'sales', 'accounting', 'human_resource', 'hr', 'procurement', 'admin'
     ];
     return allowed.includes(role);
   }

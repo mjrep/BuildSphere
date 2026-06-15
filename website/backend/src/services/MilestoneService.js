@@ -26,6 +26,8 @@ class MilestoneService {
         id,
         phase_key,
         weight_percentage,
+        start_date,
+        end_date,
         milestones:project_milestones(
           id,
           milestone_name,
@@ -140,6 +142,8 @@ class MilestoneService {
         id: phase.id,
         name: formatPhaseTitle(phase.phase_key),
         phase_key: phase.phase_key,
+        start_date: phase.start_date ? phase.start_date.split('T')[0] : null,
+        end_date: phase.end_date ? phase.end_date.split('T')[0] : null,
         progress: Math.round(phaseWeightedProgress),
         completed_tasks_count: completedTasks,
         total_tasks_count: totalTasks,

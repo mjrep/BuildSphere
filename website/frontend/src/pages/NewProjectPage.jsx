@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import DashboardLayout from '../layouts/DashboardLayout';
 import useAuth from '../hooks/useAuth';
 import { createProject, getUsers } from '../services/projectApi';
+import api from '../services/api';
 import toast from 'react-hot-toast';
-import { ChevronLeft, Briefcase, User, MapPin, AlignLeft, Calendar, Target, Plus } from 'lucide-react';
+import { ChevronLeft, Briefcase, User, MapPin, AlignLeft, Calendar, Target, Plus, Upload, X, FileText } from 'lucide-react';
 
 export default function NewProjectPage() {
     const navigate = useNavigate();
@@ -13,6 +14,11 @@ export default function NewProjectPage() {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
     const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [files, setFiles] = useState({
+        contract: null,
+        billing_format: null,
+        shop_drawing: null
+    });
 
     const [form, setForm] = useState({
         project_name: '',
@@ -113,6 +119,10 @@ export default function NewProjectPage() {
             newErrors = { ...newErrors, ...realTimeErrors };
         }
 
+        if (!files.contract) { newErrors.contract = ['Contract PDF is required.']; hasError = true; }
+        if (!files.billing_format) { newErrors.billing_format = ['Billing Format PDF is required.']; hasError = true; }
+        if (!files.shop_drawing) { newErrors.shop_drawing = ['Shop Drawing PDF is required.']; hasError = true; }
+
         if (hasError) {
             setErrors(newErrors);
             return;
@@ -142,6 +152,20 @@ export default function NewProjectPage() {
             };
 
             const response = await createProject(payload);
+            const projectId = response.data.data.id;
+
+            const uploadFile = async (fileObj, category) => {
+                if (!fileObj) return;
+                const formData = new FormData();
+                formData.append('files', fileObj);
+                formData.append('document_category', category);
+                await api.post(`/projects/${projectId}/files`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+            };
+
+            await uploadFile(files.contract, 'contract');
+            await uploadFile(files.billing_format, 'billing_format');
+            await uploadFile(files.shop_drawing, 'shop_drawing');
+
             toast.success('Project created successfully!');
             navigate('/projects/success');
         } catch (err) {
@@ -187,7 +211,7 @@ export default function NewProjectPage() {
                 <span className="font-bold">New Project</span>
             </div>
         }>
-            <div className="max-w-4xl mx-auto pb-12">
+            <div className="max-w-6xl mx-auto pb-12">
                 <div className="bg-card rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-border-primary overflow-hidden">
                     {/* Header Banner */}
                     <div className="bg-accent px-8 py-10 text-white relative overflow-hidden">
@@ -330,6 +354,114 @@ export default function NewProjectPage() {
                                         </div>
                                     </div>
                                     {getFieldError('project_in_charge_id') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('project_in_charge_id')[0]}</p>}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Section 3: Required Documents */}
+                        <div className="space-y-6 pt-4">
+                            <div className="flex items-center gap-2 pb-2 border-b border-border-primary">
+                                <AlignLeft className="w-4 h-4 text-accent" />
+                                <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider">Required Documents (PDF)</h3>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                {/* Contract */}
+                                <div className="space-y-1.5">
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Contract</label>
+                                    {!files.contract ? (
+                                        <label className={`flex flex-col items-center justify-center w-full h-[88px] border-2 border-dashed rounded-2xl cursor-pointer hover:bg-bg-secondary transition-colors ${getFieldError('contract') ? 'border-red-300 bg-red-50/50' : 'border-border-primary bg-card'}`}>
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Upload className="w-5 h-5 mb-1.5 text-accent/70" />
+                                                <p className="text-xs text-text-muted font-semibold">Click to upload PDF</p>
+                                            </div>
+                                            <input type="file" accept=".pdf" className="hidden" onChange={(e) => {
+                                                setFiles(p => ({ ...p, contract: e.target.files[0] }));
+                                                setErrors(p => ({ ...p, contract: null }));
+                                            }} />
+                                        </label>
+                                    ) : (
+                                        <div className="flex items-center justify-between p-3 border border-border-primary rounded-2xl bg-bg-secondary/30 h-[88px]">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-red-600" />
+                                                </div>
+                                                <div className="flex flex-col min-w-0 pr-2">
+                                                    <span className="text-sm font-bold text-text-primary truncate">{files.contract.name}</span>
+                                                    <span className="text-xs text-text-muted font-medium">{(files.contract.size / 1024 / 1024).toFixed(2)} MB</span>
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, contract: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {getFieldError('contract') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('contract')[0]}</p>}
+                                </div>
+
+                                {/* Billing Format */}
+                                <div className="space-y-1.5">
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Billing Format</label>
+                                    {!files.billing_format ? (
+                                        <label className={`flex flex-col items-center justify-center w-full h-[88px] border-2 border-dashed rounded-2xl cursor-pointer hover:bg-bg-secondary transition-colors ${getFieldError('billing_format') ? 'border-red-300 bg-red-50/50' : 'border-border-primary bg-card'}`}>
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Upload className="w-5 h-5 mb-1.5 text-accent/70" />
+                                                <p className="text-xs text-text-muted font-semibold">Click to upload PDF</p>
+                                            </div>
+                                            <input type="file" accept=".pdf" className="hidden" onChange={(e) => {
+                                                setFiles(p => ({ ...p, billing_format: e.target.files[0] }));
+                                                setErrors(p => ({ ...p, billing_format: null }));
+                                            }} />
+                                        </label>
+                                    ) : (
+                                        <div className="flex items-center justify-between p-3 border border-border-primary rounded-2xl bg-bg-secondary/30 h-[88px]">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-red-600" />
+                                                </div>
+                                                <div className="flex flex-col min-w-0 pr-2">
+                                                    <span className="text-sm font-bold text-text-primary truncate">{files.billing_format.name}</span>
+                                                    <span className="text-xs text-text-muted font-medium">{(files.billing_format.size / 1024 / 1024).toFixed(2)} MB</span>
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, billing_format: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {getFieldError('billing_format') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('billing_format')[0]}</p>}
+                                </div>
+
+                                {/* Shop Drawing */}
+                                <div className="space-y-1.5">
+                                    <label className="block text-sm font-semibold text-text-secondary ml-1">Shop Drawing</label>
+                                    {!files.shop_drawing ? (
+                                        <label className={`flex flex-col items-center justify-center w-full h-[88px] border-2 border-dashed rounded-2xl cursor-pointer hover:bg-bg-secondary transition-colors ${getFieldError('shop_drawing') ? 'border-red-300 bg-red-50/50' : 'border-border-primary bg-card'}`}>
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Upload className="w-5 h-5 mb-1.5 text-accent/70" />
+                                                <p className="text-xs text-text-muted font-semibold">Click to upload PDF</p>
+                                            </div>
+                                            <input type="file" accept=".pdf" className="hidden" onChange={(e) => {
+                                                setFiles(p => ({ ...p, shop_drawing: e.target.files[0] }));
+                                                setErrors(p => ({ ...p, shop_drawing: null }));
+                                            }} />
+                                        </label>
+                                    ) : (
+                                        <div className="flex items-center justify-between p-3 border border-border-primary rounded-2xl bg-bg-secondary/30 h-[88px]">
+                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
+                                                    <FileText className="w-5 h-5 text-red-600" />
+                                                </div>
+                                                <div className="flex flex-col min-w-0 pr-2">
+                                                    <span className="text-sm font-bold text-text-primary truncate">{files.shop_drawing.name}</span>
+                                                    <span className="text-xs text-text-muted font-medium">{(files.shop_drawing.size / 1024 / 1024).toFixed(2)} MB</span>
+                                                </div>
+                                            </div>
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, shop_drawing: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    )}
+                                    {getFieldError('shop_drawing') && <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{getFieldError('shop_drawing')[0]}</p>}
                                 </div>
                             </div>
                         </div>

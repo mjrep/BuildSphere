@@ -40,15 +40,15 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
     ];
 
     return (
-        <div className="w-full bg-card rounded-3xl border border-border-primary overflow-hidden shadow-sm">
+        <div className="w-full bg-card rounded-3xl border border-gray-800 overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
+                <table className="w-full border-separate" style={{ borderSpacing: 0 }}>
                     <thead>
                         <tr className="bg-bg-secondary">
-                            <th className="px-6 py-6 text-sm font-bold text-accent border-b border-r border-border-primary w-[200px]">Phase</th>
-                            <th className="px-6 py-6 text-sm font-bold text-accent border-b border-r border-border-primary w-[200px]">Milestone</th>
+                            <th className="px-4 py-3 text-sm font-bold text-accent border-b border-r border-gray-800 w-[150px]">Phase</th>
+                            <th className="px-4 py-3 text-sm font-bold text-accent border-b border-r border-gray-800 w-[200px]">Milestone</th>
                             {months.map(month => (
-                                <th key={month.key} className="px-4 py-6 text-xs font-semibold text-text-muted border-b border-r border-border-primary min-w-[120px]">
+                                <th key={month.key} className="px-3 py-3 text-xs font-semibold text-text-muted border-b border-r border-gray-800 last:border-r-0 min-w-[100px]">
                                     {month.label}
                                 </th>
                             ))}
@@ -64,14 +64,14 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
                                             {mIdx === 0 && (
                                                 <td 
                                                     rowSpan={phase.milestones.length} 
-                                                    className="px-6 py-4 text-center border-b border-r border-border-primary bg-card align-middle"
+                                                    className="px-4 py-2 text-center border-b border-r border-gray-800 bg-card align-middle"
                                                 >
                                                     <span className={`text-sm font-bold ${colorSet.accent} leading-tight block`}>
                                                         {phase.phase_title}
                                                     </span>
                                                 </td>
                                             )}
-                                            <td className="px-6 py-8 text-sm text-text-primary font-bold border-b border-r border-border-primary">
+                                            <td className="px-4 py-2 text-sm text-text-primary font-bold border-b border-r border-gray-800">
                                                 <div className="flex flex-col gap-1">
                                                     <span>{ms.milestone_name}</span>
                                                     <span className={`text-[10px] font-bold ${colorSet.accent} ${colorSet.bg5} px-2 py-0.5 rounded-full w-fit`}>
@@ -82,9 +82,9 @@ export default function MilestoneGanttGrid({ phases, months = [], onViewProgress
                                             {months.map((month) => {
                                                 const progress = getProgressInMonth(ms, month.key);
                                                 return (
-                                                    <td key={month.key} className="p-0 border-b border-r border-border-primary h-full relative min-h-[60px]">
+                                                    <td key={month.key} className="p-0 border-b border-r border-gray-800 last:border-r-0 h-[40px] relative">
                                                         {progress !== null && (
-                                                            <div className={`absolute inset-0.5 ${colorSet.bg5} rounded-lg overflow-hidden flex items-center justify-center`}>
+                                                            <div className={`absolute inset-0 ${colorSet.bg5} overflow-hidden flex items-center justify-center`}>
                                                                 <div 
                                                                     className={`absolute left-0 top-0 bottom-0 ${colorSet.bg20} transition-all duration-500`}
                                                                     style={{ width: `${progress}%` }}

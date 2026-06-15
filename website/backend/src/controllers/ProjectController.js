@@ -172,7 +172,7 @@ class ProjectController {
       const { data: projectFiles } = await supabase
         .from('project_files')
         .select(`
-          id, file_name, file_type, created_at,
+          id, file_name, file_type, created_at, document_category,
           uploader:users!uploaded_by(first_name, last_name)
         `)
         .eq('project_id', id)
@@ -184,8 +184,13 @@ class ProjectController {
       // A. Days Left & Status Metrics
       let daysLeft = null;
       let statusLabel = 'on_track';
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       if (project.end_date) {
-        const diff = new Date(project.end_date) - new Date();
+        const endDate = new Date(project.end_date);
+        const diff = endDate - today;
         daysLeft = Math.ceil(diff / (1000 * 60 * 60 * 24));
         if (daysLeft < 0) daysLeft = 0;
       }
@@ -197,10 +202,29 @@ class ProjectController {
       // Also need counts for the tasks summary card
       const totalTasks = tasks?.length || 0;
       const completedTasks = tasks?.filter(t => t.status === 'completed').length || 0;
+      
+      let hasDelayedMilestoneOrPhase = false;
+      (progressData.phases || []).forEach(phase => {
+          if (phase.progress < 100 && phase.end_date) {
+             const pEndDate = new Date(phase.end_date);
+             pEndDate.setHours(23, 59, 59, 999);
+             if (today > pEndDate) hasDelayedMilestoneOrPhase = true;
+          }
+          (phase.milestones || []).forEach(ms => {
+              if (ms.progress_percentage < 100 && ms.end_date) {
+                 const mEndDate = new Date(ms.end_date);
+                 mEndDate.setHours(23, 59, 59, 999);
+                 if (today > mEndDate) hasDelayedMilestoneOrPhase = true;
+              }
+          });
+      });
 
-      if (daysLeft !== null) {
-        if (daysLeft < 14 && progress < 80) statusLabel = 'near_due';
-        if (daysLeft <= 0 && progress < 100) statusLabel = 'delayed';
+      if (daysLeft !== null && daysLeft < 14 && progress < 100) {
+        statusLabel = 'near_due';
+      }
+      
+      if ((daysLeft !== null && daysLeft <= 0 && progress < 100) || hasDelayedMilestoneOrPhase) {
+        statusLabel = 'delayed';
       }
 
       // C. Cost Data
@@ -267,6 +291,9 @@ class ProjectController {
         });
       });
 
+      const role = (req.user?.role || '').toLowerCase();
+      const isExecutive = ['sales', 'ceo', 'coo', 'admin'].includes(role);
+
       // E. Final Format
       const formatted = {
         ...project,
@@ -306,13 +333,19 @@ class ProjectController {
           id: project.project_in_charge.id,
           name: `${project.project_in_charge.first_name} ${project.project_in_charge.last_name}`
         } : null,
-        recent_project_files: (projectFiles || []).map(f => ({
+        recent_project_files: (projectFiles || [])
+          .filter(f => isExecutive || f.document_category !== 'contract')
+          .map(f => ({
           id: f.id,
           file_name: f.file_name,
           uploaded_by: f.uploader ? `${f.uploader.first_name} ${f.uploader.last_name}` : 'Unknown',
           uploaded_at_human: helperHumanTime(f.created_at)
         }))
       };
+
+      if (!isExecutive) {
+        formatted.contract_unit_price = null;
+      }
 
       res.json({ data: formatted });
     } catch (error) {
@@ -912,6 +945,12 @@ class ProjectController {
 
   static async complete(req, res) {
     try {
+      const user = req.user;
+      const role = (user.role || '').toUpperCase();
+      if (!['CEO', 'COO', 'ADMIN'].includes(role)) {
+        return res.status(403).json({ message: 'Unauthorized. Only the CEO or COO can mark a project as completed.' });
+      }
+
       const { id } = req.params;
       const supabase = ProjectController.getSupabaseWithAuth(req);
 

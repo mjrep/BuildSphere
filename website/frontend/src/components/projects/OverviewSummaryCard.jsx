@@ -65,10 +65,12 @@ export default function OverviewSummaryCard({ project }) {
                     <span className="text-text-muted block mb-1 text-xs font-semibold">Address</span>
                     <p className="font-bold text-text-primary pr-4">{project.address}</p>
                 </div>
-                <div>
-                    <span className="text-text-muted block mb-1 text-xs font-semibold">Contract Unit Price</span>
-                    <p className="font-bold text-text-primary">{formatCurrency(project.contract_unit_price)} per panel</p>
-                </div>
+                {project.contract_unit_price != null && (
+                    <div>
+                        <span className="text-text-muted block mb-1 text-xs font-semibold">Contract Unit Price</span>
+                        <p className="font-bold text-text-primary">{formatCurrency(project.contract_unit_price)} per panel</p>
+                    </div>
+                )}
                 <div>
                     <span className="text-text-muted block mb-1 text-xs font-semibold">Project End</span>
                     <p className="font-bold text-text-primary">{project.end_date}</p>

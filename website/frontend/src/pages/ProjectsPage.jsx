@@ -86,18 +86,18 @@ export default function ProjectsPage() {
 
             {/* Content card */}
             <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 pt-4 pb-6 px-6 lg:pt-5 lg:pb-8 lg:px-8">
-                <div className="flex items-end justify-between border-b border-border-primary/50 mb-6">
-                    <div className="flex items-center gap-8">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-border-primary/50 mb-6 gap-4">
+                    <div className="flex items-center gap-4 lg:gap-8 overflow-x-auto pb-2 scrollbar-none w-full lg:w-auto shrink-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                     {STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
                         const count = tab.key === ''
                             ? meta.total || projects.length
                             : projects.length;
                         return (
-                            <div key={tab.key} className="relative group">
+                            <div key={tab.key} className="relative group shrink-0">
                                 <button
                                     onClick={() => handleTabChange(tab.key)}
-                                    className={`pb-4 text-sm font-black transition-all relative ${
+                                    className={`pb-4 text-sm font-black transition-all relative whitespace-nowrap ${
                                         isActive
                                             ? 'text-accent'
                                             : 'text-text-muted hover:text-text-primary'
@@ -125,7 +125,7 @@ export default function ProjectsPage() {
                                                         setActiveTab('proposed');
                                                         setActiveSubTab(sub.key);
                                                     }}
-                                                    className={`w-full text-left px-5 py-2.5 text-xs font-bold transition-colors ${
+                                                    className={`w-full text-left px-5 py-2.5 text-xs font-bold transition-colors whitespace-normal ${
                                                         isSubActive
                                                             ? 'bg-accent/10 text-accent border-l-4 border-accent'
                                                             : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary border-l-4 border-transparent'
@@ -141,7 +141,7 @@ export default function ProjectsPage() {
                         );
                     })}
                     </div>
-                    <div className="pb-3">
+                    <div className="pb-3 hidden sm:block">
                         <ViewToggle view={view} onChange={setView} />
                     </div>
                 </div>

@@ -153,11 +153,11 @@ export default function ProjectDetailsPage() {
                         <div className="relative group">
                             <button 
                                 onClick={() => setShowCompleteModal(true)}
-                                disabled={project.status === 'completed' || project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed}
+                                disabled={project.status === 'completed' || project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed || !['CEO', 'COO', 'Admin'].includes(user?.role)}
                                 className={`px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 flex items-center gap-2.5 ${
                                     project.status === 'completed'
                                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 cursor-default shadow-sm shadow-emerald-500/5'
-                                        : project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed
+                                        : project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed || !['CEO', 'COO', 'Admin'].includes(user?.role)
                                             ? 'bg-gray-50 text-gray-400 border border-gray-100 cursor-not-allowed'
                                             : 'bg-gradient-to-r from-[#706BFF] to-[#5B55E6] text-white shadow-xl shadow-[#706BFF]/25 hover:shadow-[#706BFF]/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                                 }`}
@@ -176,9 +176,15 @@ export default function ProjectDetailsPage() {
                             </button>
                             
                             {/* Tooltip */}
-                            {(project.status !== 'completed' && (project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed)) && (
+                            {(project.status !== 'completed' && (project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed || !['CEO', 'COO', 'Admin'].includes(user?.role))) && (
                                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 px-4 py-2.5 bg-[#1A1A1A] text-white text-[11px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 transform translate-y-[-10px] group-hover:translate-y-0 whitespace-nowrap pointer-events-none z-50 shadow-2xl">
                                     <div className="flex flex-col gap-1.5">
+                                        {!['CEO', 'COO', 'Admin'].includes(user?.role) && (
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                                <span>Only the CEO/COO can complete a project</span>
+                                            </div>
+                                        )}
                                         {project.progress < 100 && (
                                             <div className="flex items-center gap-2">
                                                 <div className="w-1.5 h-1.5 rounded-full bg-red-500" />

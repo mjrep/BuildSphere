@@ -24,7 +24,9 @@ const initDeadlineJob = () => {
                     id, 
                     title, 
                     project_id,
-                    project:projects(project_name, project_coordinator_id)
+                    assigned_to,
+                    created_by,
+                    project:projects(project_name)
                 `)
                 .lt('due_date', today)
                 .not('status', 'in', '("completed","verified","ready_for_review")');
@@ -33,12 +35,15 @@ const initDeadlineJob = () => {
 
             if (overdueTasks) {
                 for (const task of overdueTasks) {
-                    const coordinatorId = task.project?.project_coordinator_id;
                     const projectName = task.project?.project_name || 'Project';
 
-                    if (coordinatorId) {
+                    const usersToNotify = new Set();
+                    if (task.assigned_to) usersToNotify.add(task.assigned_to);
+                    if (task.created_by) usersToNotify.add(task.created_by);
+
+                    for (const userId of usersToNotify) {
                         await NotificationService.createNotification(
-                            coordinatorId,
+                            userId,
                             'Task Deadline Missed',
                             `Task '${task.title}' on '${projectName}' has missed its deadline. This threatens the parent milestone.`,
                             'warning',

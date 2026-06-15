@@ -53,7 +53,7 @@ const navItems = [
     },
 ];
 
-export default function Sidebar({ onLogout }) {
+export default function Sidebar({ isOpen, setIsOpen, onLogout }) {
     const { user } = useAuth();
 
     const filteredItems = navItems.filter(item => {
@@ -62,7 +62,7 @@ export default function Sidebar({ onLogout }) {
     });
 
     return (
-        <aside className="w-64 flex flex-col bg-bg-secondary border-r border-border-primary shadow-sm h-full shrink-0 transition-colors duration-200">
+        <aside className={`fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-bg-secondary border-r border-border-primary shadow-sm h-full shrink-0 transition-transform duration-300 lg:relative lg:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             {/* Logo */}
             <Link to="/dashboard" className="h-[81px] flex items-center gap-3 px-6 border-b border-border-primary hover:opacity-80 transition-opacity">
                 <div className="flex items-center justify-center">

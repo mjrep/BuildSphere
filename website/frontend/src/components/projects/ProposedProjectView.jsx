@@ -43,10 +43,12 @@ export default function ProposedProjectView({ project }) {
                         <span className="text-text-muted">Contract Price</span>
                         <p className="font-medium text-text-primary">{formatCurrency(project.contract_price)}</p>
                     </div>
-                    <div>
-                        <span className="text-text-muted">Unit Price</span>
-                        <p className="font-medium text-text-primary">{formatCurrency(project.contract_unit_price)}</p>
-                    </div>
+                    {project.contract_unit_price != null && (
+                        <div>
+                            <span className="text-text-muted">Unit Price</span>
+                            <p className="font-medium text-text-primary">{formatCurrency(project.contract_unit_price)}</p>
+                        </div>
+                    )}
                     <div>
                         <span className="text-text-muted">Budget for Materials</span>
                         <p className="font-medium text-text-primary">{formatCurrency(project.budget_for_materials)}</p>

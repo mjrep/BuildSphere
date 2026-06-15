@@ -67,7 +67,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
             case 'CONSUMPTION':
                 return <span className="bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-blue-100 uppercase">Consumed</span>;
             case 'SPOILAGE':
-                return <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-red-100 uppercase">Spoilage</span>;
+                return <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-red-100 uppercase">Defective</span>;
             case 'ADJUSTMENT':
                 return <span className="bg-gray-50 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-gray-100 uppercase">Adjustment</span>;
             default:
@@ -83,7 +83,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                 <div className="bg-accent p-6 text-white shrink-0">
                     <div className="flex justify-between items-center">
                         <div>
-                            <h3 className="text-xl font-bold">Universal Inventory Ledger</h3>
+                            <h3 className="text-xl font-bold">Inventory Ledger</h3>
                             <p className="text-white/70 text-xs mt-1 font-medium">Project-wide transaction history</p>
                         </div>
                         <button 
@@ -122,7 +122,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                 <option value="all" className="text-gray-900">All Types</option>
                                 <option value="RECEIVING" className="text-gray-900">Receiving</option>
                                 <option value="CONSUMPTION" className="text-gray-900">Consumption</option>
-                                <option value="SPOILAGE" className="text-gray-900">Spoilage</option>
+                                <option value="SPOILAGE" className="text-gray-900">Defective</option>
                                 <option value="ADJUSTMENT" className="text-gray-900">Adjustment</option>
                             </select>
                         </div>

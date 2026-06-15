@@ -44,7 +44,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
             case 'CONSUMPTION':
                 return <span className="bg-blue-50 text-blue-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-blue-100 uppercase tracking-tight">Consumed</span>;
             case 'SPOILAGE':
-                return <span className="bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-100 uppercase tracking-tight">Spoilage</span>;
+                return <span className="bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-100 uppercase tracking-tight">Defective</span>;
             case 'ADJUSTMENT':
                 return <span className="bg-gray-50 text-gray-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-100 uppercase tracking-tight">Adjustment</span>;
             default:

@@ -55,6 +55,7 @@ class ProjectFileController {
           file_type,
           file_size,
           created_at,
+          document_category,
           uploader:users!uploaded_by(id, first_name, last_name)
         `)
         .eq('project_id', projectId)
@@ -62,16 +63,22 @@ class ProjectFileController {
 
       if (error) throw error;
 
+      const role = (req.user?.role || '').toLowerCase();
+      const isExecutive = ['sales', 'ceo', 'coo', 'admin'].includes(role);
+
       const bucket = process.env.SUPABASE_BUCKET_PROJECT_FILES || 'project-files';
 
-      const formatted = (files || []).map(f => ({
+      const formatted = (files || [])
+        .filter(f => isExecutive || f.document_category !== 'contract')
+        .map(f => ({
         id: f.id,
         file_name: f.file_name,
         file_type: f.file_type,
         file_size: f.file_size,
         created_at: f.created_at,
+        document_category: f.document_category,
         uploaded_by: f.uploader ? `${f.uploader.first_name} ${f.uploader.last_name}` : 'Unknown',
-        download_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${f.file_path.replace(/^\/+/, '')}`
+        download_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${f.file_path.replace(/^\/+/, '')}?download=${encodeURIComponent(f.file_name)}`
       }));
 
       res.json({ data: formatted });
@@ -124,7 +131,8 @@ class ProjectFileController {
             file_path: path,
             file_type: file.mimetype,
             file_size: file.size,
-            uploaded_by: user.id
+            uploaded_by: user.id,
+            document_category: req.body.document_category || 'general'
           }])
           .select(`
             id,
@@ -133,6 +141,7 @@ class ProjectFileController {
             file_type,
             file_size,
             created_at,
+            document_category,
             uploader:users!uploaded_by(id, first_name, last_name)
           `)
           .single();
@@ -145,8 +154,9 @@ class ProjectFileController {
           file_type: dbFile.file_type,
           file_size: dbFile.file_size,
           created_at: dbFile.created_at,
+          document_category: dbFile.document_category,
           uploaded_by: dbFile.uploader ? `${dbFile.uploader.first_name} ${dbFile.uploader.last_name}` : 'Unknown',
-          download_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${dbFile.file_path.replace(/^\/+/, '')}`
+          download_url: `${process.env.SUPABASE_URL}/storage/v1/object/public/${bucket}/${dbFile.file_path.replace(/^\/+/, '')}?download=${encodeURIComponent(dbFile.file_name)}`
         });
       }
 
