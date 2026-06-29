@@ -51,6 +51,8 @@ export default function LoginPage() {
             console.error('Login failed:', err);
             if (err.response?.status === 422) {
                 setErrors(err.response.data.errors || {});
+            } else if (err.response?.data?.message) {
+                setErrors({ general: err.response.data.message });
             } else {
                 setErrors({ general: 'Incorrect email or password. Please try again.' });
             }

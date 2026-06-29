@@ -66,8 +66,10 @@ class DashboardController {
           else if (status === 'completed') completedCount++;
         });
 
-        // Map projects to budget cards
-        const budgetAllocations = visibleProjects.map(p => {
+        // Map projects to budget cards (only ongoing projects)
+        const budgetAllocations = visibleProjects
+          .filter(p => (p.status || '').toLowerCase() === 'ongoing')
+          .map(p => {
           const budget = parseFloat(p.budget_for_materials || 0);
           const actualCost = (p.inventory || []).reduce((sum, item) => {
             return sum + (parseFloat(item.price || 0) * parseFloat(item.current_stock || 0));

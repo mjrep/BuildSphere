@@ -242,11 +242,12 @@ export default function UserManagementPage() {
                                                         <select 
                                                             value={isEditing ? editForm.role : (roles.find(r => r.toLowerCase() === user.role.toLowerCase()) || user.role)} 
                                                             onChange={(e) => isEditing ? setEditForm({...editForm, role: e.target.value}) : updateRole(user.id, e.target.value)}
-                                                            className="w-full bg-bg-tertiary border border-border-primary rounded-lg text-xs font-semibold tracking-tight px-3 py-2 pr-8 focus:ring-2 focus:ring-accent/10 focus:border-accent outline-none appearance-none cursor-pointer text-text-primary transition-all shadow-sm"
+                                                            disabled={!user.is_active}
+                                                            className={`w-full bg-bg-tertiary border border-border-primary rounded-lg text-xs font-semibold tracking-tight px-3 py-2 pr-8 focus:ring-2 focus:ring-accent/10 focus:border-accent outline-none appearance-none text-text-primary transition-all shadow-sm ${!user.is_active ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}
                                                         >
                                                             {roles.map(r => <option key={r} value={r}>{r}</option>)}
                                                         </select>
-                                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-text-muted group-hover:text-accent transition-colors">
+                                                        <div className={`absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors ${!user.is_active ? 'text-text-muted/50' : 'text-text-muted group-hover:text-accent'}`}>
                                                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M19 9l-7 7-7-7" />
                                                             </svg>

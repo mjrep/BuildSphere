@@ -265,7 +265,7 @@ class TaskProgressLogController {
       if (updateError) throw updateError;
 
       // --- AI Vision Trigger (Phase 2) ---
-      if (ai_verification_status === 'verified') {
+      if (ai_verification_status === 'approved') {
         try {
           const { data: project } = await supabase
             .from('projects')
@@ -305,10 +305,12 @@ class TaskProgressLogController {
     // 1. Calculate milestone progress sum
     const { data: logs } = await supabase
       .from('task_progress_logs')
-      .select('quantity_accomplished')
+      .select('quantity_accomplished, ai_verification_status')
       .eq('milestone_id', milestoneId);
 
-    const totalMilestone = (logs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
+    const totalMilestone = (logs || [])
+      .filter(log => log.ai_verification_status === 'approved')
+      .reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
 
     // Update milestone
     const { data: milestone } = await supabase
@@ -327,10 +329,12 @@ class TaskProgressLogController {
     // 2. React to Task progress
     const { data: taskLogs } = await supabase
       .from('task_progress_logs')
-      .select('quantity_accomplished')
+      .select('quantity_accomplished, ai_verification_status')
       .eq('task_id', taskId);
 
-    const taskProgress = (taskLogs || []).reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
+    const taskProgress = (taskLogs || [])
+      .filter(log => log.ai_verification_status === 'approved')
+      .reduce((sum, log) => sum + parseInt(log.quantity_accomplished), 0);
     const isTaskDone = milestone && taskProgress >= milestone.target_quantity;
 
     const { data: task } = await supabase
