@@ -11,7 +11,7 @@ export default function InventorySuccessModal({ message, onClose }) {
                 </div>
                 
                 <h3 className="text-xl font-bold text-text-primary mb-2">{message}</h3>
-                <p className="text-sm text-gray-500 mb-8 text-center">{message.replace('!', '')} to the inventory.</p>
+                <p className="text-sm text-text-muted mb-8 text-center">{message.replace('!', '')} to the inventory.</p>
                 
                 <button
                     onClick={onClose}

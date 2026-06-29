@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const multer = require('multer');
 const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
+const { getLocalToday } = require('../utils/timeHelpers');
 const NotificationService = require('../services/NotificationService');
 
 // Configure multer for single image upload
@@ -134,7 +135,7 @@ class TaskProgressLogController {
           evidence_image_path: imagePath,
           remarks: remarks || null,
           ai_verification_status: 'for_checking',
-          work_date: work_date || new Date().toISOString().split('T')[0],
+          work_date: work_date || getLocalToday(),
           shift: shift || 'Morning'
         }])
         .select(`
@@ -175,6 +176,23 @@ class TaskProgressLogController {
         
         const { data: execs } = await supabase.from('users').select('id').in('role', ['CEO', 'COO', 'Admin']);
         if (execs) execs.forEach(e => targets.add(e.id));
+
+        // Get Project Engineers and Coordinators assigned to this project
+        const { data: projectMembers } = await supabase
+          .from('project_user')
+          .select('users(id, role)')
+          .eq('project_id', milestone.project_id);
+          
+        if (projectMembers) {
+          projectMembers.forEach(m => {
+            if (m.users) {
+              const r = (m.users.role || '').toLowerCase();
+              if (r === 'project engineer' || r === 'project coordinator') {
+                targets.add(m.users.id);
+              }
+            }
+          });
+        }
 
         for (const targetId of targets) {
           if (targetId === user.id) continue;
@@ -261,7 +279,7 @@ class TaskProgressLogController {
               'AI Vision Update',
               `AI Vision successfully counted and logged installed glass panels for ${log.task?.title || 'Task'}.`,
               'success',
-              `/tasks/${log.task_id}`
+              `/tasks`
             );
           }
         } catch (notifErr) {
@@ -356,7 +374,7 @@ class TaskProgressLogController {
               'Milestone Completed',
               `Milestone '${updatedMilestone.milestone_name}' is complete. Ready for accounting review.`,
               'success',
-              `/projects/${updatedMilestone.project_id}/milestones`
+              `/projects/${updatedMilestone.project_id}`
             );
           }
         }

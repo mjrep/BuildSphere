@@ -10,6 +10,10 @@ export default function UserManagementPage() {
     const [showConfirmModal, setShowConfirmModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
+    
     // Status Modals
     const [statusModalInfo, setStatusModalInfo] = useState({ isOpen: false, user: null, isActivating: false, loading: false });
     const [showStatusSuccessModal, setShowStatusSuccessModal] = useState({ isOpen: false, isActivating: false, name: '' });
@@ -41,7 +45,12 @@ export default function UserManagementPage() {
         try {
             setLoading(true);
             const res = await api.get('/admin/users');
-            setUsers(res.data.data);
+            const sortedUsers = (res.data.data || []).sort((a, b) => {
+                const nameA = `${a.first_name || ''} ${a.last_name || ''}`.trim().toLowerCase();
+                const nameB = `${b.first_name || ''} ${b.last_name || ''}`.trim().toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+            setUsers(sortedUsers);
         } catch (err) {
             console.error('Failed to fetch users', err);
             toast.error('Could not load user list.');
@@ -134,6 +143,9 @@ export default function UserManagementPage() {
         }
     };
 
+    const totalPages = Math.ceil(users.length / itemsPerPage);
+    const paginatedUsers = users.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
     return (
         <DashboardLayout pageTitle="Personnel Management">
             <div className="space-y-5 animate-in fade-in duration-500 pb-10">
@@ -166,11 +178,11 @@ export default function UserManagementPage() {
                         <table className="w-full min-w-[800px] text-left border-collapse">
                             <thead>
                                 <tr className="bg-bg-secondary/50 border-b border-border-primary">
-                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Personnel</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Email Address</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Designation</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest">Status</th>
-                                    <th className="px-6 py-4 text-[10px] font-black text-text-muted uppercase tracking-widest text-right">Actions</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Personnel</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Email Address</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Designation</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Status</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border-primary/50">
@@ -183,12 +195,12 @@ export default function UserManagementPage() {
                                             </div>
                                         </td>
                                     </tr>
-                                ) : users.length === 0 ? (
+                                ) : paginatedUsers.length === 0 ? (
                                     <tr>
                                         <td colSpan="5" className="px-6 py-20 text-center text-text-muted font-bold italic">No personnel records found.</td>
                                     </tr>
                                 ) : (
-                                    users.map((user) => {
+                                    paginatedUsers.map((user) => {
                                         const isEditing = editingUserId === user.id;
                                         return (
                                             <tr key={user.id} className={`group hover:bg-bg-hover transition-colors ${!user.is_active && !isEditing ? 'opacity-50' : ''}`}>
@@ -198,22 +210,18 @@ export default function UserManagementPage() {
                                                             {user.first_name[0]}{user.last_name[0]}
                                                         </div>
                                                         {isEditing ? (
-                                                            <div className="flex gap-2">
-                                                                <input 
-                                                                    value={editForm.first_name}
-                                                                    onChange={(e) => setEditForm({...editForm, first_name: e.target.value})}
-                                                                    className="bg-bg-tertiary border border-border-primary rounded px-2 py-1 text-sm font-bold w-24 outline-none focus:border-accent"
-                                                                />
-                                                                <input 
-                                                                    value={editForm.last_name}
-                                                                    onChange={(e) => setEditForm({...editForm, last_name: e.target.value})}
-                                                                    className="bg-bg-tertiary border border-border-primary rounded px-2 py-1 text-sm font-bold w-24 outline-none focus:border-accent"
-                                                                />
+                                                            <div>
+                                                                <span className="block font-bold text-text-primary text-[15px] leading-tight">
+                                                                    {[user.first_name, user.middle_name, user.last_name, user.suffix].filter(Boolean).join(' ')}
+                                                                </span>
+                                                                <span className="text-[10px] font-semibold text-text-muted uppercase tracking-widest mt-0.5 block">{user.role}</span>
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <span className="block font-bold text-text-primary text-[15px] leading-tight">{user.first_name} {user.last_name}</span>
-                                                                <span className="text-[10px] font-black text-text-muted uppercase tracking-widest mt-0.5 block">{user.role}</span>
+                                                                <span className="block font-bold text-text-primary text-[15px] leading-tight">
+                                                                    {[user.first_name, user.middle_name, user.last_name, user.suffix].filter(Boolean).join(' ')}
+                                                                </span>
+                                                                <span className="text-[10px] font-semibold text-text-muted uppercase tracking-widest mt-0.5 block">{user.role}</span>
                                                             </div>
                                                         )}
                                                     </div>
@@ -226,7 +234,7 @@ export default function UserManagementPage() {
                                                             className="bg-bg-tertiary border border-border-primary rounded px-3 py-1 text-sm font-semibold w-full outline-none focus:border-accent"
                                                         />
                                                     ) : (
-                                                        <span className="text-sm font-semibold text-text-muted">{user.email}</span>
+                                                        <span className="text-sm font-medium text-text-muted">{user.email}</span>
                                                     )}
                                                 </td>
                                                 <td className="px-6 py-4">
@@ -234,7 +242,7 @@ export default function UserManagementPage() {
                                                         <select 
                                                             value={isEditing ? editForm.role : (roles.find(r => r.toLowerCase() === user.role.toLowerCase()) || user.role)} 
                                                             onChange={(e) => isEditing ? setEditForm({...editForm, role: e.target.value}) : updateRole(user.id, e.target.value)}
-                                                            className="w-full bg-bg-tertiary border border-border-primary rounded-lg text-xs font-bold tracking-tight px-3 py-2 pr-8 focus:ring-2 focus:ring-accent/10 focus:border-accent outline-none appearance-none cursor-pointer text-text-primary transition-all shadow-sm"
+                                                            className="w-full bg-bg-tertiary border border-border-primary rounded-lg text-xs font-semibold tracking-tight px-3 py-2 pr-8 focus:ring-2 focus:ring-accent/10 focus:border-accent outline-none appearance-none cursor-pointer text-text-primary transition-all shadow-sm"
                                                         >
                                                             {roles.map(r => <option key={r} value={r}>{r}</option>)}
                                                         </select>
@@ -246,12 +254,12 @@ export default function UserManagementPage() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4">
-                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                                         user.is_active 
-                                                            ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' 
-                                                            : 'bg-red-500/10 text-red-500 border-red-500/20'
+                                                            ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                                                            : 'bg-red-100 text-red-700 border border-red-200'
                                                     }`}>
-                                                        <span className={`w-1 h-1 rounded-full mr-2 ${user.is_active ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
+                                                        <span className={`w-1.5 h-1.5 rounded-full mr-2 ${user.is_active ? 'bg-emerald-500' : 'bg-red-500'} animate-pulse`} />
                                                         {user.is_active ? 'Active' : 'Offline'}
                                                     </span>
                                                 </td>
@@ -276,17 +284,17 @@ export default function UserManagementPage() {
                                                             {user.is_active && (
                                                                 <button 
                                                                     onClick={() => handleEditClick(user)}
-                                                                    className="text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg text-accent hover:bg-accent/10 transition-all border border-accent/20"
+                                                                    className="text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg text-accent bg-accent/10 hover:bg-accent/20 transition-all"
                                                                 >
                                                                     Edit
                                                                 </button>
                                                             )}
                                                             <button 
                                                                 onClick={() => handleStatusClick(user)}
-                                                                className={`text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg transition-all border ${
+                                                                className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-lg transition-all ${
                                                                     user.is_active 
-                                                                        ? 'text-red-500 border-red-500/20 hover:bg-red-500/10' 
-                                                                        : 'text-emerald-500 border-emerald-500/20 hover:bg-emerald-500/10'
+                                                                        ? 'text-red-600 bg-red-50 hover:bg-red-100' 
+                                                                        : 'text-emerald-600 bg-emerald-50 hover:bg-emerald-100'
                                                                 }`}
                                                             >
                                                                 {user.is_active ? 'Deactivate' : 'Activate'}
@@ -302,6 +310,34 @@ export default function UserManagementPage() {
                         </table>
                     </div>
                 </div>
+
+                {/* Pagination Controls */}
+                {!loading && totalPages > 1 && (
+                    <div className="flex items-center justify-between bg-card p-4 rounded-2xl shadow-sm border border-border-primary mt-4">
+                        <div className="text-xs font-bold text-text-muted">
+                            Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, users.length)} of {users.length} personnel
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="w-8 h-8 flex items-center justify-center rounded-xl border border-border-primary text-text-muted hover:bg-bg-secondary disabled:opacity-50 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                            </button>
+                            <span className="text-[11px] font-black text-text-primary uppercase tracking-widest px-2">
+                                Page {currentPage} of {totalPages}
+                            </span>
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                                className="w-8 h-8 flex items-center justify-center rounded-xl border border-border-primary text-text-muted hover:bg-bg-secondary disabled:opacity-50 transition-colors"
+                            >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                )}
 
                 {/* Invite Modal */}
                 {showInviteModal && (

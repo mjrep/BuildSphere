@@ -1,6 +1,7 @@
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 const { applyProjectVisibility, getMemberProjectIds } = require('../utils/visibility');
+const { getLocalNow, getLocalToday } = require('../utils/timeHelpers');
 const MilestoneService = require('../services/MilestoneService');
 
 dotenv.config();
@@ -33,8 +34,8 @@ class DashboardController {
         .select(`
           id, project_name, project_code, address, status, end_date, created_at,
           created_by, project_in_charge_id, budget_for_materials, sub_status, executive_approved_at,
-          project_in_charge:users!project_in_charge_id(id, first_name, last_name),
-          members:project_user(users!user_id(id, first_name, last_name)),
+          project_in_charge:users!project_in_charge_id(id, first_name, last_name, middle_name, suffix),
+          members:project_user(users!user_id(id, first_name, last_name, middle_name, suffix)),
           tasks:tasks(id, status, milestone_id),
           inventory:project_inventory_items(price, current_stock, item_name, critical_level, unit),
           updates:tasks(
@@ -79,7 +80,7 @@ class DashboardController {
             statusBadge = 'Depletion';
           }
 
-          const asOfDate = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+          const asOfDate = getLocalNow().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
 
           return {
             id: p.id,
@@ -146,43 +147,62 @@ class DashboardController {
           }
         });
 
+        const allowedRoles = ['project engineer', 'project coordinator', 'foreman', 'procurement', 'staff'];
+        const hrFilteredStaffList = activeStaffList.filter(u => allowedRoles.includes((u.role || '').toLowerCase()));
+        const hrStaffIds = new Set(hrFilteredStaffList.map(s => s.id));
+
         // Left Panel: Team Members (Project team assignment allocations)
-        const projectTeamAllocations = visibleProjects.map(p => {
-          const memberCount = (p.members || []).length + (p.project_in_charge_id ? 1 : 0);
+        const deployedUserIds = new Set();
+        const projectTeamAllocations = visibleProjects
+          .filter(p => (p.status || '').toLowerCase() === 'ongoing')
+          .map(p => {
+          let memberCount = 0;
+          (p.members || []).forEach(m => {
+            const uid = m.users?.id || m.id || m.user_id;
+            if (uid && hrStaffIds.has(uid)) {
+                deployedUserIds.add(uid);
+                memberCount++;
+            }
+          });
+          if (p.project_in_charge_id && hrStaffIds.has(p.project_in_charge_id)) {
+              deployedUserIds.add(p.project_in_charge_id);
+              memberCount++;
+          }
+
+          const memberCountTotal = memberCount;
           return {
             id: p.id,
             project_name: p.project_name,
-            member_count: memberCount
+            member_count: memberCountTotal
           };
         }).filter(p => p.member_count > 0);
 
-        if (activeLastMonthCount === 0 && inactiveLastMonthCount === 0) {
-          activeLastMonthCount = 43;
-          inactiveLastMonthCount = 10;
-        } else if (activeLastMonthCount === 0) {
-          activeLastMonthCount = activeStaffList.length;
-          inactiveLastMonthCount = Math.max(1, Math.round(activeStaffList.length * 0.25));
-        }
+        const totalPersonnel = hrFilteredStaffList.length;
+        const deployedPersonnel = deployedUserIds.size;
+        const availablePersonnel = totalPersonnel - deployedPersonnel;
 
         return res.json({
           role: 'hr',
-          active_last_month: activeLastMonthCount,
-          inactive_last_month: inactiveLastMonthCount,
+          total_personnel: totalPersonnel,
+          deployed_personnel: deployedPersonnel,
+          available_personnel: availablePersonnel,
           team_members_allocations: projectTeamAllocations,
-          active_staffs: activeStaffList
+          active_staffs: hrFilteredStaffList
         });
       }
 
       if (role === 'procurement') {
         let ongoingCount = 0;
+        const ongoingProjects = [];
         visibleProjects.forEach(p => {
           if ((p.status || '').toLowerCase() === 'ongoing') {
             ongoingCount++;
+            ongoingProjects.push(p);
           }
         });
 
         // 1. Map projects to stock statistics
-        const materialsStock = visibleProjects.map(p => {
+        const materialsStock = ongoingProjects.map(p => {
           let inStockCount = 0;
           let lowStockCount = 0;
           let outOfStockCount = 0;
@@ -200,7 +220,7 @@ class DashboardController {
             }
           });
 
-          const asOfDate = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
+          const asOfDate = getLocalNow().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: '2-digit' });
 
           return {
             id: p.id,
@@ -212,9 +232,9 @@ class DashboardController {
           };
         });
 
-        // 2. Aggregate Low Stock Alerts across all visible projects
+        // 2. Aggregate Low Stock Alerts across ongoing projects
         const criticalAlerts = [];
-        visibleProjects.forEach(p => {
+        ongoingProjects.forEach(p => {
           (p.inventory || []).forEach(item => {
             const currentStock = parseFloat(item.current_stock || 0);
             const criticalLevel = parseFloat(item.critical_level || 0);
@@ -245,7 +265,7 @@ class DashboardController {
         const { data: assignedTasks, error: tasksError } = await supabaseWithAuth
           .from('tasks')
           .select(`
-            id, title, status, description, created_at,
+            id, title, status, description, created_at, due_date, priority,
             project:projects(id, project_name, project_code),
             progress_logs:task_progress_logs(id, quantity_accomplished, remarks, created_at, created_by)
           `)
@@ -269,28 +289,24 @@ class DashboardController {
           }
         });
 
-        // Gather progress logs submitted by the user
-        const { data: myLogs, error: logsError } = await supabaseWithAuth
-          .from('task_progress_logs')
-          .select(`
-            id, remarks, quantity_accomplished, created_at,
-            task:tasks(id, title, status, project:projects(id, project_name))
-          `)
-          .eq('created_by', req.user.id)
-          .order('created_at', { ascending: false })
-          .limit(10);
-
-        if (logsError) throw logsError;
-
-        const formattedLogs = (myLogs || []).map(log => ({
-          id: log.id,
-          task_title: log.task?.title || 'Unknown Task',
-          project_name: log.task?.project?.project_name || 'Unknown Project',
-          remarks: log.remarks || 'No remarks provided.',
-          quantity: log.quantity_accomplished,
-          date: new Date(log.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-          status: log.task?.status || 'Pending'
-        }));
+        const upcomingTasks = (assignedTasks || [])
+          .filter(t => {
+             const s = (t.status || '').toLowerCase();
+             return s !== 'completed' && s !== 'approved';
+          })
+          .sort((a, b) => {
+             if (!a.due_date) return 1;
+             if (!b.due_date) return -1;
+             return new Date(a.due_date) - new Date(b.due_date);
+          })
+          .slice(0, 10)
+          .map(t => ({
+             id: t.id,
+             title: t.title,
+             project_name: t.project?.project_name || 'General Project',
+             priority: t.priority || 'medium',
+             due_date: t.due_date ? new Date(t.due_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No deadline'
+          }));
 
         const formattedTasks = (assignedTasks || []).map(t => ({
           id: t.id,
@@ -307,8 +323,8 @@ class DashboardController {
           pending_tasks: pendingCount,
           ongoing_tasks: ongoingCount,
           completed_tasks: completedCount,
-          assigned_tasks_list: formattedTasks,
-          recent_submissions: formattedLogs
+          upcoming_tasks: upcomingTasks,
+          assigned_tasks_list: formattedTasks
         });
       }
 
@@ -578,7 +594,7 @@ class DashboardController {
         });
  
         const picName = project.project_in_charge 
-          ? `${project.project_in_charge.first_name} ${project.project_in_charge.last_name}` 
+          ? [project.project_in_charge.first_name, project.project_in_charge.middle_name, project.project_in_charge.last_name, project.project_in_charge.suffix].filter(Boolean).join(' ')
           : 'Unassigned';
  
         return {
@@ -657,7 +673,11 @@ class DashboardController {
         });
 
       // 4. Project Updates Today
-      const today = new Date().toISOString().split('T')[0];
+      const now = new Date();
+      const todayUtc = now.toISOString().split('T')[0];
+      const localNow = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+      const todayLocal = localNow.toISOString().split('T')[0];
+
       const updatesList = ongoingItems.map(project => {
         let updatesToday = 0;
         let latestLogTime = null;
@@ -666,7 +686,7 @@ class DashboardController {
           (task.progress_logs || []).forEach(log => {
              const createdDate = log.created_at ? log.created_at.split('T')[0] : null;
              const workDate = log.work_date ? log.work_date.split('T')[0] : null;
-             if (createdDate === today || workDate === today) {
+             if (createdDate === todayUtc || createdDate === todayLocal || workDate === todayUtc || workDate === todayLocal) {
                updatesToday++;
                if (!latestLogTime || new Date(log.created_at) > new Date(latestLogTime.created_at)) {
                  latestLogTime = log;

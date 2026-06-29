@@ -100,13 +100,13 @@ function MiniCalendar({ selectedDate, onSelectDate, logDates }) {
         <div className="px-1">
             {/* Month/Year header */}
             <div className="flex items-center justify-between mb-3">
-                <button onClick={prevMonth} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                <button onClick={prevMonth} className="p-1 rounded-lg hover:bg-bg-tertiary text-text-muted hover:text-text-muted transition-colors">
                     <ChevronLeft size={16} />
                 </button>
                 <span className="text-xs font-bold text-text-primary tracking-wide uppercase">
                     {MONTHS[viewMonth]} {viewYear}
                 </span>
-                <button onClick={nextMonth} className="p-1 rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors">
+                <button onClick={nextMonth} className="p-1 rounded-lg hover:bg-bg-tertiary text-text-muted hover:text-text-muted transition-colors">
                     <ChevronRight size={16} />
                 </button>
             </div>
@@ -114,7 +114,7 @@ function MiniCalendar({ selectedDate, onSelectDate, logDates }) {
             {/* Weekday headers */}
             <div className="grid grid-cols-7 gap-0 mb-1">
                 {WEEKDAYS.map((d, i) => (
-                    <div key={i} className="text-center text-[10px] font-bold text-gray-400 py-1">{d}</div>
+                    <div key={i} className="text-center text-[10px] font-bold text-text-muted py-1">{d}</div>
                 ))}
             </div>
 
@@ -139,7 +139,7 @@ function MiniCalendar({ selectedDate, onSelectDate, logDates }) {
                                         ? 'bg-indigo-50 text-indigo-600 ring-1 ring-indigo-200'
                                         : hasLogDay
                                             ? 'text-text-primary hover:bg-indigo-50'
-                                            : 'text-gray-400 hover:bg-gray-50'
+                                            : 'text-text-muted hover:bg-bg-secondary'
                                 }
                             `}
                         >
@@ -307,7 +307,7 @@ export default function SiteUpdatesTab({ project }) {
                 <div className="w-full bg-card rounded-2xl border border-border-primary shadow-sm flex items-center justify-center">
                     <div className="text-center">
                         <Loader2 size={24} className="text-indigo-400 animate-spin mx-auto mb-2" />
-                        <p className="text-xs text-gray-400 font-medium">Loading site updates…</p>
+                        <p className="text-xs text-text-muted font-medium">Loading site updates…</p>
                     </div>
                 </div>
             </div>
@@ -337,7 +337,7 @@ export default function SiteUpdatesTab({ project }) {
                                 px-4 py-1.5 text-xs font-bold rounded-lg transition-all duration-200
                                 ${periodTab === tab
                                     ? 'bg-indigo-500 text-white shadow-md shadow-indigo-500/25'
-                                    : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'
+                                    : 'text-text-muted hover:text-text-muted hover:bg-bg-secondary'
                                 }
                             `}
                         >
@@ -394,7 +394,7 @@ export default function SiteUpdatesTab({ project }) {
                     {/* ─── Log List (below time blocks / calendar) ─── */}
                     {filteredLogs.length > 1 && (
                         <div className="mt-4 pt-3 border-t border-border-primary">
-                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2 px-1">
+                            <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-2 px-1">
                                 {filteredLogs.length} Updates
                             </p>
                             <div className="flex flex-col gap-1.5">
@@ -406,7 +406,7 @@ export default function SiteUpdatesTab({ project }) {
                                             flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all duration-150
                                             ${activeLog?.id === log.id
                                                 ? 'bg-indigo-50 border border-indigo-200'
-                                                : 'hover:bg-gray-50 border border-transparent'
+                                                : 'hover:bg-bg-secondary border border-transparent'
                                             }
                                         `}
                                     >
@@ -427,7 +427,7 @@ export default function SiteUpdatesTab({ project }) {
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <p className="text-xs font-semibold text-text-primary truncate">{log.created_by?.name ?? 'Unknown'}</p>
-                                            <p className="text-[10px] text-gray-400">
+                                            <p className="text-[10px] text-text-muted">
                                                 {log.quantity_accomplished} {UNIT_LABEL}
                                                 {log.task?.title && ` • ${log.task.title}`}
                                             </p>
@@ -514,7 +514,7 @@ export default function SiteUpdatesTab({ project }) {
 
                         {/* Evidence Image - 16:9 */}
                         <div className="px-6">
-                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-gray-100 border border-border-primary group">
+                            <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-bg-tertiary border border-border-primary group">
                                 {activeLogImages.length > 0 ? (
                                     <>
                                         <img
@@ -552,7 +552,7 @@ export default function SiteUpdatesTab({ project }) {
                                     <div className="w-full h-full flex items-center justify-center">
                                         <div className="text-center">
                                             <Camera size={32} className="text-gray-300 mx-auto mb-2" />
-                                            <p className="text-xs text-gray-400">No photo uploaded</p>
+                                            <p className="text-xs text-text-muted">No photo uploaded</p>
                                         </div>
                                     </div>
                                 )}
@@ -571,22 +571,22 @@ export default function SiteUpdatesTab({ project }) {
                             <div className="grid grid-cols-3 gap-x-6 gap-y-4">
                                 {/* Date */}
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Date</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Date</p>
                                     <p className="text-sm font-semibold text-text-primary">{activeLog.work_date || formatDate(activeLog.created_at)}</p>
                                 </div>
                                 {/* Shift */}
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Shift</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Shift</p>
                                     <p className="text-sm font-semibold text-text-primary">{activeLog.shift || getTimeBlock(activeLog)}</p>
                                 </div>
                                 {/* Time */}
                                 <div>
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Time</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Time</p>
                                     <p className="text-sm font-semibold text-text-primary">{activeLog.created_at ? formatTime(activeLog.created_at) : activeLog.shift}</p>
                                 </div>
                                 {/* Taken By */}
                                 <div className="col-span-1">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Taken By</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Taken By</p>
                                     <div className="flex items-center gap-1.5">
                                         <div className="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center">
                                             <User size={10} className="text-white" />
@@ -596,12 +596,12 @@ export default function SiteUpdatesTab({ project }) {
                                 </div>
                                 {/* Task */}
                                 <div className="col-span-2">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Task</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Task</p>
                                     <p className="text-sm font-semibold text-text-primary truncate">{activeLog.task?.title || '—'}</p>
                                 </div>
                                 {/* Notes */}
                                 <div className="col-span-3">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Notes</p>
+                                    <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider mb-0.5">Notes</p>
                                     <p className="text-sm font-semibold text-text-primary leading-snug">{activeLog.remarks || '—'}</p>
                                 </div>
                             </div>
@@ -613,13 +613,13 @@ export default function SiteUpdatesTab({ project }) {
                         {/* Comments Section */}
                         <div className="px-6 pt-3 pb-2 flex-1 flex flex-col min-h-0">
                             <p className="text-xs font-bold text-text-primary mb-3 flex items-center gap-1.5">
-                                <MessageCircle size={14} className="text-gray-400" />
+                                <MessageCircle size={14} className="text-text-muted" />
                                 Comments
                             </p>
 
                             {/* Comment list - placeholder for future backend */}
                             <div className="flex-1 overflow-y-auto space-y-3 mb-3">
-                                <p className="text-xs text-gray-400 italic">No comments yet.</p>
+                                <p className="text-xs text-text-muted italic">No comments yet.</p>
                             </div>
                         </div>
 
@@ -635,7 +635,7 @@ export default function SiteUpdatesTab({ project }) {
                                 />
                                 <button
                                     onClick={() => setCommentText('')}
-                                    className="p-1.5 rounded-lg text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 transition-colors"
+                                    className="p-1.5 rounded-lg text-text-muted hover:text-indigo-500 hover:bg-indigo-50 transition-colors"
                                 >
                                     <Send size={16} />
                                 </button>
@@ -649,7 +649,7 @@ export default function SiteUpdatesTab({ project }) {
                             <FileText size={28} className="text-indigo-400" />
                         </div>
                         <p className="text-sm font-bold text-text-primary mb-1">No updates found</p>
-                        <p className="text-xs text-gray-400 max-w-xs leading-relaxed">
+                        <p className="text-xs text-text-muted max-w-xs leading-relaxed">
                             {periodTab === 'Today'
                                 ? `No site updates logged for ${selectedBlock.toLowerCase()} today.`
                                 : `No site updates logged for ${selectedPastDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.`

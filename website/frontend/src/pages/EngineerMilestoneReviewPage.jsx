@@ -50,7 +50,7 @@ export default function EngineerMilestoneReviewPage() {
 
     if (loading) return (
         <DashboardLayout pageTitle={<span className="font-bold">Review Milestones</span>}>
-            <div className="p-8 text-center text-gray-500">Loading review chart...</div>
+            <div className="p-8 text-center text-text-muted">Loading review chart...</div>
         </DashboardLayout>
     );
     if (!project || !chartData) return (
@@ -64,7 +64,7 @@ export default function EngineerMilestoneReviewPage() {
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(`/projects/${id}/milestone-input`)} 
-                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-bg-tertiary transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>

@@ -22,6 +22,14 @@
   --color-accent: var(--accent-primary);
   --color-border-primary: var(--border-primary);
   --color-card: var(--card-bg);
+
+  /* Override Tailwind v4 oklch colors with Hex for html2canvas compatibility */
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-amber-500: #f59e0b;
+  --color-amber-600: #d97706;
+  --color-red-500: #ef4444;
+  --color-slate-100: #f1f5f9;
 }
 
 :root {
@@ -40,6 +48,9 @@
   --accent-primary: #706BFF;
   --border-primary: #E5E7EB;
   --card-bg: #FFFFFF;
+  
+  --gradient-start: #e9e8ff;
+  --gradient-end: #f0f2f5;
   
   color-scheme: light;
 }
@@ -61,9 +72,56 @@
   --border-primary: #1e1e26;
   --card-bg: #16161d;         /* Card background - lighter than base */
 
+  --gradient-start: #1c1a2e;
+  --gradient-end: #0b0b0e;
+
   color-scheme: dark;
 }
 
 body {
   @apply bg-bg-primary text-text-primary transition-colors duration-200;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #report-export-container, #report-export-container * {
+    visibility: visible;
+  }
+  #report-export-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  
+  /* Force background colors and images to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+
+/* Force html2canvas safe defaults ONLY for export container */
+#report-export-container {
+  --default-border-color: #e5e7eb;
+  --default-ring-color: #3b82f6;
+  --default-shadow-color: #000000;
+}
+#report-export-container *, 
+#report-export-container ::before, 
+#report-export-container ::after {
+  border-color: #e5e7eb !important;
+  outline-color: #e5e7eb !important;
+  box-shadow: none !important;
+  text-decoration-color: currentColor !important;
 }

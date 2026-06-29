@@ -56,9 +56,35 @@ export default function ProfilePage() {
             .finally(() => setLoading(false));
     }, []);
 
+    const validatePassword = (pwd) => {
+        if (!pwd || pwd.length < 8) return 'Password must be at least 8 characters long.';
+        if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter.';
+        if (!/[a-z]/.test(pwd)) return 'Password must contain at least one lowercase letter.';
+        if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number.';
+        if (!/[^a-zA-Z0-9]/.test(pwd)) return 'Password must contain at least one special character.';
+        return null;
+    };
+
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-        setErrors({ ...errors, [e.target.name]: null });
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
+        
+        const newErrors = { ...errors, [name]: null };
+        
+        if (name === 'password') {
+            if (value) {
+                const pwdError = validatePassword(value);
+                if (pwdError) {
+                    newErrors.password = [pwdError];
+                } else {
+                    delete newErrors.password;
+                }
+            } else {
+                delete newErrors.password;
+            }
+        }
+        
+        setErrors(newErrors);
         setSuccess(false);
         setIsDirty(true);
     };
@@ -87,6 +113,17 @@ export default function ProfilePage() {
             address:     form.address,
         };
         if (form.password) {
+            const pwdError = validatePassword(form.password);
+            if (pwdError) {
+                setErrors({ ...errors, password: [pwdError] });
+                setSaving(false);
+                return;
+            }
+            if (form.password !== form.password_confirmation) {
+                setErrors({ ...errors, password_confirmation: ['Passwords do not match.'] });
+                setSaving(false);
+                return;
+            }
             payload.password              = form.password;
             payload.password_confirmation = form.password_confirmation;
             payload.current_password      = form.current_password;
@@ -145,7 +182,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="text-center md:text-left flex-1">
                         <h2 className="text-2xl font-black text-text-primary tracking-tight">
-                            {form.first_name} {form.last_name}
+                            {[form.first_name, form.middle_name, form.last_name, form.suffix].filter(Boolean).join(' ')}
                         </h2>
                         <p className="text-sm font-bold text-text-muted mt-1 uppercase tracking-wider">{form.email}</p>
                         <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
@@ -308,7 +345,6 @@ export default function ProfilePage() {
                             <div className="w-full rounded-2xl border border-border-primary/50 bg-bg-tertiary px-6 py-4 text-sm text-text-muted font-bold italic shadow-inner">
                                 {form.role}
                             </div>
-                            <p className="text-[10px] text-text-muted font-bold italic ml-1">* Role cannot be changed manually. Contact HR for updates.</p>
                         </div>
 
                         {/* Divider */}

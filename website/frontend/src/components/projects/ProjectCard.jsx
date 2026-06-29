@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import StatusBadge from './StatusBadge';
 import { updateProject } from '../../services/projectApi';
+import useAuth from '../../hooks/useAuth';
 
 const PRESET_COLORS = [
     { name: 'Indigo', hex: '#706BFF' },
@@ -16,11 +17,13 @@ const PRESET_COLORS = [
 
 export default function ProjectCard({ project }) {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [cardColor, setCardColor] = useState(project.color || '#706BFF');
     const [showColorMenu, setShowColorMenu] = useState(false);
     const menuRef = useRef(null);
 
     const progress = project.progress ?? 0;
+    const isSales = (user?.role || '').toLowerCase() === 'sales';
 
     useEffect(() => {
         setCardColor(project.color || '#706BFF');
@@ -56,9 +59,10 @@ export default function ProjectCard({ project }) {
 
     return (
         <div
-            onClick={() => navigate(`/projects/${project.id}`)}
-            className="bg-card rounded-3xl border border-border-primary/50 shadow-lg overflow-hidden cursor-pointer
-                       hover:shadow-accent/5 hover:border-accent/30 transition-all group"
+            onClick={!isSales ? () => navigate(`/projects/${project.id}`) : undefined}
+            className={`bg-card rounded-3xl border border-border-primary/50 shadow-lg overflow-hidden ${
+                !isSales ? 'cursor-pointer hover:shadow-accent/5 hover:border-accent/30 transition-all group' : ''
+            }`}
         >
             {/* Header banner area */}
             <div 
@@ -133,7 +137,7 @@ export default function ProjectCard({ project }) {
                         </div>
                         <div className="h-1.5 bg-bg-primary rounded-full overflow-hidden shadow-inner">
                             <div 
-                                className={`h-full rounded-full shadow-[0_0_8px_rgba(124,116,255,0.4)] transition-all duration-700 ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-accent'}`} 
+                                className={`h-full rounded-full shadow-[0_0_8px_rgba(124,116,255,0.4)] transition-all duration-700 ${project.status === 'completed' ? 'bg-emerald-500' : 'bg-gradient-to-r from-[#00C6FF] to-accent'}`} 
                                 style={{ width: `${progress}%` }} 
                             />
                         </div>

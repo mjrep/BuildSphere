@@ -260,7 +260,8 @@ class ProjectController {
       };
       
       const helperHumanTime = (dateStr) => {
-        const diff = new Date() - new Date(dateStr);
+        let diff = new Date() - new Date(dateStr);
+        if (diff < 0) diff = 0; // Prevent negative time difference
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         if (days === 0) return 'Today';
         if (days === 1) return 'Yesterday';

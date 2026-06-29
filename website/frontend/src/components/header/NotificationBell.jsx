@@ -89,9 +89,10 @@ export default function NotificationBell({ user }) {
             }
         }
         
-        if (notif.reference_url) {
-            navigate(notif.reference_url);
-        }
+        // Disabled routing temporarily to prevent white screen errors
+        // if (notif.reference_url) {
+        //     navigate(notif.reference_url);
+        // }
     };
 
     const handleMarkAllRead = async () => {

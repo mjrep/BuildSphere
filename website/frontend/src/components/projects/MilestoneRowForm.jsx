@@ -74,7 +74,7 @@ export default function MilestoneRowForm({ index, milestone, onChange, onRemove,
                             error?.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                         } focus:outline-none focus:ring-2`}
                     />
-                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-400 font-bold">%</span>
+                    <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-text-muted font-bold">%</span>
                 </div>
                 {error?.weight_percentage && <p className="text-red-500 text-[10px] ml-1">{error.weight_percentage}</p>}
             </div>

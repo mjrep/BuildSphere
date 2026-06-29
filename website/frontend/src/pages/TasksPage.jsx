@@ -30,6 +30,7 @@ export default function TasksPage() {
         sort, setSort,
         filters, setFilter,
         resetFilters, toQueryParams, hasActiveFilters,
+        page, setPage,
     } = useTaskFilters();
 
     const [view, setView]               = useState('list');
@@ -48,7 +49,7 @@ export default function TasksPage() {
         fetchTasks(queryParams);
     }, [fetchTasks, toQueryParams, selectedProject]);
 
-    useEffect(() => { loadTasks(); }, [search, sort, filters, selectedProject]);
+    useEffect(() => { loadTasks(); }, [search, sort, filters, selectedProject, page]);
 
     // Load filter meta once
     useEffect(() => {
@@ -169,9 +170,23 @@ export default function TasksPage() {
                             {/* Pagination */}
                             {meta && meta.last_page > 1 && (
                                 <div className="flex items-center justify-end gap-3 pt-4">
+                                    <button 
+                                        onClick={() => setPage(p => Math.max(1, p - 1))}
+                                        disabled={meta.current_page === 1}
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl border border-border-primary text-text-muted hover:bg-bg-secondary disabled:opacity-50 transition-colors"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" /></svg>
+                                    </button>
                                     <span className="text-[11px] font-black text-text-muted uppercase tracking-widest">
                                         Page {meta.current_page} of {meta.last_page}
                                     </span>
+                                    <button 
+                                        onClick={() => setPage(p => Math.min(meta.last_page, p + 1))}
+                                        disabled={meta.current_page === meta.last_page}
+                                        className="w-8 h-8 flex items-center justify-center rounded-xl border border-border-primary text-text-muted hover:bg-bg-secondary disabled:opacity-50 transition-colors"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" /></svg>
+                                    </button>
                                 </div>
                             )}
                         </div>

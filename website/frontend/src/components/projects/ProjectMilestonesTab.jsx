@@ -11,9 +11,9 @@ export default function ProjectMilestonesTab({ project }) {
     if (loading) {
         return (
             <div className="w-full space-y-8 animate-pulse p-4">
-                <div className="h-64 bg-gray-100 rounded-3xl" />
-                <div className="h-40 bg-gray-100 rounded-3xl" />
-                <div className="h-96 bg-gray-100 rounded-3xl" />
+                <div className="h-64 bg-bg-tertiary rounded-3xl" />
+                <div className="h-40 bg-bg-tertiary rounded-3xl" />
+                <div className="h-96 bg-bg-tertiary rounded-3xl" />
             </div>
         );
     }
@@ -42,7 +42,7 @@ export default function ProjectMilestonesTab({ project }) {
     }
 
     return (
-        <div className="w-full pb-20 max-w-7xl mx-auto">
+        <div className="w-full pb-20">
             {view === 'grid' ? (
                 <div className="animate-in fade-in slide-in-from-bottom-6 duration-700">
                     <MilestoneGanttGrid 

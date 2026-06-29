@@ -46,9 +46,9 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
             case 'SPOILAGE':
                 return <span className="bg-red-50 text-red-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-red-100 uppercase tracking-tight">Defective</span>;
             case 'ADJUSTMENT':
-                return <span className="bg-gray-50 text-gray-600 px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-100 uppercase tracking-tight">Adjustment</span>;
+                return <span className="bg-bg-secondary text-text-muted px-2.5 py-1 rounded-full text-[10px] font-bold border border-border-primary uppercase tracking-tight">Adjustment</span>;
             default:
-                return <span className="bg-gray-50 text-gray-400 px-2.5 py-1 rounded-full text-[10px] font-bold border border-gray-100 uppercase tracking-tight">{type}</span>;
+                return <span className="bg-bg-secondary text-text-muted px-2.5 py-1 rounded-full text-[10px] font-bold border border-border-primary uppercase tracking-tight">{type}</span>;
         }
     };
 
@@ -83,31 +83,31 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                     {loading ? (
                         <div className="p-12 text-center space-y-4">
                             <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#706BFF] mx-auto"></div>
-                            <p className="text-sm text-gray-400 font-medium">Fetching ledger records...</p>
+                            <p className="text-sm text-text-muted font-medium">Fetching ledger records...</p>
                         </div>
                     ) : logs.length === 0 ? (
-                        <div className="p-12 text-center text-gray-400 italic">
+                        <div className="p-12 text-center text-text-muted italic">
                             No transaction history found for this item.
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
-                            <thead className="sticky top-0 bg-card border-b border-gray-100 z-10">
+                            <thead className="sticky top-0 bg-card border-b border-border-primary z-10">
                                 <tr>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Date & Time</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Type</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Quantity</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Current Stock</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Details</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Date & Time</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Type</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Quantity</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Current Stock</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Details</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {logs.map((log) => (
-                                    <tr key={log.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors group">
+                                    <tr key={log.id} className="border-b border-gray-50 hover:bg-bg-secondary/50 transition-colors group">
                                         <td className="px-6 py-5 whitespace-nowrap">
                                             <div className="text-xs font-bold text-text-primary">
                                                 {formatDate(log.created_at)}
                                             </div>
-                                            <div className="text-[10px] text-gray-400 mt-0.5">
+                                            <div className="text-[10px] text-text-muted mt-0.5">
                                                 {formatTime(log.created_at)}
                                             </div>
                                         </td>
@@ -117,7 +117,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                         <td className={`px-6 py-5 text-right font-bold text-sm ${getQuantityColor(log.action_type)}`}>
                                             {['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? '+' : '-'}{log.quantity}
                                         </td>
-                                        <td className="px-6 py-5 text-right font-bold text-xs text-gray-600">
+                                        <td className="px-6 py-5 text-right font-bold text-xs text-text-muted">
                                             {log.current_stock !== null && log.current_stock !== undefined ? log.current_stock : '--'}
                                         </td>
                                         <td className="px-6 py-5">
@@ -132,7 +132,7 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                                                         "{log.notes}"
                                                     </p>
                                                 )}
-                                                <div className="text-[9px] text-gray-400 mt-1 uppercase tracking-tight">
+                                                <div className="text-[9px] text-text-muted mt-1 uppercase tracking-tight">
                                                     By {log.creator?.first_name} {log.creator?.last_name}
                                                 </div>
                                             </div>
@@ -145,13 +145,13 @@ export default function InventoryHistoryModal({ project, item, onClose }) {
                 </div>
 
                 {/* Footer Info */}
-                <div className="p-6 bg-gray-50 border-t border-gray-100 flex justify-between items-center shrink-0">
-                    <p className="text-[10px] text-gray-400 font-medium italic">
+                <div className="p-6 bg-bg-secondary border-t border-border-primary flex justify-between items-center shrink-0">
+                    <p className="text-[10px] text-text-muted font-medium italic">
                         All transactions are immutable and tied to your user account.
                     </p>
                     <button 
                         onClick={onClose}
-                        className="px-6 py-2 bg-card border border-gray-200 text-gray-600 text-xs font-bold rounded-xl hover:bg-gray-100 transition-colors"
+                        className="px-6 py-2 bg-card border border-border-primary text-text-muted text-xs font-bold rounded-xl hover:bg-bg-tertiary transition-colors"
                     >
                         Close Ledger
                     </button>

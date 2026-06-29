@@ -25,7 +25,7 @@ export default function ForgotPasswordPage() {
 
         try {
             const res = await api.post('/forgot-password', { email });
-            setSuccess(res.data.message || 'If the email exists in our system, a password reset link has been dispatched.');
+            setSuccess(res.data.message || 'If the email exists in our system, a password reset link has been sent.');
             setEmail('');
         } catch (error) {
             console.error('Password reset request failed:', error);

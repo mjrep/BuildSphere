@@ -102,7 +102,7 @@ class TaskCommentController {
               'You were mentioned',
               `${user.first_name} ${user.last_name} mentioned you in a comment on ${task?.title || 'Task'}.`,
               'info',
-              `/tasks/${taskId}`
+              `/tasks`
             );
           }
         } catch (notifErr) {

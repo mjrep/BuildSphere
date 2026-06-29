@@ -2,19 +2,11 @@ import React from 'react';
 import TaskCard from './TaskCard';
 import { TASK_STATUSES } from '../../utils/taskConstants';
 
-const COLUMN_COLORS = {
-    todo:        'border-t-red-400',
-    in_progress: 'border-t-amber-400',
-    in_review:   'border-t-violet-400',
-    completed:   'border-t-green-400',
-};
-
 export default function TaskKanbanColumn({ status, tasks, onTaskClick, onEdit, onDelete }) {
     const cfg      = TASK_STATUSES[status] ?? { label: status };
-    const topColor = COLUMN_COLORS[status] ?? 'border-t-gray-300';
 
     return (
-        <div className={`bg-bg-tertiary rounded-xl p-3 flex flex-col border-t-[3px] ${topColor}`}>
+        <div className={`bg-bg-tertiary rounded-xl p-3 flex flex-col`}>
             {/* Column header */}
             <div className="flex items-center gap-2 mb-3 px-1">
                 <span className={`w-2 h-2 rounded-full ${cfg.dot ?? 'bg-gray-400'}`} />

@@ -110,8 +110,8 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
     };
 
     return (
-        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-5 w-full flex flex-col">
-            <div className="flex justify-between items-center mb-3">
+        <div className="bg-card rounded-2xl shadow-sm border border-border-primary p-5 w-full flex flex-col flex-1 min-h-0">
+            <div className="flex justify-between items-center mb-3 flex-shrink-0">
                 <h3 className="text-base font-bold text-text-primary">Files</h3>
                 
                 <input 
@@ -125,7 +125,7 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                 <button 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    className="w-7 h-7 rounded-full bg-gray-100 text-gray-500 hover:bg-accent/10 hover:text-accent flex items-center justify-center transition-colors disabled:opacity-50"
+                    className="w-7 h-7 rounded-full bg-bg-tertiary text-text-muted hover:bg-accent/10 hover:text-accent flex items-center justify-center transition-colors disabled:opacity-50"
                     title="Upload File"
                 >
                     {isUploading ? (
@@ -135,14 +135,13 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                     )}
                 </button>
             </div>
-            
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-thumb-border-primary scrollbar-track-transparent flex-1 min-h-0">
                 {loadingFiles ? (
                     <div className="flex items-center justify-center py-4">
-                        <Loader2 size={18} className="animate-spin text-gray-400" />
+                        <Loader2 size={18} className="animate-spin text-text-muted" />
                     </div>
                 ) : files.length === 0 ? (
-                    <p className="text-sm text-gray-400 italic">No files attached.</p>
+                    <p className="text-sm text-text-muted italic">No files attached.</p>
                 ) : (
                     files.map(file => (
                         <div key={file.id} className="flex items-center gap-3 group rounded-xl px-3 py-2.5 -mx-3 hover:bg-bg-secondary transition-colors">
@@ -156,7 +155,7 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                                 <p className="text-sm font-semibold text-text-primary truncate" title={file.file_name}>
                                     {file.file_name}
                                 </p>
-                                <p className="text-xs text-gray-400 mt-0.5">
+                                <p className="text-xs text-text-muted mt-0.5">
                                     {formatFileSize(file.file_size)}
                                     {file.uploaded_by && <span> · {file.uploaded_by}</span>}
                                     {file.created_at && <span> · {timeAgo(file.created_at)}</span>}
@@ -170,7 +169,7 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                                         href={file.download_url}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="p-1.5 rounded-lg text-gray-400 hover:text-accent hover:bg-accent/10 transition-colors"
+                                        className="p-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/10 transition-colors"
                                         title="Download"
                                     >
                                         <Download size={14} />
@@ -179,7 +178,7 @@ export default function OverviewFilesCard({ project, onFileUploaded }) {
                                 <button
                                     onClick={() => handleDelete(file.id, file.file_name)}
                                     disabled={deletingId === file.id}
-                                    className="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                                    className="p-1.5 rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
                                     title="Delete"
                                 >
                                     {deletingId === file.id ? (

@@ -65,9 +65,9 @@ export default function InventoryActionsDropdown({ item, onEdit, onUpdateStock, 
                     setIsOpen(false);
                     onEdit(item);
                 }}
-                className="w-[calc(100%-8px)] mx-1 flex items-center gap-3 px-3 py-2 text-sm text-text-primary hover:bg-gray-50 rounded-xl transition-colors font-semibold group"
+                className="w-[calc(100%-8px)] mx-1 flex items-center gap-3 px-3 py-2 text-sm text-text-primary hover:bg-bg-secondary rounded-xl transition-colors font-semibold group"
             >
-                <div className="w-7 h-7 bg-gray-50 group-hover:bg-card rounded-lg flex items-center justify-center transition-colors">
+                <div className="w-7 h-7 bg-bg-secondary group-hover:bg-card rounded-lg flex items-center justify-center transition-colors">
                     <svg className="w-4 h-4 text-text-muted group-hover:text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
@@ -129,7 +129,7 @@ export default function InventoryActionsDropdown({ item, onEdit, onUpdateStock, 
             <button
                 ref={buttonRef}
                 onClick={toggleDropdown}
-                className={`p-1 rounded-lg hover:bg-gray-100 flex items-center justify-center transition-all duration-200 ${isOpen ? 'bg-gray-100 text-accent' : 'text-text-muted hover:text-[#6B6B6B]'}`}
+                className={`p-1 rounded-lg hover:bg-bg-tertiary flex items-center justify-center transition-all duration-200 ${isOpen ? 'bg-bg-tertiary text-accent' : 'text-text-muted hover:text-[#6B6B6B]'}`}
             >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 8c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z" />

@@ -8,17 +8,23 @@ const navItems = [
         label: 'Dashboard',
         to: '/dashboard',
         icon: (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            <svg className="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="7" height="7" rx="2" fill="#8b5cf6" />
+                <rect x="14" y="3" width="7" height="7" rx="2" fill="#ec4899" />
+                <rect x="3" y="14" width="7" height="7" rx="2" fill="#10b981" />
+                <rect x="14" y="14" width="7" height="7" rx="2" fill="#f59e0b" />
             </svg>
         ),
     },
     {
         label: 'Projects',
         to: '/projects',
+        excludeRoles: ['Staff'],
         icon: (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            <svg className="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#8b5cf6" />
+                <path d="M2 12L12 17L22 12L17 9.5L12 12L7 9.5L2 12Z" fill="#10b981" />
+                <path d="M2 17L12 22L22 17L17 14.5L12 17L7 14.5L2 17Z" fill="#3b82f6" />
             </svg>
         ),
     },
@@ -26,18 +32,24 @@ const navItems = [
         label: 'Tasks',
         to: '/tasks',
         icon: (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+            <svg className="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="18" height="18" rx="3" fill="#e0f2fe" />
+                <circle cx="8" cy="9" r="2.5" fill="#10b981" />
+                <rect x="12" y="8" width="6" height="2" rx="1" fill="#64748b" />
+                <circle cx="8" cy="15" r="2.5" fill="#f59e0b" />
+                <rect x="12" y="14" width="6" height="2" rx="1" fill="#64748b" />
             </svg>
         ),
     },
     {
         label: 'Reports',
         to: '/reports',
-        roles: ['CEO', 'COO', 'Project Coordinator', 'Accounting', 'Project Engineer'],
+        roles: ['CEO', 'COO', 'Project Coordinator', 'Project Engineer'],
         icon: (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            <svg className="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="14" width="4" height="6" rx="1" fill="#f59e0b" />
+                <rect x="10" y="9" width="4" height="11" rx="1" fill="#f43f5e" />
+                <rect x="16" y="4" width="4" height="16" rx="1" fill="#3b82f6" />
             </svg>
         ),
     },
@@ -46,8 +58,11 @@ const navItems = [
         to: '/personnel',
         roles: ['CEO', 'COO', 'HR'],
         icon: (
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+            <svg className="w-6 h-6 drop-shadow-sm" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="7" r="3" fill="#ec4899" />
+                <path d="M16 11C18.6667 11 22 12.3333 22 15V17H10V15C10 12.3333 13.3333 11 16 11Z" fill="#ec4899" />
+                <circle cx="9" cy="10" r="4" fill="#3b82f6" />
+                <path d="M9 15C5.66667 15 2 16.6667 2 20V22H16V20C16 16.6667 12.3333 15 9 15Z" fill="#3b82f6" />
             </svg>
         ),
     },
@@ -57,6 +72,7 @@ export default function Sidebar({ isOpen, setIsOpen, onLogout }) {
     const { user } = useAuth();
 
     const filteredItems = navItems.filter(item => {
+        if (item.excludeRoles && item.excludeRoles.includes(user?.role)) return false;
         if (!item.roles) return true;
         return item.roles.includes(user?.role);
     });

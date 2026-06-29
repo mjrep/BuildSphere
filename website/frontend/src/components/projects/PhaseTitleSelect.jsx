@@ -38,7 +38,7 @@ export default function PhaseTitleSelect({ value, onChange, error, disabled = fa
                     error 
                         ? 'border-red-400 focus:ring-red-200' 
                         : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
-                } focus:outline-none focus:ring-2 disabled:bg-gray-50 disabled:text-gray-500`}
+                } focus:outline-none focus:ring-2 disabled:bg-bg-secondary disabled:text-text-muted`}
             >
                 <option value="" disabled>Select Phase Title</option>
                 {options.map((opt) => (

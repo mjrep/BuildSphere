@@ -171,7 +171,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                 {selections[roleName].length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3 p-3 bg-bg-secondary/50 rounded-xl border border-border-primary/30">
                         {selections[roleName].map(u => (
-                            <div key={u.id} className="flex items-center gap-2 bg-white text-text-primary text-xs font-semibold px-3 py-1.5 rounded-lg border border-border-primary/50 shadow-sm">
+                            <div key={u.id} className="flex items-center gap-2 bg-card text-text-primary text-xs font-semibold px-3 py-1.5 rounded-lg border border-border-primary/50 shadow-sm">
                                 <div className="w-5 h-5 rounded-full bg-accent/10 text-accent flex items-center justify-center text-[10px] font-black">
                                     {u.name.substring(0, 2).toUpperCase()}
                                 </div>
@@ -200,7 +200,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                 {canManageTeam && (
                     <button 
                         onClick={() => setIsModalOpen(true)}
-                        className="w-6 h-6 rounded-full bg-gray-200 text-gray-500 hover:bg-gray-300 flex items-center justify-center transition-colors"
+                        className="w-6 h-6 rounded-full bg-gray-200 text-text-muted hover:bg-gray-300 flex items-center justify-center transition-colors"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 4v16m8-8H4" />
@@ -243,7 +243,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                     );
                 })}
                 {members.length === 0 && (
-                    <p className="text-sm text-gray-400 italic py-2">No team members assigned.</p>
+                    <p className="text-sm text-text-muted italic py-2">No team members assigned.</p>
                 )}
             </div>
 
@@ -254,7 +254,7 @@ export default function OverviewTeamCard({ project, onMemberAdded }) {
                         <div className="bg-card rounded-3xl p-8 shadow-2xl w-full max-w-lg relative pointer-events-auto">
                             <button 
                                 onClick={closeModal}
-                                className="absolute top-5 right-5 text-gray-400 hover:text-gray-700"
+                                className="absolute top-5 right-5 text-text-muted hover:text-text-secondary"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />

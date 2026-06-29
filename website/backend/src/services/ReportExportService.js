@@ -445,23 +445,23 @@ class ReportExportService {
                     #buildsphere-pdf-wrapper .highlight-green { color: #10b981; font-weight: 900; font-size: 16px; }
                     #buildsphere-pdf-wrapper .empty { text-align: center; color: #94a3b8; font-style: italic; padding: 30px; }
                     
-                    #buildsphere-pdf-wrapper .comparison-row { margin-bottom: 30px; page-break-inside: avoid; }
+                    #buildsphere-pdf-wrapper .comparison-row { margin-bottom: 30px; page-break-inside: avoid; break-inside: avoid; }
                     #buildsphere-pdf-wrapper .comparison-label { font-size: 11px; font-weight: 900; color: #94a3b8; text-transform: uppercase; margin-bottom: 15px; }
                     #buildsphere-pdf-wrapper .photo-grid { display: block; overflow: hidden; }
-                    #buildsphere-pdf-wrapper .photo-card { float: left; width: 48%; border: 1px solid #f1f5f9; border-radius: 20px; overflow: hidden; background: #fff; margin-right: 2%; margin-bottom: 20px; box-sizing: border-box; }
+                    #buildsphere-pdf-wrapper .photo-card { float: left; width: 48%; border: 1px solid #e2e8f0; border-radius: 20px; overflow: hidden; background: #fff; margin-right: 2%; margin-bottom: 20px; box-sizing: border-box; page-break-inside: avoid; break-inside: avoid; }
                     #buildsphere-pdf-wrapper .photo-card:nth-child(even) { margin-right: 0; }
                     #buildsphere-pdf-wrapper .photo-header { background: #f8fafc; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; }
-                    #buildsphere-pdf-wrapper .photo-header .label { font-size: 10px; font-weight: 900; color: #4f46e5; }
+                    #buildsphere-pdf-wrapper .photo-header .label { font-size: 10px; font-weight: 900; color: #4f46e5; text-transform: uppercase; }
                     #buildsphere-pdf-wrapper .photo-header .label.green { color: #10b981; }
                     #buildsphere-pdf-wrapper .photo-header .date { font-size: 10px; font-weight: bold; color: #94a3b8; float: right; }
                     #buildsphere-pdf-wrapper .photo-container { width: 100%; height: 220px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-                    #buildsphere-pdf-wrapper .photo-container img { width: 100%; height: 100%; object-fit: cover; }
+                    #buildsphere-pdf-wrapper .photo-container img { width: 100%; height: 100%; object-fit: contain; padding: 8px; }
                     #buildsphere-pdf-wrapper .no-photo { color: #cbd5e1; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-top: 100px; text-align: center; }
                     #buildsphere-pdf-wrapper .photo-footer { padding: 15px 20px; clear: both; }
                     #buildsphere-pdf-wrapper .photo-footer p { margin: 0; font-size: 10px; color: #475569; }
                     #buildsphere-pdf-wrapper .photo-footer p strong { color: #1e293b; text-transform: uppercase; font-size: 9px; }
                 </style>
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding: 15px 0 15px 40px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 40px; padding: 8px 0 8px 40px;">
                     <div style="display: flex; align-items: center;">
                         <img src="https://buildsphere.cityscapebuildersinc.com/assets/logo-BTc8iO0L.png" style="height: 40px; margin-right: 12px;" />
                         <div style="font-family: Arial, sans-serif;">

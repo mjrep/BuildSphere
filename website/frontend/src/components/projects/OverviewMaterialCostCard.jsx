@@ -73,7 +73,7 @@ export default function OverviewMaterialCostCard({ costData }) {
                 </div>
             </div>
             {actual === 0 && (
-                <div className="mt-2 text-[10px] text-gray-400 text-center italic">
+                <div className="mt-2 text-[10px] text-text-muted text-center italic">
                     *Actual cost mocked until inventory integration.
                 </div>
             )}

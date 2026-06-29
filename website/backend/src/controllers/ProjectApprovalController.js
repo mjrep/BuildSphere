@@ -64,7 +64,10 @@ class ProjectApprovalController {
       }
 
       const subStatus = (project.sub_status || '').toLowerCase();
-      if ((subStatus !== 'pending_approval' && subStatus !== 'for_accounting_approval') || project.accounting_approved_at !== null) {
+      if (
+        subStatus !== 'for_accounting_approval' &&
+        !(subStatus === 'pending_approval' && project.accounting_approved_at === null)
+      ) {
         return res.status(422).json({ 
           message: 'This project is not pending accounting approval.',
           current_sub_status: project.sub_status,
@@ -211,7 +214,10 @@ class ProjectApprovalController {
       }
 
       const subStatus = (project.sub_status || '').toLowerCase();
-      if ((subStatus !== 'pending_approval' && subStatus !== 'for_executives_approval') || project.accounting_approved_at === null) {
+      if (
+        subStatus !== 'for_executives_approval' &&
+        !(subStatus === 'pending_approval' && project.accounting_approved_at !== null)
+      ) {
         return res.status(422).json({ 
           message: 'This project is not pending executive approval.',
           current_sub_status: project.sub_status,

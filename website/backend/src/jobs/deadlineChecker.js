@@ -1,5 +1,6 @@
 const cron = require('node-cron');
 const { createClient } = require('@supabase/supabase-js');
+const { getLocalToday } = require('../utils/timeHelpers');
 const NotificationService = require('../services/NotificationService');
 
 // Use service role key to bypass RLS for background job
@@ -15,7 +16,7 @@ const initDeadlineJob = () => {
     cron.schedule('0 8 * * *', async () => {
         console.log('[Job] Running Deadline Checker...');
         try {
-            const today = new Date().toISOString().split('T')[0];
+            const today = getLocalToday();
 
             // Query overdue tasks that are not completed/verified
             const { data: overdueTasks, error } = await supabaseAdmin
@@ -47,7 +48,7 @@ const initDeadlineJob = () => {
                             'Task Deadline Missed',
                             `Task '${task.title}' on '${projectName}' has missed its deadline. This threatens the parent milestone.`,
                             'warning',
-                            `/tasks/${task.id}`
+                            `/tasks`
                         );
                     }
                 }

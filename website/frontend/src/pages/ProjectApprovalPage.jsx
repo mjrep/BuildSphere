@@ -42,11 +42,17 @@ export default function ProjectApprovalPage() {
 
     const isAccounting = userRole === 'accounting' && 
                          project?.status === 'proposed' && 
-                         ['pending_approval', 'for_accounting_approval'].includes(project?.sub_status) && 
-                         !project?.accounting_approved_at;
+                         (
+                             project?.sub_status === 'for_accounting_approval' || 
+                             (project?.sub_status === 'pending_approval' && !project?.accounting_approved_at)
+                         );
 
     const isExecutive = ['ceo', 'coo'].includes(userRole) && 
-                        (project?.status === 'proposed' && ['pending_approval', 'for_executives_approval'].includes(project?.sub_status) && !!project?.accounting_approved_at);
+                        project?.status === 'proposed' && 
+                        (
+                            project?.sub_status === 'for_executives_approval' || 
+                            (project?.sub_status === 'pending_approval' && !!project?.accounting_approved_at)
+                        );
 
     const handleApprove = async () => {
         setSubmitting(true);
@@ -184,7 +190,7 @@ export default function ProjectApprovalPage() {
                                             <span className="text-sm font-bold text-text-primary truncate group-hover:text-accent transition-colors">{file.file_name}</span>
                                         </div>
                                     </div>
-                                    <div className="p-2 rounded-full text-text-muted group-hover:bg-white group-hover:text-accent shadow-sm border border-transparent group-hover:border-border-primary transition-all flex-shrink-0">
+                                    <div className="p-2 rounded-full text-text-muted group-hover:bg-card group-hover:text-accent shadow-sm border border-transparent group-hover:border-border-primary transition-all flex-shrink-0">
                                         <Download className="w-4 h-4" />
                                     </div>
                                 </a>

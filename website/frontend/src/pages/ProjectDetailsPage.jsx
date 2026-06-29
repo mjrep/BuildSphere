@@ -93,7 +93,7 @@ export default function ProjectDetailsPage() {
         return (
             <DashboardLayout pageTitle={
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/projects')} className="text-text-primary hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-gray-100">
+                    <button onClick={() => navigate('/projects')} className="text-text-primary hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-bg-tertiary">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -115,7 +115,7 @@ export default function ProjectDetailsPage() {
         <DashboardLayout pageTitle={
             <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-3">
-                    <button onClick={() => navigate('/projects')} className="text-text-primary hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-gray-100">
+                    <button onClick={() => navigate('/projects')} className="text-text-primary hover:text-accent transition-colors p-1.5 rounded-lg hover:bg-bg-tertiary">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                         </svg>
@@ -124,7 +124,7 @@ export default function ProjectDetailsPage() {
                 </div>
             </div>
         }>
-            <div className="max-w-7xl mx-auto w-full">
+            <div className="w-[96%] max-w-[1600px] mx-auto">
                 
                 {/* Tabs Row */}
                 <div className="flex items-center justify-between border-b border-border-primary mb-6 mt-2 relative">
@@ -158,7 +158,7 @@ export default function ProjectDetailsPage() {
                                     project.status === 'completed'
                                         ? 'bg-emerald-50 text-emerald-600 border border-emerald-100 cursor-default shadow-sm shadow-emerald-500/5'
                                         : project.progress < 100 || project.tasks_summary.total !== project.tasks_summary.completed || !['CEO', 'COO', 'Admin'].includes(user?.role)
-                                            ? 'bg-gray-50 text-gray-400 border border-gray-100 cursor-not-allowed'
+                                            ? 'bg-bg-secondary text-text-muted border border-border-primary cursor-not-allowed'
                                             : 'bg-gradient-to-r from-[#706BFF] to-[#5B55E6] text-white shadow-xl shadow-[#706BFF]/25 hover:shadow-[#706BFF]/40 hover:-translate-y-0.5 active:translate-y-0 active:scale-95'
                                 }`}
                             >
@@ -210,7 +210,7 @@ export default function ProjectDetailsPage() {
                             disabled={analyzing}
                             className={`px-5 py-2 text-sm font-bold rounded-xl transition-colors flex items-center gap-2 ${
                                 analyzing 
-                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                                    ? 'bg-bg-tertiary text-text-muted cursor-not-allowed' 
                                     : 'bg-accent/10 text-accent hover:bg-accent/20'
                             }`}
                         >

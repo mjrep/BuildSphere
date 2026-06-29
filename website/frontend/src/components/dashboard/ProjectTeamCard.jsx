@@ -10,7 +10,7 @@ export default function ProjectTeamCard({ project_id, project_name, location, en
     // Use segments if available, fallback to a single primary color if not
     const segments = (milestone_segments && milestone_segments.length > 0) 
         ? milestone_segments.map(s => ({ color: s.color, width: `${s.percentage}%` }))
-        : [{ color: 'bg-accent', width: `${pct}%` }];
+        : [{ color: 'bg-gradient-to-r from-[#00C6FF] to-accent', width: `${pct}%` }];
 
     const cleanProjectName = (name) => {
         if (!name) return '';

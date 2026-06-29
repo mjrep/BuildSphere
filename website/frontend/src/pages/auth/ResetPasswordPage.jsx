@@ -99,8 +99,29 @@ export default function ResetPasswordPage() {
     }, [navigate]);
 
     const handleChange = (event) => {
-        setForm({ ...form, [event.target.name]: event.target.value });
-        setErrors({ ...errors, [event.target.name]: null, form: null });
+        const { name, value } = event.target;
+        setForm({ ...form, [name]: value });
+        
+        const newErrors = { ...errors, [name]: null, form: null };
+        
+        if (name === 'password') {
+            const pwdError = validatePassword(value);
+            if (pwdError) {
+                newErrors.password = [pwdError];
+            } else {
+                delete newErrors.password;
+            }
+        }
+        
+        setErrors(newErrors);
+    };
+
+    const validatePassword = (pwd) => {
+        if (!pwd || pwd.length < 8) return 'Password must be at least 8 characters long.';
+        if (!/[A-Z]/.test(pwd)) return 'Password must contain at least one uppercase letter.';
+        if (!/[0-9]/.test(pwd)) return 'Password must contain at least one number.';
+        if (!/[^a-zA-Z0-9]/.test(pwd)) return 'Password must contain at least one special character.';
+        return null;
     };
 
     const handleSubmit = async (event) => {
@@ -108,6 +129,13 @@ export default function ResetPasswordPage() {
         setSubmitting(true);
         setErrors({});
         setSuccess('');
+
+        const pwdError = validatePassword(form.password);
+        if (pwdError) {
+            setErrors({ password: [pwdError] });
+            setSubmitting(false);
+            return;
+        }
 
         if (form.password !== form.password_confirmation) {
             setErrors({ password_confirmation: ['Passwords do not match.'] });
@@ -143,6 +171,23 @@ export default function ResetPasswordPage() {
                 ? 'border-red-400 focus:ring-red-200'
                 : 'border-border-primary focus:ring-accent/20 focus:border-accent'
         }`;
+
+    const getPasswordStrength = (pwd) => {
+        let score = 0;
+        if (!pwd) return { score: 0, label: '', color: 'bg-transparent' };
+        if (pwd.length >= 8) score += 1;
+        if (/[A-Z]/.test(pwd)) score += 1;
+        if (/[0-9]/.test(pwd)) score += 1;
+        if (/[^a-zA-Z0-9]/.test(pwd)) score += 1;
+
+        if (score <= 1) return { score, label: 'Weak', color: 'bg-red-500' };
+        if (score === 2 || score === 3) return { score, label: 'Fair', color: 'bg-amber-500' };
+        if (score === 4) return { score, label: 'Strong', color: 'bg-emerald-500' };
+        return { score: 0, label: '', color: 'bg-transparent' };
+    };
+
+    const strength = getPasswordStrength(form.password);
+    const isFormValid = !validatePassword(form.password) && form.password === form.password_confirmation && form.password.length > 0;
 
     return (
         <div className="min-h-screen bg-bg-primary flex items-center justify-center px-4 py-12 transition-colors duration-200">
@@ -226,7 +271,39 @@ export default function ResetPasswordPage() {
                                     {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
                                 </button>
                             </div>
-                            {errors.password && <p className="text-red-500 text-xs ml-1">{errors.password[0]}</p>}
+                            
+                            {/* Password Strength Bar */}
+                            <div className="mt-3">
+                                <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                                    <div 
+                                        className={`h-full transition-all duration-300 ${strength.color}`} 
+                                        style={{ width: `${(strength.score / 4) * 100}%` }}
+                                    />
+                                </div>
+                                <div className="flex justify-between items-center mt-2 text-xs">
+                                    <span className={`font-semibold ${
+                                        strength.label === 'Weak' ? 'text-red-500' :
+                                        strength.label === 'Fair' ? 'text-amber-500' :
+                                        strength.label === 'Strong' ? 'text-emerald-500' :
+                                        'text-transparent'
+                                    }`}>
+                                        {strength.label || 'Strength'}
+                                    </span>
+                                </div>
+                                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                                    {[
+                                        { label: '8+ chars', met: form.password.length >= 8 },
+                                        { label: '1 upper', met: /[A-Z]/.test(form.password) },
+                                        { label: '1 number', met: /[0-9]/.test(form.password) },
+                                        { label: '1 special', met: /[^a-zA-Z0-9]/.test(form.password) }
+                                    ].map((req, idx) => (
+                                        <div key={idx} className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md transition-colors ${req.met ? 'bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
+                                            <span className={`w-1.5 h-1.5 rounded-full transition-colors ${req.met ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                                            {req.label}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-3">
@@ -258,7 +335,7 @@ export default function ResetPasswordPage() {
                         <button
                             id="set-password-btn"
                             type="submit"
-                            disabled={submitting}
+                            disabled={submitting || !isFormValid}
                             className="w-full bg-accent hover:opacity-90 disabled:opacity-60 text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-accent/20 active:scale-[0.98]"
                         >
                             {submitting ? (

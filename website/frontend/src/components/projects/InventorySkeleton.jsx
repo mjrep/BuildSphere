@@ -8,25 +8,25 @@ export default function InventorySkeleton() {
             {rows.map((row) => (
                 <tr key={row} className="animate-pulse border-b border-border-primary">
                     <td className="px-6 py-5">
-                        <div className="h-4 bg-gray-100 rounded-lg w-3/4 shimmer" />
+                        <div className="h-4 bg-bg-tertiary rounded-lg w-3/4 shimmer" />
                     </td>
                     <td className="px-6 py-5">
-                        <div className="h-4 bg-gray-100 rounded-full w-24 shimmer" />
+                        <div className="h-4 bg-bg-tertiary rounded-full w-24 shimmer" />
                     </td>
                     <td className="px-6 py-5">
-                        <div className="h-4 bg-gray-50 rounded-lg w-16 shimmer" />
+                        <div className="h-4 bg-bg-secondary rounded-lg w-16 shimmer" />
                     </td>
                     <td className="px-6 py-5">
-                        <div className="h-4 bg-gray-50 rounded-lg w-16 shimmer" />
+                        <div className="h-4 bg-bg-secondary rounded-lg w-16 shimmer" />
                     </td>
                     <td className="px-6 py-5">
-                        <div className="h-4 bg-gray-50 rounded-lg w-20 shimmer" />
+                        <div className="h-4 bg-bg-secondary rounded-lg w-20 shimmer" />
                     </td>
                     <td className="px-6 py-5">
-                        <div className="h-6 bg-gray-100 rounded-full w-24 shimmer" />
+                        <div className="h-6 bg-bg-tertiary rounded-full w-24 shimmer" />
                     </td>
                     <td className="px-6 py-5 text-right">
-                        <div className="h-8 w-8 bg-gray-100 rounded-lg ml-auto shimmer" />
+                        <div className="h-8 w-8 bg-bg-tertiary rounded-lg ml-auto shimmer" />
                     </td>
                 </tr>
             ))}

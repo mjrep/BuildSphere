@@ -32,7 +32,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
             <div className="bg-card rounded-2xl shadow-xl w-full max-w-md relative animate-in fade-in zoom-in-95 duration-200">
                 <button 
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+                    className="absolute top-4 right-4 text-text-muted hover:text-text-secondary"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -51,7 +51,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
                             required
                             type="text"
                             placeholder="Enter item name"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
+                            className="w-full rounded-xl border border-border-primary px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
                         />
                     </div>
 
@@ -62,7 +62,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
                             value={formData.category}
                             onChange={handleChange}
                             required
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent text-text-primary"
+                            className="w-full rounded-xl border border-border-primary px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent text-text-primary"
                         >
                             <option value="materials">Materials</option>
                             <option value="equipment">Equipment</option>
@@ -81,7 +81,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
                             min="0"
                             step="any"
                             placeholder="e.g. 20"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
+                            className="w-full rounded-xl border border-border-primary px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
                         />
                     </div>
 
@@ -96,7 +96,7 @@ export default function EditInventoryItemModal({ project, item, onClose, onSucce
                             min="0"
                             step="any"
                             placeholder="0.00"
-                            className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
+                            className="w-full rounded-xl border border-border-primary px-3 py-2 text-sm focus:ring-2 focus:ring-[#706BFF] focus:border-transparent"
                         />
                     </div>
 

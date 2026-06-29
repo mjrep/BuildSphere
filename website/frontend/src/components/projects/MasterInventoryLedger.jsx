@@ -69,9 +69,9 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
             case 'SPOILAGE':
                 return <span className="bg-red-50 text-red-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-red-100 uppercase">Defective</span>;
             case 'ADJUSTMENT':
-                return <span className="bg-gray-50 text-gray-600 px-2 py-0.5 rounded-full text-[10px] font-bold border border-gray-100 uppercase">Adjustment</span>;
+                return <span className="bg-bg-secondary text-text-muted px-2 py-0.5 rounded-full text-[10px] font-bold border border-border-primary uppercase">Adjustment</span>;
             default:
-                return <span className="bg-gray-50 text-gray-400 px-2 py-0.5 rounded-full text-[10px] font-bold border border-gray-100 uppercase">{type}</span>;
+                return <span className="bg-bg-secondary text-text-muted px-2 py-0.5 rounded-full text-[10px] font-bold border border-border-primary uppercase">{type}</span>;
         }
     };
 
@@ -105,9 +105,9 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                 onChange={(e) => setFilterItem(e.target.value)}
                                 className="bg-card/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
                             >
-                                <option value="all" className="text-gray-900">All Materials</option>
+                                <option value="all" className="text-text-primary">All Materials</option>
                                 {inventoryItems.map(item => (
-                                    <option key={item.id} value={item.id} className="text-gray-900">{item.item_name}</option>
+                                    <option key={item.id} value={item.id} className="text-text-primary">{item.item_name}</option>
                                 ))}
                             </select>
                         </div>
@@ -119,11 +119,10 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                 onChange={(e) => setFilterType(e.target.value)}
                                 className="bg-card/10 border border-white/20 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white/30"
                             >
-                                <option value="all" className="text-gray-900">All Types</option>
-                                <option value="RECEIVING" className="text-gray-900">Receiving</option>
-                                <option value="CONSUMPTION" className="text-gray-900">Consumption</option>
-                                <option value="SPOILAGE" className="text-gray-900">Defective</option>
-                                <option value="ADJUSTMENT" className="text-gray-900">Adjustment</option>
+                                <option value="all" className="text-text-primary">All Types</option>
+                                <option value="RECEIVING" className="text-text-primary">Receiving</option>
+                                <option value="CONSUMPTION" className="text-text-primary">Consumption</option>
+                                <option value="SPOILAGE" className="text-text-primary">Defective</option>
                             </select>
                         </div>
 
@@ -138,37 +137,37 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                     {loading ? (
                         <div className="p-24 text-center space-y-4">
                             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#706BFF] mx-auto"></div>
-                            <p className="text-sm text-gray-400 font-bold">Synchronizing ledger records...</p>
+                            <p className="text-sm text-text-muted font-bold">Synchronizing ledger records...</p>
                         </div>
                     ) : filteredLogs.length === 0 ? (
                         <div className="p-24 text-center">
-                            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <div className="w-16 h-16 bg-bg-secondary rounded-full flex items-center justify-center mx-auto mb-4">
                                 <svg className="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                             </div>
-                            <p className="text-gray-400 font-medium">No transactions found matching your filters.</p>
+                            <p className="text-text-muted font-medium">No transactions found matching your filters.</p>
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
-                            <thead className="sticky top-0 bg-card border-b border-gray-100 z-10 shadow-sm">
+                            <thead className="sticky top-0 bg-card border-b border-border-primary z-10 shadow-sm">
                                 <tr>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Timestamp</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Material</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Action</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Qty</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Current Stock</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Linked Task</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Processed By</th>
-                                    <th className="px-6 py-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Notes</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Timestamp</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Material</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Action</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Qty</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest text-right">Current Stock</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Linked Task</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Processed By</th>
+                                    <th className="px-6 py-4 text-[10px] font-bold text-text-muted uppercase tracking-widest">Notes</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {filteredLogs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-gray-50/70 transition-colors">
+                                    <tr key={log.id} className="hover:bg-bg-secondary/70 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-[11px] font-bold text-text-primary">{formatDate(log.created_at)}</div>
-                                            <div className="text-[10px] text-gray-400">{formatTime(log.created_at)}</div>
+                                            <div className="text-[10px] text-text-muted">{formatTime(log.created_at)}</div>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="text-xs font-bold text-text-primary">{log.item?.item_name || 'Deleted Item'}</div>
@@ -179,7 +178,7 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                         <td className={`px-6 py-4 text-right font-bold text-xs ${['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? 'text-emerald-600' : 'text-red-600'}`}>
                                             {['RECEIVING', 'ADJUSTMENT'].includes(log.action_type) ? '+' : '-'}{log.quantity}
                                         </td>
-                                        <td className="px-6 py-4 text-right font-bold text-xs text-gray-600">
+                                        <td className="px-6 py-4 text-right font-bold text-xs text-text-muted">
                                             {log.current_stock !== null && log.current_stock !== undefined ? log.current_stock : '--'}
                                         </td>
                                         <td className="px-6 py-4">
@@ -192,12 +191,12 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                                             )}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-[10px] font-bold text-gray-600">
+                                            <div className="text-[10px] font-bold text-text-muted">
                                                 {log.creator?.first_name} {log.creator?.last_name}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4">
-                                            <p className="text-[11px] text-gray-400 truncate max-w-[120px]" title={log.notes}>
+                                            <p className="text-[11px] text-text-muted truncate max-w-[120px]" title={log.notes}>
                                                 {log.notes || '--'}
                                             </p>
                                         </td>
@@ -209,10 +208,10 @@ export default function MasterInventoryLedger({ project, inventoryItems, onClose
                 </div>
 
                 {/* Footer */}
-                <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end shrink-0">
+                <div className="p-4 bg-bg-secondary border-t border-border-primary flex justify-end shrink-0">
                     <button 
                         onClick={onClose}
-                        className="px-8 py-2.5 bg-card border border-gray-200 text-gray-600 text-sm font-bold rounded-2xl hover:bg-gray-100 transition-colors shadow-sm"
+                        className="px-8 py-2.5 bg-card border border-border-primary text-text-muted text-sm font-bold rounded-2xl hover:bg-bg-tertiary transition-colors shadow-sm"
                     >
                         Close Ledger
                     </button>

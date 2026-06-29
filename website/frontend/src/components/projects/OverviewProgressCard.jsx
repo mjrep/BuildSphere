@@ -20,7 +20,7 @@ export default function OverviewProgressCard({ progress }) {
                 
                 <div className="w-full h-1.5 bg-bg-secondary rounded-full overflow-hidden mt-2 relative">
                     <div 
-                        className="h-full bg-[#5B9C2A] rounded-full transition-all duration-1000 ease-out"
+                        className="h-full bg-gradient-to-r from-[#00C6FF] to-accent rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${progress}%` }}
                     />
                 </div>

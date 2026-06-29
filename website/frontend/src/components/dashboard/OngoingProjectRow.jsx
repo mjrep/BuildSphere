@@ -36,7 +36,7 @@ export default function OngoingProjectRow({ project_id, project_name, status, pr
             <div className="flex items-center gap-3">
                 <p className="text-xs text-text-muted shrink-0">Progress</p>
                 <div className="flex-1 h-2 bg-accent/20 rounded-full overflow-hidden">
-                    <div className="h-full bg-accent rounded-full" style={{ width: `${progress}%` }} />
+                    <div className="h-full bg-gradient-to-r from-[#00C6FF] to-accent rounded-full" style={{ width: `${progress}%` }} />
                 </div>
                 <p className="text-xs font-semibold text-text-muted shrink-0">{progress}%</p>
             </div>

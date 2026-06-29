@@ -35,8 +35,10 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
     useEffect(() => {
         async function fetchProjects() {
             try {
-                const res = await getProjects({ status: 'ongoing' });
-                const data = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                const res = await getProjects({ per_page: 100 });
+                let data = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                // Only show ongoing and completed projects in reports
+                data = data.filter(p => p.status === 'ongoing' || p.status === 'completed');
                 setProjects(data);
             } catch (err) {
                 console.error("Failed to fetch projects for report builder", err);
@@ -113,7 +115,7 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                         <button
                             type="button"
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                            className={`w-full bg-card border ${isDropdownOpen ? 'border-accent ring-4 ring-accent/5' : 'border-border-primary'} rounded-2xl px-6 py-4 flex items-center justify-between shadow-sm transition-all group`}
+                            className={`w-full bg-card border ${isDropdownOpen ? 'border-accent shadow-[0_4px_15px_rgba(112,107,255,0.1)]' : 'border-border-primary hover:border-accent/40 hover:shadow-md'} rounded-2xl px-6 py-4 flex items-center justify-between shadow-sm transition-all group`}
                         >
                             <span className={`text-sm font-bold ${formData.projectIds.length > 0 ? 'text-text-primary' : 'text-text-muted'}`}>
                                 {formData.projectIds.length === 0 ? 'Select Project' : 
@@ -151,7 +153,6 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                                             />
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{p.project_name}</span>
-                                                <span className="text-[10px] text-text-muted font-black uppercase tracking-widest">{p.project_code}</span>
                                             </div>
                                         </label>
                                     ))}
@@ -166,7 +167,7 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                         <div className="relative">
                             <input 
                                 type="date"
-                                className="w-full bg-card border border-border-primary rounded-2xl px-6 py-4 text-sm font-bold text-text-primary focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm appearance-none"
+                                className="w-full bg-card border border-border-primary rounded-2xl px-6 py-4 text-sm font-bold text-text-primary focus:border-accent hover:border-accent/40 hover:shadow-md focus:shadow-[0_4px_15px_rgba(112,107,255,0.1)] outline-none transition-all shadow-sm appearance-none"
                                 value={formData.startDate}
                                 onChange={(e) => setFormData({...formData, startDate: e.target.value})}
                                 required
@@ -181,7 +182,7 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                         <div className="relative">
                             <input 
                                 type="date"
-                                className="w-full bg-card border border-border-primary rounded-2xl px-6 py-4 text-sm font-bold text-text-primary focus:border-accent focus:ring-4 focus:ring-accent/5 outline-none transition-all shadow-sm appearance-none"
+                                className="w-full bg-card border border-border-primary rounded-2xl px-6 py-4 text-sm font-bold text-text-primary focus:border-accent hover:border-accent/40 hover:shadow-md focus:shadow-[0_4px_15px_rgba(112,107,255,0.1)] outline-none transition-all shadow-sm appearance-none"
                                 value={formData.endDate}
                                 onChange={(e) => setFormData({...formData, endDate: e.target.value})}
                                 required
@@ -224,8 +225,8 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                                 onClick={() => setFormData({...formData, [section.id]: !formData[section.id]})}
                                 className={`flex flex-col text-left p-7 rounded-3xl border transition-all relative group active:scale-95 ${
                                     formData[section.id] 
-                                        ? 'border-accent bg-accent/5 ring-4 ring-accent/5' 
-                                        : 'border-border-primary bg-bg-secondary/30 hover:bg-bg-secondary hover:border-border-primary/80'
+                                        ? 'border-accent bg-card shadow-[0_8px_30px_rgba(112,107,255,0.12)] ring-1 ring-accent' 
+                                        : 'border-border-primary bg-card hover:border-accent/40 hover:shadow-md'
                                 }`}
                             >
                                 <div className="flex items-center justify-between mb-5">
@@ -238,10 +239,10 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                                         {formData[section.id] && <CheckCircle size={16} className="text-white" strokeWidth={3} />}
                                     </div>
                                 </div>
-                                <span className={`text-base font-black mb-2 tracking-tight ${formData[section.id] ? 'text-accent' : 'text-text-primary'}`}>
+                                <span className="text-base font-black mb-2 tracking-tight text-text-primary group-hover:text-accent transition-colors">
                                     {section.label}
                                 </span>
-                                <p className={`text-[10px] leading-relaxed font-bold uppercase tracking-wide ${formData[section.id] ? 'text-accent/70' : 'text-text-muted'}`}>
+                                <p className="text-[10px] leading-relaxed font-bold uppercase tracking-wide text-text-muted">
                                     {section.desc}
                                 </p>
                             </button>
@@ -256,8 +257,8 @@ export default function ReportBuilder({ onGenerate, isGenerating }) {
                         disabled={isGenerating || formData.projectIds.length === 0}
                         className={`w-full max-w-sm py-5 text-[11px] rounded-2xl font-black uppercase tracking-widest transition-all flex items-center justify-center gap-4 ${
                             isGenerating || formData.projectIds.length === 0
-                                ? 'bg-bg-tertiary text-text-secondary opacity-80 cursor-not-allowed border border-border-primary' 
-                                : 'bg-accent text-white shadow-[0_8px_25px_rgba(124,116,255,0.3)] hover:bg-accent hover:-translate-y-1 active:scale-[0.98]'
+                                ? 'bg-bg-secondary text-text-muted cursor-not-allowed border-2 border-border-primary shadow-sm' 
+                                : 'bg-accent text-white shadow-[0_8px_25px_rgba(112,107,255,0.3)] hover:opacity-90 hover:-translate-y-1 active:scale-[0.98]'
                         }`}
                     >
                         {isGenerating ? (

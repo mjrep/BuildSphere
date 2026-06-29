@@ -103,7 +103,7 @@ ${JSON.stringify(evmData, null, 2)}
 **Core EVM Calculations & Analysis Rules:**
 1. **Time Performance (SPI):** Calculate the Schedule Performance Index. Compare \`elapsed_time\` against \`planned_duration\`. Determine if the overall phase completion aligns with the time spent. SPI > 1.0 means ahead of schedule; SPI < 1.0 means delayed.
 2. **Cost Performance (CPI):** Evaluate the \`budget\` against the \`actual_cost\`. Determine the financial burn rate. Identify if there are severe cost overruns early in the project lifecycle.
-3. **Milestone Health:** Do not treat all phases equally. Identify bottlenecks by finding phases with 0% completion that should have started by now based on the elapsed time.
+3. **Milestone Health:** Do not treat all phases equally. Identify bottlenecks by finding phases or milestones with 0% completion that should have started by now based on the elapsed time and their specific \`phase_start_date\` or \`start_date\`.
 
 **Output Constraints & Formatting:**
 - **Executive Summary:** Write a 3-sentence C-level executive summary. **Do not** just repeat the numbers. Explain *why* the numbers matter and what the immediate impact is on the project's delivery and profit margin. Use a professional, authoritative tone.

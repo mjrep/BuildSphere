@@ -69,7 +69,7 @@ export default function CompleteProjectModal({ project, onConfirm, onClose, isSu
                             className={`w-full py-4 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-3 ${
                                 isValid && !isSubmitting
                                     ? 'bg-gradient-to-r from-[#706BFF] to-[#5B55E6] text-white shadow-xl shadow-[#706BFF]/25 hover:shadow-[#706BFF]/40 hover:-translate-y-0.5'
-                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                                    : 'bg-bg-tertiary text-text-muted cursor-not-allowed'
                             }`}
                         >
                             {isSubmitting ? (

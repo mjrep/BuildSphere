@@ -101,7 +101,7 @@ function ProgressVisualizer({ task, isQuantifiable }) {
                     className={`h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_8px_rgba(124,116,255,0.3)] ${
                         isComplete
                             ? 'bg-gradient-to-r from-emerald-400 to-emerald-500'
-                            : 'bg-gradient-to-r from-accent to-indigo-400'
+                            : 'bg-gradient-to-r from-[#00C6FF] to-accent'
                     }`}
                     style={{ width: `${pct}%` }}
                 />
@@ -154,7 +154,7 @@ function EvidenceLightbox({ src, onClose }) {
             <div className="relative max-w-3xl w-full" onClick={e => e.stopPropagation()}>
                 <button
                     onClick={onClose}
-                    className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-card rounded-full shadow-lg flex items-center justify-center text-gray-500 hover:text-gray-800 transition-colors"
+                    className="absolute -top-3 -right-3 z-10 w-8 h-8 bg-card rounded-full shadow-lg flex items-center justify-center text-text-muted hover:text-text-secondary transition-colors"
                 >
                     <XIcon size={16} />
                 </button>
@@ -236,7 +236,7 @@ function ProgressHistory({ logs, unitOfMeasure }) {
                                     onClick={() => setLightboxSrc(log.evidence_image_path)}
                                     className="mt-2 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border border-border-primary hover:border-indigo-300 hover:shadow-sm transition-all group/thumb"
                                 >
-                                    <div className="w-8 h-8 rounded-md overflow-hidden bg-gray-100 flex-shrink-0">
+                                    <div className="w-8 h-8 rounded-md overflow-hidden bg-bg-tertiary flex-shrink-0">
                                         <img
                                             src={log.evidence_image_path.startsWith('http')
                                                 ? log.evidence_image_path
@@ -455,10 +455,10 @@ export default function ViewTaskModal({ taskId, task: initialTask, onClose, perm
                         <Detail label="Priority"    value={<PriorityBadge priority={task.priority} />} />
                         <Detail label="Start Date"  value={formatDate(task.start_date)} />
                         <Detail label="Due Date"    value={
-                            <div className="flex items-center gap-2">
-                                <span>{formatDate(task.due_date)}</span>
+                            <div className="flex items-center flex-wrap gap-2">
+                                <span className="whitespace-nowrap">{formatDate(task.due_date)}</span>
                                 {task.status !== 'completed' && task.due_date && task.due_date.split('T')[0] < new Date().toISOString().split('T')[0] && (
-                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wide">
+                                    <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-50 text-red-600 border border-red-100 uppercase tracking-wide whitespace-nowrap">
                                         Past Due
                                     </span>
                                 )}

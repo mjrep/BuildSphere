@@ -54,7 +54,7 @@ export default function Header({ pageTitle, user, loading, scrolled, onMenuToggl
                     >
                         <div className="text-right hidden sm:block">
                             <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">
-                                {user ? `${user.first_name} ${user.last_name}` : ''}
+                                {user ? [user.first_name, user.middle_name, user.last_name, user.suffix].filter(Boolean).join(' ') : ''}
                             </p>
                             <p className="text-[11px] font-bold text-text-muted uppercase tracking-wider mt-0.5">{user?.role ?? ''}</p>
                         </div>

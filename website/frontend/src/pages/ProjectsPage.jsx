@@ -36,7 +36,7 @@ export default function ProjectsPage() {
     const fetchProjects = async () => {
         setLoading(true);
         try {
-            const params = {};
+            const params = { per_page: 100 };
             if (activeTab) params.status = activeTab;
             if (activeTab === 'proposed' && activeSubTab) params.sub_status = activeSubTab;
             if (search) params.search = search;
@@ -71,23 +71,11 @@ export default function ProjectsPage() {
 
     return (
         <DashboardLayout pageTitle="Projects">
-            {/* Top bar: New Project button */}
-            {canCreateProject && (
-                <div className="flex items-center justify-end mb-3">
-                    <button
-                        onClick={() => navigate('/projects/new')}
-                        className="px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl
-                                   hover:opacity-90 transition-colors shadow-sm"
-                    >
-                        New Project
-                    </button>
-                </div>
-            )}
 
             {/* Content card */}
             <div className="bg-card rounded-[2rem] shadow-xl border border-border-primary/50 pt-4 pb-6 px-6 lg:pt-5 lg:pb-8 lg:px-8">
                 <div className="flex flex-col lg:flex-row lg:items-end justify-between border-b border-border-primary/50 mb-6 gap-4">
-                    <div className="flex items-center gap-4 lg:gap-8 overflow-x-auto pb-2 scrollbar-none w-full lg:w-auto shrink-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    <div className="flex flex-wrap items-center gap-4 lg:gap-8 pb-2 w-full lg:w-auto shrink-0">
                     {STATUS_TABS.map((tab) => {
                         const isActive = activeTab === tab.key;
                         const count = tab.key === ''
@@ -141,31 +129,38 @@ export default function ProjectsPage() {
                         );
                     })}
                     </div>
-                    <div className="pb-3 hidden sm:block">
-                        <ViewToggle view={view} onChange={setView} />
+                    
+                    <div className="flex items-center gap-4 pb-3 w-full lg:w-auto justify-end">
+                        <form onSubmit={handleSearch} className="relative w-full sm:w-[240px] group">
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                placeholder="Search projects..."
+                                className="w-full rounded-2xl border border-border-primary/50 px-4 py-2.5 text-sm
+                                           placeholder:text-text-muted focus:outline-none focus:ring-4
+                                           focus:ring-accent/10 focus:border-accent bg-bg-tertiary text-text-primary
+                                           transition-all duration-300 shadow-inner"
+                            />
+                            <button type="submit" className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 hover:bg-bg-hover rounded-xl transition-colors">
+                                <svg className="w-4 h-4 text-text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </button>
+                        </form>
+                        <div className="hidden sm:block shrink-0">
+                            <ViewToggle view={view} onChange={setView} />
+                        </div>
+                        {canCreateProject && (
+                            <button
+                                onClick={() => navigate('/projects/new')}
+                                className="shrink-0 px-5 py-2.5 bg-accent text-white text-sm font-bold rounded-xl hover:opacity-90 transition-colors shadow-sm"
+                            >
+                                New Project
+                            </button>
+                        )}
                     </div>
                 </div>
-
-                {/* Search bar */}
-                <form onSubmit={handleSearch} className="mb-6">
-                    <div className="relative max-w-md group">
-                        <input
-                            type="text"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Search projects..."
-                            className="w-full rounded-2xl border border-border-primary/50 px-6 py-4 text-sm
-                                       placeholder:text-text-muted focus:outline-none focus:ring-4
-                                       focus:ring-accent/10 focus:border-accent bg-bg-tertiary text-text-primary
-                                       transition-all duration-300 shadow-inner"
-                        />
-                        <button type="submit" className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-bg-hover rounded-xl transition-colors">
-                            <svg className="w-5 h-5 text-text-muted group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </button>
-                    </div>
-                </form>
 
                 {/* Loading Skeletons */}
                 {loading ? (

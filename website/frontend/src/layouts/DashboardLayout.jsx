@@ -41,7 +41,7 @@ export default function DashboardLayout({ children, pageTitle, noPadding = false
                 <main 
                     id="main-scroll-container"
                     onScroll={handleScroll}
-                    className={`flex-1 overflow-y-auto overflow-x-hidden bg-bg-primary ${noPadding ? 'p-0' : 'p-4 md:p-6'}`}
+                    className={`flex-1 overflow-y-auto overflow-x-hidden bg-gradient-to-bl from-[var(--gradient-start)] to-[var(--gradient-end)] ${noPadding ? 'p-0' : 'p-4 md:p-6'}`}
                 >
                     {children}
                 </main>

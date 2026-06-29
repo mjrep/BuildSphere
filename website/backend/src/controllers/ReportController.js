@@ -211,6 +211,7 @@ class ReportController {
           id: projectData.id,
           name: projectData.project_name,
           code: projectData.project_code,
+          budget_for_materials: projectData.budget_for_materials,
           progress,
           inventory,
           accomplishments,

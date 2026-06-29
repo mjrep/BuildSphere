@@ -292,7 +292,7 @@ export default function EngineerMilestoneInputPage() {
         });
     };
 
-    if (loading) return <div className="p-8 text-center text-gray-500 font-medium">Loading project data...</div>;
+    if (loading) return <div className="p-8 text-center text-text-muted font-medium">Loading project data...</div>;
     if (!project) return <div className="p-8 text-center text-red-500 font-medium">Project not found.</div>;
 
     const buildNestedErrorObject = (flatErrors) => {
@@ -325,7 +325,7 @@ export default function EngineerMilestoneInputPage() {
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate(-1)} 
-                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-bg-tertiary transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -389,7 +389,7 @@ export default function EngineerMilestoneInputPage() {
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
-                        className="px-6 py-3 rounded-xl border border-border-primary text-text-primary font-medium hover:bg-gray-50 transition-colors"
+                        className="px-6 py-3 rounded-xl border border-border-primary text-text-primary font-medium hover:bg-bg-secondary transition-colors"
                     >
                         Back
                     </button>

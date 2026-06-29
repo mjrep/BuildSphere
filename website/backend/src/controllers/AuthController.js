@@ -89,8 +89,8 @@ class AuthController {
         }
       }
 
-      // 2. If it fails (and isn't just unconfirmed), check for a "Legacy Migration" user
-      if (error && (error.message === 'Invalid login credentials' || error.status === 400 || error.message === 'Email not confirmed')) {
+      // 2. If it fails, check for a "Legacy Migration" user (only if not already confirmed/unconfirmed)
+      if (error && (error.message === 'Invalid login credentials' || error.status === 400)) {
         const { data: legacyUser, error: legacyError } = await supabase
           .from('users')
           .select('*')
@@ -142,7 +142,26 @@ class AuthController {
               error = retry.error;
             } else {
               console.error('Migration SignUp Error:', signUpError);
-              error = signUpError;
+              if (signUpError.message && signUpError.message.toLowerCase().includes('already been registered')) {
+                // User already exists in Supabase Auth, but their password didn't work.
+                // Since they just proved they know the correct legacy password, let's sync their Supabase Auth password!
+                if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
+                  const { data: userListData } = await supabaseAdmin.auth.admin.listUsers();
+                  const existingUser = userListData.users.find(u => u.email === email);
+                  if (existingUser) {
+                    await supabaseAdmin.auth.admin.updateUserById(existingUser.id, { password });
+                    const retry = await supabase.auth.signInWithPassword({ email, password });
+                    data = retry.data;
+                    error = retry.error;
+                  } else {
+                    error = { message: 'Invalid login credentials' };
+                  }
+                } else {
+                  error = { message: 'Invalid login credentials' };
+                }
+              } else {
+                error = signUpError;
+              }
             }
           }
         }

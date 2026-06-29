@@ -86,11 +86,15 @@ class EvmService {
       phases: phasesProgress.phases.map(phase => ({
         phase_id: phase.id,
         phase_name: phase.name,
+        phase_start_date: phase.start_date,
+        phase_end_date: phase.end_date,
         phase_weight_percentage: phase.milestones.reduce((sum, m) => sum + (parseFloat(m.weight_percentage) || 0), 0),
         phase_completion_percentage: phase.progress,
         milestones: phase.milestones.map(ms => ({
           milestone_id: ms.id,
           milestone_name: ms.milestone_name,
+          start_date: ms.start_date,
+          end_date: ms.end_date,
           weight_percentage: ms.weight_percentage,
           completion_percentage: ms.progress_percentage
         }))

@@ -30,21 +30,27 @@ class TaskController {
       query = TaskQueryService.applyFilters(query, req.query);
       query = TaskQueryService.applySort(query, req.query.sort);
 
+      const page = parseInt(req.query.page) || 1;
+      const perPage = parseInt(req.query.per_page) || 10;
+      const from = (page - 1) * perPage;
+      const to = from + perPage - 1;
+
+      // Apply range for pagination
+      query = query.range(from, to);
+
       const { data: tasks, error, count } = await query;
       if (error) throw error;
 
       // Format tasks to camelCase mimicking Laravel Resource
       const formattedTasks = tasks.map(task => TaskController.formatTask(task));
 
-      const perPage = parseInt(req.query.per_page) || 20;
-
       res.json({
         data: formattedTasks,
         meta: {
-          current_page: 1, // Full pagination handled in-memory or mapped to Supabase ranges if needed
-          last_page: Math.ceil((count || formattedTasks.length) / perPage) || 1,
+          current_page: page,
+          last_page: Math.ceil((count || 0) / perPage) || 1,
           per_page: perPage,
-          total: count || formattedTasks.length
+          total: count || 0
         }
       });
     } catch (err) {
@@ -198,7 +204,7 @@ class TaskController {
             'New Task Assignment',
             `You have been assigned to a new task: '${task.title}' on ${project?.project_name || 'Project'}.`,
             'info',
-            `/tasks/${task.id}`
+            `/tasks`
           );
         } catch (notifErr) {
           console.error('Task Assignment Notification Error:', notifErr);
@@ -268,7 +274,7 @@ class TaskController {
             'New Task Assignment',
             `You have been assigned to a new task: '${task.title}' on ${project?.project_name || 'Project'}.`,
             'info',
-            `/tasks/${task.id}`
+            `/tasks`
           );
         } catch (notifErr) {
           console.error('Task Assignment Notification Error:', notifErr);
@@ -327,7 +333,7 @@ class TaskController {
               'Task Ready for Review',
               `Task '${taskData.title}' has been marked ready for review by ${req.user.first_name} ${req.user.last_name}.`,
               'info',
-              `/tasks/${id}`
+              `/tasks`
             );
           }
         } catch (notifErr) {

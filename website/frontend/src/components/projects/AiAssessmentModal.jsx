@@ -90,7 +90,7 @@ export default function AiAssessmentModal({ assessment, onClose }) {
                             <h3 className="text-xs uppercase tracking-widest font-bold text-text-muted mb-4">Milestone Health</h3>
                             <div className="space-y-3">
                                 {ai_assessment.milestone_flags.map((flag, i) => (
-                                    <div key={i} className="p-4 rounded-xl border border-border-primary bg-gray-50/50">
+                                    <div key={i} className="p-4 rounded-xl border border-border-primary bg-bg-secondary/50">
                                         <div className="flex items-center justify-between mb-2">
                                             <span className="text-[10px] font-bold text-text-muted">{flag.phase_name}</span>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${

@@ -15,6 +15,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
     const [phases, setPhases]       = useState([]);
     const [milestones, setMilestones]= useState([]);
     const [users, setUsers]         = useState([]);
+    const [projectTeamIds, setProjectTeamIds] = useState([]);
     const [files, setFiles]         = useState([]);
 
     const [form, setForm] = useState({
@@ -49,7 +50,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
 
     // Reload phases when project changes
     useEffect(() => {
-        if (!form.project_id) { setPhases([]); setMilestones([]); return; }
+        if (!form.project_id) { setPhases([]); setMilestones([]); setProjectTeamIds([]); return; }
         // Use the existing milestone-plan endpoint — it returns phases with milestones
         getTaskMeta().then(data => { // Reusing meta endpoint if needed, but actually we need another one for phases
             // Actually, keep using direct api for this specific endpoint if not in taskApi
@@ -57,6 +58,22 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                 api.get(`/projects/${form.project_id}/milestone-plan`)
                     .then(r => setPhases(r.data.phases ?? []))
                     .catch(() => setPhases([]));
+                
+                api.get(`/projects/${form.project_id}`)
+                    .then(r => {
+                        const proj = r.data.data || r.data;
+                        const tIds = [];
+                        if (proj.project_in_charge?.id) tIds.push(proj.project_in_charge.id);
+                        if (proj.members) {
+                            proj.members.forEach(m => {
+                                if (m.user_id) tIds.push(m.user_id);
+                                else if (m.users?.id) tIds.push(m.users.id);
+                                else if (m.user?.id) tIds.push(m.user.id);
+                            });
+                        }
+                        setProjectTeamIds(tIds);
+                    })
+                    .catch(() => setProjectTeamIds([]));
             });
         });
         setForm(f => ({ ...f, phase_id: '', milestone_id: '' }));
@@ -144,6 +161,10 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
         if (!name) return '';
         return name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
     };
+
+    const selectedMilestone = milestones.find(m => String(m.id) === String(form.milestone_id));
+    const milestoneMinDate = selectedMilestone?.start_date ? selectedMilestone.start_date.substring(0, 10) : undefined;
+    const milestoneMaxDate = selectedMilestone?.end_date ? selectedMilestone.end_date.substring(0, 10) : undefined;
 
     // Success screen
     if (success) {
@@ -240,7 +261,14 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             <label className="text-xs font-semibold text-text-primary mb-1.5 block">Assigned To <span className="text-text-muted">*</span></label>
                             <select value={form.assigned_to} onChange={e => set('assigned_to', e.target.value)} className={inputCls('assigned_to')}>
                                 <option value="">Select</option>
-                                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                                {users.filter(u => {
+                                    if (user && u.id === user.id) return false;
+                                    if (!form.project_id) return true;
+                                    const role = (u.role || '').toLowerCase();
+                                    const defaultRoles = ['ceo', 'coo', 'sales', 'accounting', 'hr', 'human resource'];
+                                    if (defaultRoles.some(dr => role.includes(dr))) return true;
+                                    return projectTeamIds.includes(u.id);
+                                }).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                             </select>
                             {errors.assigned_to && <p className="text-red-500 text-xs mt-1">{errors.assigned_to}</p>}
                         </div>
@@ -259,6 +287,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Start <span className="text-text-muted">*</span></label>
                             <input
                                 type="date" value={form.start_date}
+                                min={milestoneMinDate} max={milestoneMaxDate}
                                 onChange={e => set('start_date', e.target.value)}
                                 className={inputCls('start_date')}
                             />
@@ -268,7 +297,7 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                             <label className="text-xs font-semibold text-text-primary mb-1.5 block">Task Until <span className="text-text-muted">*</span></label>
                             <input
                                 type="date" value={form.due_date}
-                                min={form.start_date || undefined}
+                                min={form.start_date || milestoneMinDate} max={milestoneMaxDate}
                                 onChange={e => set('due_date', e.target.value)}
                                 className={inputCls('due_date')}
                             />
@@ -282,11 +311,29 @@ export default function AddTaskModal({ onClose, onSuccess, user, task = null }) 
                         <input
                             type="file" multiple
                             accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
-                            onChange={e => setFiles(Array.from(e.target.files))}
+                            onChange={e => {
+                                const newFiles = Array.from(e.target.files);
+                                setFiles(prev => [...prev, ...newFiles]);
+                                e.target.value = '';
+                            }}
                             className="text-xs text-text-muted file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-accent/10 file:text-accent hover:file:bg-[#E0E0FE]"
                         />
                         {files.length > 0 && (
-                            <p className="text-xs text-text-muted mt-1">{files.length} file(s) selected</p>
+                            <div className="mt-3 space-y-2 max-h-32 overflow-y-auto pr-1">
+                                {files.map((file, idx) => (
+                                    <div key={idx} className="flex items-center justify-between bg-bg-secondary p-2 rounded-lg text-xs border border-border-primary">
+                                        <span className="text-text-primary truncate mr-2">{file.name}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => setFiles(prev => prev.filter((_, i) => i !== idx))}
+                                            className="text-red-500 hover:text-red-700 font-bold p-1 text-base leading-none"
+                                            title="Remove file"
+                                        >
+                                            &times;
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
 

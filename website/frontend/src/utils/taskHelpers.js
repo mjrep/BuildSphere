@@ -17,7 +17,8 @@ export const formatDateTime = (dateStr) => {
     if (!dateStr) return '—';
     const d = new Date(dateStr);
     const now = new Date();
-    const diffMs  = now - d;
+    let diffMs  = now - d;
+    if (diffMs < 0) diffMs = 0;
     const diffMin = Math.floor(diffMs / 60000);
     const diffH   = Math.floor(diffMs / 3600000);
     const diffD   = Math.floor(diffMs / 86400000);

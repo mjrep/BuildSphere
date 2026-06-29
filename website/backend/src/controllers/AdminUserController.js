@@ -60,7 +60,27 @@ class AdminUserController {
       }
 
       // Generate a strong preset password for immediate Web & Mobile logins
-      const presetPassword = Math.random().toString(36).slice(-8) + 'A1!';
+      const generateSecurePassword = () => {
+        const lower = 'abcdefghijklmnopqrstuvwxyz';
+        const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const nums = '0123456789';
+        const specials = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+        const all = lower + upper + nums + specials;
+        
+        let pwd = [
+          lower[Math.floor(Math.random() * lower.length)],
+          upper[Math.floor(Math.random() * upper.length)],
+          nums[Math.floor(Math.random() * nums.length)],
+          specials[Math.floor(Math.random() * specials.length)]
+        ];
+        
+        for (let i = 0; i < 6; i++) {
+          pwd.push(all[Math.floor(Math.random() * all.length)]);
+        }
+        
+        return pwd.sort(() => 0.5 - Math.random()).join('');
+      };
+      const presetPassword = generateSecurePassword();
 
       // 1. Create user directly via Supabase Auth
       const { data: createData, error: createError } = await supabaseAdmin.auth.admin.createUser({

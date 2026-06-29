@@ -91,29 +91,29 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                 </svg>
                             </div>
-                            <h4 className="text-lg font-bold text-gray-900">Confirm Transaction</h4>
-                            <p className="text-sm text-gray-500">Please review the details below carefully.</p>
+                            <h4 className="text-lg font-bold text-text-primary">Confirm Transaction</h4>
+                            <p className="text-sm text-text-muted">Please review the details below carefully.</p>
                         </div>
 
-                        <div className="bg-gray-50 rounded-2xl p-6 space-y-4 border border-gray-100">
+                        <div className="bg-bg-secondary rounded-2xl p-6 space-y-4 border border-border-primary">
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-400 font-medium">Transaction Type</span>
+                                <span className="text-text-muted font-medium">Transaction Type</span>
                                 <span className={`font-bold ${actionOptions.find(o => o.id === actionType)?.color}`}>
                                     {actionOptions.find(o => o.id === actionType)?.label}
                                 </span>
                             </div>
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-400 font-medium">Material</span>
-                                <span className="text-gray-900 font-bold">{item.item_name}</span>
+                                <span className="text-text-muted font-medium">Material</span>
+                                <span className="text-text-primary font-bold">{item.item_name}</span>
                             </div>
                             <div className="flex justify-between items-center text-sm">
-                                <span className="text-gray-400 font-medium">Quantity</span>
-                                <span className="text-gray-900 font-bold">{quantity} Units</span>
+                                <span className="text-text-muted font-medium">Quantity</span>
+                                <span className="text-text-primary font-bold">{quantity} Units</span>
                             </div>
                             {actionType === 'CONSUMPTION' && (
                                 <div className="flex justify-between items-center text-sm">
-                                    <span className="text-gray-400 font-medium">Linked Task</span>
-                                    <span className="text-gray-900 font-bold truncate max-w-[150px]">
+                                    <span className="text-text-muted font-medium">Linked Task</span>
+                                    <span className="text-text-primary font-bold truncate max-w-[150px]">
                                         {tasks.find(t => String(t.id) === String(taskId))?.title || 'Unknown Task'}
                                     </span>
                                 </div>
@@ -133,7 +133,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                             <button
                                 type="button"
                                 onClick={() => setIsConfirming(false)}
-                                className="flex-1 py-3.5 text-sm font-bold text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-2xl transition-colors"
+                                className="flex-1 py-3.5 text-sm font-bold text-text-muted bg-bg-tertiary hover:bg-gray-200 rounded-2xl transition-colors"
                             >
                                 Go Back
                             </button>
@@ -158,7 +158,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                     className={`flex items-center justify-center py-2.5 rounded-2xl border-2 text-xs font-bold transition-all ${
                                         actionType === opt.id 
                                             ? `${opt.bg} ${opt.border} ${opt.color} shadow-sm` 
-                                            : 'bg-card border-gray-100 text-gray-400 hover:border-gray-200'
+                                            : 'bg-card border-border-primary text-text-muted hover:border-border-primary'
                                     }`}
                                 >
                                     {opt.label}
@@ -169,7 +169,7 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                         <div className="space-y-4">
                             {/* Quantity */}
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Quantity</label>
+                                <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider ml-1">Quantity</label>
                                 <div className="relative">
                                     <input 
                                         value={quantity}
@@ -179,21 +179,21 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
                                         min="0.01"
                                         step="any"
                                         placeholder="Enter amount..."
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none"
+                                        className="w-full rounded-2xl border border-border-primary bg-bg-secondary/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none"
                                     />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs font-bold">Units</span>
+                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted text-xs font-bold">Units</span>
                                 </div>
                             </div>
 
                             {/* Task Selector (Conditional) */}
                             {actionType === 'CONSUMPTION' && (
                                 <div className="space-y-1.5 animate-in slide-in-from-top-4 duration-300">
-                                    <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Assign to Task</label>
+                                    <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider ml-1">Assign to Task</label>
                                     <select
                                         value={taskId}
                                         onChange={(e) => setTaskId(e.target.value)}
                                         required
-                                        className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none appearance-none"
+                                        className="w-full rounded-2xl border border-border-primary bg-bg-secondary/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none appearance-none"
                                     >
                                         <option value="">-- Select a Task --</option>
                                         {tasks.map(t => (
@@ -206,13 +206,13 @@ export default function InventoryTransactionModal({ project, item, onClose, onSu
 
                             {/* Notes */}
                             <div className="space-y-1.5">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-wider ml-1">Notes / Remarks</label>
+                                <label className="text-[10px] font-bold text-text-muted uppercase tracking-wider ml-1">Notes / Remarks</label>
                                 <textarea 
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                     placeholder="Optional details..."
                                     rows="3"
-                                    className="w-full rounded-2xl border border-gray-100 bg-gray-50/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none resize-none"
+                                    className="w-full rounded-2xl border border-border-primary bg-bg-secondary/50 px-4 py-3.5 text-sm focus:ring-2 focus:ring-[#706BFF]/20 focus:border-[#706BFF] focus:bg-card transition-all outline-none resize-none"
                                 />
                             </div>
                         </div>

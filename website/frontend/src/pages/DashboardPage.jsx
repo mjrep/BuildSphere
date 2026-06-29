@@ -139,17 +139,17 @@ export default function DashboardPage() {
                 ) : statsData.role === 'accounting' ? (
                     <>
                         {/* Accounting Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+                        <div className="flex gap-4 shrink-0 overflow-x-auto pb-2 scrollbar-thin">
                             {accountingStats.map((s) => (
                                 <StatCard key={s.label} {...s} />
                             ))}
                         </div>
 
                         {/* Budget Allocations Container */}
-                        <div className="flex-1 min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-6">
-                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-primary/30 pb-5 shrink-0">
+                        <div className="flex-1 min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-6">
+                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 shrink-0">
                                 <div>
-                                    <h2 className="text-base font-black text-accent uppercase tracking-wider">Budget Allocations</h2>
+                                    <h2 className="text-base font-bold text-accent">Budget Allocations</h2>
                                     <p className="text-xs text-text-muted mt-1 font-bold">Monitor real-time project actual material costs against approved budgets</p>
                                 </div>
                                 
@@ -171,11 +171,11 @@ export default function DashboardPage() {
 
                                     {/* Status Filter */}
                                     <div className="flex gap-1.5 bg-bg-secondary/45 p-1 rounded-xl border border-border-primary/40">
-                                        {['All', 'On Budget', 'Depletion', 'Overrun'].map(status => (
+                                        {['All', 'On Budget', 'Overrun'].map(status => (
                                             <button
                                                 key={status}
                                                 onClick={() => setFilterStatus(status)}
-                                                className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                                                className={`px-3 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
                                                     filterStatus === status 
                                                         ? 'bg-accent text-white shadow-sm' 
                                                         : 'text-text-muted hover:text-text-primary hover:bg-bg-secondary/50'
@@ -190,19 +190,19 @@ export default function DashboardPage() {
 
                             {/* Responsive Wrap Grid to guarantee perfect layout scalability */}
                             {filteredAllocations.length > 0 ? (
-                                <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 overflow-y-auto pr-2 scrollbar-thin pb-4">
+                                <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 items-start gap-5 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {filteredAllocations.map((p) => {
                                         const rawPercent = p.budget > 0 ? (p.actual_cost / p.budget) * 100 : 0;
                                         const percent = p.actual_cost > 0 && rawPercent < 1 ? 1 : Math.min(100, Math.round(rawPercent));
                                         return (
-                                            <div key={p.id} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 border border-border-primary/50 rounded-[1.5rem] p-5 shadow-sm transition-all duration-300 flex flex-col justify-between group">
+                                            <div key={p.id} className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary hover:border-accent/30 transition-all duration-300 flex flex-col justify-between group">
                                                 <div>
                                                     <div className="flex justify-between items-start">
-                                                        <div>
-                                                            <h3 className="text-base font-black text-text-primary group-hover:text-accent transition-colors mb-1 line-clamp-1">{p.project_name}</h3>
-                                                            <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{p.as_of_date}</p>
+                                                        <div className="mr-2">
+                                                            <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors mb-1 line-clamp-1">{p.project_name}</h3>
+                                                            <p className="text-[11px] text-text-muted font-medium uppercase tracking-wide">{p.as_of_date}</p>
                                                         </div>
-                                                        <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                                                        <span className={`whitespace-nowrap shrink-0 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                                             p.status_badge === 'Overrun' ? 'bg-red-500/10 text-red-500 border border-red-500/20' :
                                                             p.status_badge === 'Depletion' ? 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' :
                                                             'bg-green-500/10 text-green-500 border border-green-500/20'
@@ -248,7 +248,7 @@ export default function DashboardPage() {
                                                         </svg>
                                                         {/* Floating hover percentage tag */}
                                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-bg-secondary/90 rounded-2xl m-6 border border-border-primary/50 pointer-events-none">
-                                                            <p className="text-xs font-black text-text-primary">{percent}% Spent</p>
+                                                            <p className="text-xs font-bold text-text-primary">{percent}% Spent</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -256,20 +256,20 @@ export default function DashboardPage() {
                                                 {/* Financial Details Footer */}
                                                 <div className="flex justify-between items-center mt-3 pt-3 border-t border-border-primary/30 text-center">
                                                     <div className="flex-1 border-r border-border-primary/30">
-                                                        <p className={`text-sm font-black ${
+                                                        <p className={`text-sm font-bold ${
                                                             p.status_badge === 'Overrun' ? 'text-red-500' :
                                                             p.status_badge === 'Depletion' ? 'text-yellow-500' :
                                                             'text-green-500'
                                                         }`}>
                                                             ₱{p.actual_cost.toLocaleString()}
                                                         </p>
-                                                        <p className="text-[9px] uppercase font-bold text-text-muted mt-0.5">Material Costs</p>
+                                                        <p className="text-[10px] uppercase font-medium text-text-muted mt-0.5">Material Costs</p>
                                                     </div>
                                                     <div className="flex-1">
-                                                        <p className="text-sm font-black text-text-primary">
+                                                        <p className="text-sm font-bold text-text-primary">
                                                             ₱{p.budget.toLocaleString()}
                                                         </p>
-                                                        <p className="text-[9px] uppercase font-bold text-text-muted mt-0.5">Budget</p>
+                                                        <p className="text-[10px] uppercase font-medium text-text-muted mt-0.5">Budget</p>
                                                     </div>
                                                 </div>
                                             </div>
@@ -286,7 +286,7 @@ export default function DashboardPage() {
                 ) : statsData.role === 'staff' ? (
                     <>
                         {/* Staff Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+                        <div className="flex gap-4 shrink-0 overflow-x-auto pb-2 scrollbar-thin">
                             <StatCard
                                 label="Total Assigned Tasks"
                                 value={statsData.total_assigned}
@@ -308,11 +308,10 @@ export default function DashboardPage() {
                         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
                             {/* Left Panel: Assigned Tasks Checklist (7 columns) */}
-                            <div className="min-h-0 lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4 shrink-0">
+                            <div className="min-h-0 lg:col-span-7 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0">
                                     <div>
                                         <h2 className="text-base font-bold text-accent uppercase tracking-wider">My Assigned Tasks</h2>
-                                        <p className="text-xs text-text-muted mt-1 font-medium">List of tasks assigned to you for execution</p>
                                     </div>
                                     
                                     {/* Task Search Bar */}
@@ -333,7 +332,7 @@ export default function DashboardPage() {
                                 <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {filteredStaffTasks.length > 0 ? (
                                         filteredStaffTasks.map((t) => (
-                                            <div key={t.id} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 border border-border-primary/50 rounded-2xl p-5 shadow-sm transition-all duration-300 flex items-center justify-between group">
+                                            <div key={t.id} className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary hover:border-accent/30 transition-all duration-300 flex items-center justify-between group">
                                                 <div className="space-y-1">
                                                     <h3 className="text-base font-bold text-text-primary group-hover:text-accent transition-colors">{t.title}</h3>
                                                     <p className="text-xs text-text-muted font-medium">{t.project_name}</p>
@@ -361,36 +360,41 @@ export default function DashboardPage() {
                                 </div>
                             </div>
 
-                            {/* Right Panel: Submitted Progress Logs (5 columns) */}
-                            <div className="min-h-0 lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="border-b border-border-primary/30 pb-4 shrink-0">
-                                    <h2 className="text-base font-bold text-accent uppercase tracking-wider">My Task Submissions</h2>
-                                        <p className="text-[10px] text-text-muted mt-0.5 font-medium">Recent progress updates and accomplishments logged by you</p>
-                                    </div>
+                            {/* Right Panel: Upcoming Deadlines / Priority Tasks (5 columns) */}
+                            <div className="min-h-0 lg:col-span-5 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="mb-4 shrink-0">
+                                    <h2 className="text-base font-bold text-accent uppercase tracking-wider">Upcoming Deadlines / Priority Tasks</h2>
+                                </div>
 
                                 <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
-                                        {statsData.recent_submissions?.length > 0 ? (
-                                            statsData.recent_submissions.map((log) => (
-                                                <div key={log.id} className="p-4 rounded-2xl border border-border-primary/50 bg-bg-secondary/20 flex flex-col space-y-2 shadow-sm transition-all duration-300 hover:scale-[1.01] group">
+                                        {statsData.upcoming_tasks?.length > 0 ? (
+                                            statsData.upcoming_tasks.map((task) => (
+                                                <div key={task.id} className="p-4 rounded-2xl border border-border-primary/50 bg-bg-secondary/20 flex flex-col space-y-2 shadow-sm transition-all duration-300 hover:border-accent/30 hover:bg-bg-secondary/40 group">
                                                     <div className="flex justify-between items-start">
                                                         <div>
-                                                            <h3 className="text-xs font-bold text-text-primary group-hover:text-accent transition-colors">{log.task_title}</h3>
-                                                            <p className="text-[9px] text-text-muted font-medium uppercase tracking-wider">{log.project_name}</p>
+                                                            <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{task.title}</h3>
+                                                            <p className="text-[10px] text-text-muted font-medium uppercase tracking-wider mt-0.5">{task.project_name}</p>
                                                         </div>
-                                                        <span className="text-[10px] text-text-muted font-medium">{log.date}</span>
+                                                        <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold uppercase tracking-wider ${
+                                                            task.priority === 'high' ? 'bg-red-50 text-red-600 border border-red-200/50' :
+                                                            task.priority === 'medium' ? 'bg-amber-50 text-amber-600 border border-amber-200/50' :
+                                                            'bg-emerald-50 text-emerald-600 border border-emerald-200/50'
+                                                        }`}>
+                                                            {task.priority} Priority
+                                                        </span>
                                                     </div>
-                                                    <p className="text-xs text-text-primary/90 font-bold bg-bg-secondary/40 p-2.5 rounded-xl border border-border-primary/30 italic">
-                                                        "{log.remarks}"
-                                                    </p>
-                                                    {log.quantity !== undefined && log.quantity !== null && (
-                                                        <p className="text-[10px] text-text-primary font-bold">
-                                                            Accomplished Quantity: <span className="text-accent font-black">{log.quantity}</span>
-                                                        </p>
-                                                    )}
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <svg className="w-3.5 h-3.5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                        <span className="text-[11px] font-bold text-text-primary/80">
+                                                            Due: {task.due_date}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             ))
                                         ) : (
-                                            <p className="text-sm text-text-muted py-4 text-center">No progress log submissions found yet.</p>
+                                            <p className="text-sm text-text-muted py-4 text-center">No upcoming tasks or deadlines found.</p>
                                         )}
                                     </div>
                             </div>
@@ -400,11 +404,21 @@ export default function DashboardPage() {
                 ) : statsData.role === 'procurement' ? (
                     <>
                         {/* Procurement Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+                        <div className="flex gap-4 shrink-0 overflow-x-auto pb-2 scrollbar-thin">
                             <StatCard
                                 label="Ongoing Projects"
                                 value={statsData.ongoing_projects_count}
                                 color="text-orange-400"
+                            />
+                            <StatCard
+                                label="Low Stock Items"
+                                value={(statsData.materials_stock || []).reduce((acc, curr) => acc + curr.low_stock, 0)}
+                                color="text-yellow-500"
+                            />
+                            <StatCard
+                                label="Out of Stock Items"
+                                value={(statsData.materials_stock || []).reduce((acc, curr) => acc + curr.no_stock, 0)}
+                                color="text-red-500"
                             />
                         </div>
 
@@ -412,11 +426,11 @@ export default function DashboardPage() {
                         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-5">
 
                             {/* Left Panel: Materials Stock (7 columns) */}
-                            <div className="min-h-0 lg:col-span-7 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border-primary/30 pb-4 shrink-0">
+                            <div className="min-h-0 lg:col-span-7 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 shrink-0">
                                     <div>
-                                        <h2 className="text-base font-black text-accent uppercase tracking-wider">Materials Stock</h2>
-                                        <p className="text-xs text-text-muted mt-1 font-bold">Classified count of material inventory items per project</p>
+                                        <h2 className="text-base font-bold text-accent">Materials Stock</h2>
+                                        <p className="text-xs text-text-muted mt-1 font-medium">Classified count of material inventory items per project</p>
                                     </div>
                                     
                                     {/* Project Search Bar */}
@@ -443,20 +457,20 @@ export default function DashboardPage() {
                                             const noStockPct = total > 0 ? (p.no_stock / total) * 100 : 0;
 
                                             return (
-                                                <div key={p.id} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 border border-border-primary/50 rounded-[1.5rem] p-5 shadow-sm transition-all duration-300 flex flex-col justify-between group">
+                                                <div key={p.id} className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary hover:border-accent/30 transition-all duration-300 flex flex-col justify-between group">
                                                     <div>
-                                                        <h3 className="text-base font-black text-text-primary group-hover:text-accent transition-colors mb-1 line-clamp-1">{p.project_name}</h3>
-                                                        <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{p.as_of_date}</p>
+                                                        <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors mb-1 line-clamp-1">{p.project_name}</h3>
+                                                        <p className="text-[11px] text-text-muted font-medium uppercase tracking-wider">{p.as_of_date}</p>
 
-                                                        {/* Solid Pie Chart with 3 colored slices matching mockup exactly */}
-                                                        <div className="relative flex justify-center py-5">
-                                                            <svg height="120" width="120" className="mx-auto -rotate-90 filter drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]">
-                                                                {/* Light neutral background circle for empty state */}
+                                                        {/* Modern Donut Chart with 3 colored slices */}
+                                                        <div className="relative flex justify-center py-6">
+                                                            <svg height="120" width="120" className="mx-auto -rotate-90 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                                                                {/* Background track */}
                                                                 <circle
-                                                                    stroke="rgba(156, 163, 175, 0.15)"
+                                                                    stroke="var(--bg-hover, #2d2d30)"
                                                                     fill="transparent"
-                                                                    strokeWidth="60"
-                                                                    r="30"
+                                                                    strokeWidth="20"
+                                                                    r="40"
                                                                     cx="60"
                                                                     cy="60"
                                                                 />
@@ -465,11 +479,11 @@ export default function DashboardPage() {
                                                                 <circle
                                                                     stroke="#10B981"
                                                                     fill="transparent"
-                                                                    strokeWidth="60"
-                                                                    r="30"
+                                                                    strokeWidth="20"
+                                                                    r="40"
                                                                     cx="60"
                                                                     cy="60"
-                                                                    strokeDasharray={`${(inStockPct / 100) * 188.4} 188.4`}
+                                                                    strokeDasharray={`${(inStockPct / 100) * 251.2} 251.2`}
                                                                     strokeDashoffset={0}
                                                                 />
                                                                 {/* Slice 2: Low Stock (Orange) */}
@@ -477,12 +491,12 @@ export default function DashboardPage() {
                                                                     <circle
                                                                         stroke="#F59E0B"
                                                                         fill="transparent"
-                                                                        strokeWidth="60"
-                                                                        r="30"
+                                                                        strokeWidth="20"
+                                                                        r="40"
                                                                         cx="60"
                                                                         cy="60"
-                                                                        strokeDasharray={`${(lowStockPct / 100) * 188.4} 188.4`}
-                                                                        strokeDashoffset={-((inStockPct / 100) * 188.4)}
+                                                                        strokeDasharray={`${(lowStockPct / 100) * 251.2} 251.2`}
+                                                                        strokeDashoffset={-((inStockPct / 100) * 251.2)}
                                                                     />
                                                                 )}
                                                                 {/* Slice 3: No Stock (Red) */}
@@ -490,31 +504,37 @@ export default function DashboardPage() {
                                                                     <circle
                                                                         stroke="#EF4444"
                                                                         fill="transparent"
-                                                                        strokeWidth="60"
-                                                                        r="30"
+                                                                        strokeWidth="20"
+                                                                        r="40"
                                                                         cx="60"
                                                                         cy="60"
-                                                                        strokeDasharray={`${(noStockPct / 100) * 188.4} 188.4`}
-                                                                        strokeDashoffset={-(((inStockPct + lowStockPct) / 100) * 188.4)}
+                                                                        strokeDasharray={`${(noStockPct / 100) * 251.2} 251.2`}
+                                                                        strokeDashoffset={-(((inStockPct + lowStockPct) / 100) * 251.2)}
                                                                     />
                                                                 )}
+                                                                {/* Center Accent Core Dot */}
+                                                                <circle fill="#FFFFFF" r="4" cx="60" cy="60" />
                                                             </svg>
+                                                            {/* Floating hover total tag */}
+                                                            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-bg-secondary/90 rounded-2xl m-6 border border-border-primary/50 pointer-events-none">
+                                                                <p className="text-xs font-bold text-text-primary">{total} Items</p>
+                                                            </div>
                                                         </div>
                                                     </div>
 
                                                     {/* In Stock / Low Stock / No Stock footer metrics */}
                                                     <div className="flex justify-between items-center mt-3 pt-3 border-t border-border-primary/30 text-center">
                                                         <div className="flex-1 border-r border-border-primary/30">
-                                                            <p className="text-sm font-black text-green-500">{p.in_stock}</p>
-                                                            <p className="text-[9px] uppercase font-bold text-text-muted mt-0.5">In Stock</p>
+                                                            <p className="text-sm font-bold text-green-500">{p.in_stock}</p>
+                                                            <p className="text-[10px] uppercase font-medium text-text-muted mt-0.5">In Stock</p>
                                                         </div>
                                                         <div className="flex-1 border-r border-border-primary/30">
-                                                            <p className="text-sm font-black text-yellow-500">{p.low_stock}</p>
-                                                            <p className="text-[9px] uppercase font-bold text-text-muted mt-0.5">Low Stock</p>
+                                                            <p className="text-sm font-bold text-yellow-500">{p.low_stock}</p>
+                                                            <p className="text-[10px] uppercase font-medium text-text-muted mt-0.5">Low Stock</p>
                                                         </div>
                                                         <div className="flex-1">
-                                                            <p className="text-sm font-black text-red-500">{p.no_stock}</p>
-                                                            <p className="text-[9px] uppercase font-bold text-text-muted mt-0.5">No Stock</p>
+                                                            <p className="text-sm font-bold text-red-500">{p.no_stock}</p>
+                                                            <p className="text-[10px] uppercase font-medium text-text-muted mt-0.5">No Stock</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -529,11 +549,11 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Right Panel: Critical Stock Alerts Board */}
-                            <div className="min-h-0 lg:col-span-5 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
+                            <div className="min-h-0 lg:col-span-5 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="flex items-center justify-between mb-4 shrink-0 gap-4">
                                         <div>
-                                            <h2 className="text-base font-black text-accent uppercase tracking-wider">Critical Alerts</h2>
-                                            <p className="text-[10px] text-text-muted mt-0.5 font-bold">Materials running dangerously low across sites</p>
+                                            <h2 className="text-base font-bold text-accent">Critical Alerts</h2>
+                                            <p className="text-[11px] text-text-muted mt-0.5 font-medium">Materials running dangerously low across sites</p>
                                         </div>
                                         
                                         {/* Alerts Search Bar */}
@@ -556,24 +576,29 @@ export default function DashboardPage() {
                                             filteredAlerts.map((alert, i) => (
                                                 <div key={i} className={`p-4 rounded-2xl border ${
                                                     alert.status === 'Out of Stock' 
-                                                        ? 'bg-red-500/5 border-red-500/20' 
-                                                        : 'bg-yellow-500/5 border-yellow-500/20'
-                                                } flex items-center justify-between shadow-sm transition-all duration-300 hover:scale-[1.01] group`}>
-                                                    <div className="space-y-1">
-                                                        <div className="flex items-center gap-2">
-                                                            <h3 className="text-sm font-black text-text-primary group-hover:text-accent transition-colors">{alert.item_name}</h3>
-                                                            <span className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider ${
+                                                        ? 'bg-red-50/80 border-red-200/60' 
+                                                        : 'bg-amber-50/80 border-amber-200/60'
+                                                } flex items-center justify-between shadow-sm transition-all duration-300 group`}>
+                                                    <div className="space-y-1.5 w-full">
+                                                        <div className="flex items-center justify-between gap-2">
+                                                            <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{alert.item_name}</h3>
+                                                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
                                                                 alert.status === 'Out of Stock' 
-                                                                    ? 'bg-red-500/10 text-red-500' 
-                                                                    : 'bg-yellow-500/10 text-yellow-500'
+                                                                    ? 'bg-red-100 text-red-600' 
+                                                                    : 'bg-amber-100 text-amber-600'
                                                             }`}>
                                                                 {alert.status}
                                                             </span>
                                                         </div>
-                                                        <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider">{alert.project_name}</p>
-                                                        <p className="text-[11px] text-text-primary/80 font-bold">
-                                                            Current: <span className={alert.status === 'Out of Stock' ? 'text-red-500' : 'text-yellow-500'}>{alert.current_stock}</span> / Min: {alert.critical_level} {alert.unit}
-                                                        </p>
+                                                        <p className="text-[11px] text-text-muted font-medium uppercase tracking-wider">{alert.project_name}</p>
+                                                        <div className="flex items-center justify-between bg-white/50 rounded-lg p-2 mt-2 border border-black/5">
+                                                            <p className="text-[11px] text-text-primary font-medium">
+                                                                Current Stock: <span className={`font-bold ${alert.status === 'Out of Stock' ? 'text-red-600' : 'text-amber-600'}`}>{alert.current_stock}</span>
+                                                            </p>
+                                                            <p className="text-[11px] text-text-muted font-medium">
+                                                                Minimum Required: <span className="font-bold text-text-primary">{alert.critical_level} {alert.unit}</span>
+                                                            </p>
+                                                        </div>
                                                     </div>
 
                                                 </div>
@@ -588,127 +613,115 @@ export default function DashboardPage() {
                     </>
                 ) : statsData.role === 'hr' ? (
                     <>
-                        {/* HR Custom Stat Cards Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 shrink-0">
-                            {/* Card 1: Active Staff */}
-                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
-                                <div>
-                                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">Total number of active staff</p>
-                                    <p className="text-xs text-text-muted mt-1 font-medium">Been active for the last month.</p>
-                                </div>
-                                <p className="text-4xl font-bold leading-none text-emerald-500">{statsData.active_last_month}</p>
-                            </div>
-                            
-                            {/* Card 2: Inactive Staff */}
-                            <div className="bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex items-center justify-between flex-1 transition-all duration-300 hover:border-accent/30 group">
-                                <div>
-                                    <p className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">Total number of inactive staff</p>
-                                    <p className="text-xs text-text-muted mt-1 font-medium">Hasn't been active for the last month.</p>
-                                </div>
-                                <p className="text-4xl font-bold leading-none text-rose-500">{statsData.inactive_last_month}</p>
-                            </div>
+                        {/* HR Stat Cards Row */}
+                        <div className="flex gap-4 shrink-0 overflow-x-auto pb-2 scrollbar-thin">
+                            <StatCard
+                                label="Total Personnel"
+                                value={statsData.total_personnel}
+                                color="text-accent"
+                            />
+                            <StatCard
+                                label="Deployed Personnel"
+                                value={statsData.deployed_personnel}
+                                color="text-emerald-500"
+                            />
+                            <StatCard
+                                label="Available Personnel"
+                                value={statsData.available_personnel}
+                                color="text-amber-500"
+                            />
                         </div>
 
-                        {/* Bottom: Team Members (Project Allocations) + Active Staffs */}
+                        {/* Bottom: Current Deployments + Workforce Distribution */}
                         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
-                            {/* Left Panel: Team Members */}
-                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
-                                        <h2 className="text-base font-bold text-accent uppercase tracking-wider">Team Members</h2>
-                                        
-                                        {/* Project Search Bar */}
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Search projects..."
-                                                value={projectSearchQuery}
-                                                onChange={(e) => setProjectSearchQuery(e.target.value)}
-                                                className="bg-bg-secondary/60 border border-border-primary/50 rounded-xl px-4 py-2 pl-9 text-xs text-text-primary focus:outline-none focus:border-accent w-48 transition-all"
-                                            />
-                                            <svg className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </div>
+                            {/* Left Panel: Current Deployments */}
+                            <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="flex items-center justify-between mb-4 shrink-0 gap-4">
+                                    <h2 className="text-base font-bold text-accent uppercase tracking-wider">Current Deployments</h2>
+                                    
+                                    {/* Project Search Bar */}
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search projects..."
+                                            value={projectSearchQuery}
+                                            onChange={(e) => setProjectSearchQuery(e.target.value)}
+                                            className="bg-bg-secondary/60 border border-border-primary/50 rounded-xl px-4 py-2 pl-9 text-xs text-text-primary focus:outline-none focus:border-accent w-48 transition-all"
+                                        />
+                                        <svg className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
                                     </div>
+                                </div>
 
-                                    <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
-                                        {filteredHrAllocations.length > 0 ? (
-                                            filteredHrAllocations.map((p, i) => (
-                                                <div key={i} className="bg-bg-secondary/40 hover:bg-bg-secondary/60 rounded-2xl p-5 border border-border-primary/50 flex items-center justify-between shadow-sm transition-all duration-300">
-                                                    <div>
-                                                        <h3 className="text-base font-bold text-text-primary mb-1">{p.project_name}</h3>
-                                                        <p className="text-xs text-text-muted font-medium">{p.member_count} Team member in {p.project_name}.</p>
-                                                    </div>
-                                                    <span className="text-3xl font-bold text-text-primary pr-2">
-                                                        {p.member_count}
-                                                    </span>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <p className="text-sm text-text-muted py-4 text-center">No projects found.</p>
-                                        )}
-                                    </div>
+                                <div className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 scrollbar-thin pb-4">
+                                    {filteredHrAllocations.length > 0 ? (
+                                        filteredHrAllocations.map((p, i) => (
+                                            <div key={i} className="flex justify-between items-center p-4 rounded-2xl hover:bg-bg-secondary/40 transition-all duration-300 border border-transparent hover:border-border-primary/50 group">
+                                                <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{p.project_name}</h3>
+                                                <span className="text-xl font-black text-accent">{p.member_count}</span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-sm text-text-muted py-4 text-center">No active deployments found.</p>
+                                    )}
+                                </div>
                             </div>
 
-                            {/* Right Panel: Active Staffs */}
-                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-md border border-border-primary/50 flex flex-col space-y-5">
-                                <div className="flex items-center justify-between border-b border-border-primary/30 pb-4 shrink-0 gap-4">
-                                        <h2 className="text-base font-bold text-accent uppercase tracking-wider">Active Staffs</h2>
-                                        
-                                        {/* Staff Search Bar */}
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                placeholder="Search staff or role..."
-                                                value={staffSearchQuery}
-                                                onChange={(e) => setStaffSearchQuery(e.target.value)}
-                                                className="bg-bg-secondary/60 border border-border-primary/50 rounded-xl px-4 py-2 pl-9 text-xs text-text-primary focus:outline-none focus:border-accent w-48 transition-all"
-                                            />
-                                            <svg className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                            </svg>
-                                        </div>
+                            {/* Right Panel: Workforce Distribution */}
+                            <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <div className="flex items-center justify-between mb-4 shrink-0 gap-4">
+                                    <h2 className="text-base font-bold text-accent uppercase tracking-wider">Workforce Distribution</h2>
+                                    
+                                    {/* Role Search Bar */}
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search role..."
+                                            value={staffSearchQuery}
+                                            onChange={(e) => setStaffSearchQuery(e.target.value)}
+                                            className="bg-bg-secondary/60 border border-border-primary/50 rounded-xl px-4 py-2 pl-9 text-xs text-text-primary focus:outline-none focus:border-accent w-48 transition-all"
+                                        />
+                                        <svg className="absolute left-3 top-2.5 h-3.5 w-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                        </svg>
                                     </div>
+                                </div>
 
-                                    <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
-                                        {filteredStaff.length > 0 ? (
-                                            filteredStaff.map((staff, i) => {
-                                                const initials = (staff.name || '')
-                                                    .split(' ')
-                                                    .map(n => n[0])
-                                                    .join('')
-                                                    .slice(0, 2)
-                                                    .toUpperCase();
-                                                
-                                                return (
-                                                    <div key={i} className="bg-bg-secondary/30 hover:bg-bg-secondary/50 rounded-2xl p-4 border border-border-primary/50 flex items-center justify-between shadow-sm transition-all duration-300 hover:scale-[1.01] group">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
-                                                                <span className="text-xs font-black text-accent">{initials || 'U'}</span>
-                                                            </div>
-                                                            <div>
-                                                                <h3 className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">{staff.name}</h3>
-                                                                <p className="text-[10px] text-text-muted font-bold uppercase tracking-wider mt-0.5">{staff.role}</p>
-                                                            </div>
-                                                        </div>
-                                                        <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                                                            Active
-                                                        </span>
-                                                    </div>
-                                                );
-                                            })
-                                        ) : (
-                                            <p className="text-sm text-text-muted py-4 text-center">No active staff found.</p>
-                                        )}
-                                    </div>
+                                <div className="flex-1 min-h-0 space-y-2 overflow-y-auto pr-2 scrollbar-thin pb-4">
+                                    {(() => {
+                                        const roleTally = {};
+                                        filteredStaff.forEach(staff => {
+                                            let r = staff.role || 'Unassigned';
+                                            r = r.replace(/_/g, ' ').toUpperCase();
+                                            roleTally[r] = (roleTally[r] || 0) + 1;
+                                        });
+                                        const sortedRoles = Object.entries(roleTally)
+                                            .sort((a,b) => b[1] - a[1])
+                                            .filter(([role]) => ['PROJECT ENGINEER', 'PROJECT COORDINATOR', 'FOREMAN', 'PROCUREMENT', 'STAFF'].includes(role));
+
+                                        if (sortedRoles.length === 0) {
+                                            return <p className="text-sm text-text-muted py-4 text-center">No personnel found.</p>;
+                                        }
+
+                                        return sortedRoles.map(([role, count], i) => (
+                                            <div key={i} className="flex justify-between items-center p-4 rounded-2xl hover:bg-bg-secondary/40 transition-all duration-300 border border-transparent hover:border-border-primary/50 group">
+                                                <h3 className="text-sm font-bold text-text-primary group-hover:text-emerald-500 transition-colors">{role}</h3>
+                                                <div className="flex items-center justify-center min-w-[36px] h-9 px-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30 group-hover:bg-emerald-500/30 transition-colors">
+                                                    <span className="text-sm font-black text-emerald-600">{count}</span>
+                                                </div>
+                                            </div>
+                                        ));
+                                    })()}
+                                </div>
                             </div>
                         </div>
                     </>
                 ) : statsData.role === 'sales' ? (
                     <>
                         {/* Sales Stat Cards Row */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+                        <div className="flex gap-4 shrink-0 overflow-x-auto pb-2 scrollbar-thin">
                             {salesStats.map((s) => (
                                 <StatCard key={s.label} {...s} />
                             ))}
@@ -718,17 +731,17 @@ export default function DashboardPage() {
                         <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-2 gap-5">
 
                             {/* Left Panel: Proposed Projects Status */}
-                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
-                                <h2 className="text-base font-black text-accent uppercase tracking-wider shrink-0 mb-0">Proposed Projects Status</h2>
+                            <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <h2 className="text-base font-bold text-accent mb-4 shrink-0">Proposed Projects Status</h2>
                                 <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
                                     {statsData.proposed_projects_status?.length > 0 ? (
                                         statsData.proposed_projects_status.map((p, i) => (
-                                            <div key={i} className="bg-bg-secondary/40 hover:bg-bg-secondary/60 rounded-2xl p-5 border border-border-primary/50 flex items-center justify-between shadow-sm transition-all duration-300">
+                                            <div key={i} className="bg-card rounded-2xl p-5 shadow-sm border border-border-primary hover:border-accent/30 flex items-center justify-between transition-all duration-300">
                                                 <div>
-                                                    <h3 className="text-base font-black text-text-primary mb-1">{p.project_name}</h3>
-                                                    <p className="text-xs text-text-muted font-bold">Project-In-Charge: {p.engr_name}</p>
+                                                    <h3 className="text-sm font-bold text-text-primary mb-1">{p.project_name}</h3>
+                                                    <p className="text-[11px] text-text-muted font-medium">Project-In-Charge: {p.engr_name}</p>
                                                 </div>
-                                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                                                <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
                                                     p.sub_status === 'Pending' ? 'bg-rose-50 text-rose-600 border border-rose-200/50' :
                                                     p.sub_status === 'For Approval' ? 'bg-amber-50 text-amber-600 border border-amber-200/50' :
                                                     p.sub_status === 'For Revisions' ? 'bg-rose-50 text-rose-600 border border-rose-200/50' :
@@ -745,25 +758,17 @@ export default function DashboardPage() {
                             </div>
 
                             {/* Right Panel: Proposed Project Updates */}
-                            <div className="min-h-0 bg-card rounded-[2rem] p-6 shadow-xl border border-border-primary/50 flex flex-col space-y-5">
-                                <h2 className="text-base font-black text-accent uppercase tracking-wider shrink-0 mb-0">Proposed Project Updates</h2>
+                            <div className="min-h-0 bg-card rounded-2xl p-6 shadow-sm border border-border-primary flex flex-col space-y-5">
+                                <h2 className="text-base font-bold text-accent mb-4 shrink-0">Proposed Project Updates</h2>
                                 <div className="flex-1 min-h-0 space-y-3 overflow-y-auto pr-2 scrollbar-thin pb-4">
-                                    {statsData.proposed_project_updates?.length > 0 ? (
-                                        statsData.proposed_project_updates.map((update, i) => (
-                                            <div key={i} className={`p-4 rounded-2xl border ${
-                                                update.color === 'red' ? 'bg-rose-50/80 border-rose-200/60' :
-                                                update.color === 'orange' ? 'bg-amber-50/80 border-amber-200/60' :
-                                                'bg-emerald-50/80 border-emerald-200/60'
-                                            } flex gap-2 text-sm leading-relaxed shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]`}>
+                                    {statsData.proposed_project_updates?.filter(update => update.color === 'green').length > 0 ? (
+                                        statsData.proposed_project_updates.filter(update => update.color === 'green').map((update, i) => (
+                                            <div key={i} className="p-4 rounded-2xl border bg-emerald-50/80 border-emerald-200/60 flex gap-2 text-sm leading-relaxed shadow-sm transition-all duration-300">
                                                 <div className="w-full">
-                                                    <span className={`font-black uppercase tracking-tight mr-1 ${
-                                                        update.color === 'red' ? 'text-rose-600' :
-                                                        update.color === 'orange' ? 'text-amber-600' :
-                                                        'text-emerald-600'
-                                                    }`}>
+                                                    <span className="font-bold text-emerald-600 mr-1">
                                                         {update.project_name}
                                                     </span>
-                                                    <span className="text-text-primary font-bold">
+                                                    <span className="text-text-primary font-medium">
                                                         : {update.description}
                                                     </span>
                                                 </div>

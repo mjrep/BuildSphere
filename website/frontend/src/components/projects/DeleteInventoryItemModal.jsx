@@ -29,7 +29,7 @@ export default function DeleteInventoryItemModal({ project, item, onClose, onSuc
                 </div>
                 
                 <h3 className="text-xl font-bold text-text-primary mb-2 text-center">Delete this item?</h3>
-                <p className="text-sm text-gray-500 mb-8 text-center px-4">
+                <p className="text-sm text-text-muted mb-8 text-center px-4">
                     Are you sure you want to delete <span className="font-bold text-text-primary">"{item.item_name}"</span>? This action cannot be undone.
                 </p>
                 
@@ -37,7 +37,7 @@ export default function DeleteInventoryItemModal({ project, item, onClose, onSuc
                     <button
                         onClick={onClose}
                         disabled={submitting}
-                        className="py-3 text-sm font-bold text-gray-600 bg-gray-50 hover:bg-gray-100 rounded-2xl transition-colors disabled:opacity-50"
+                        className="py-3 text-sm font-bold text-text-muted bg-bg-secondary hover:bg-bg-tertiary rounded-2xl transition-colors disabled:opacity-50"
                     >
                         Cancel
                     </button>

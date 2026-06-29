@@ -52,7 +52,7 @@ export default function MilestonePhaseCard({
                                 errors.weight_percentage ? 'border-red-400 focus:ring-red-200' : 'border-border-primary focus:border-[#706BFF] focus:ring-[#706BFF]/20'
                             } focus:outline-none focus:ring-2`}
                         />
-                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">%</span>
+                        <span className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">%</span>
                     </div>
                     {errors.weight_percentage && <p className="text-red-500 text-[10px] ml-1 mt-1">{errors.weight_percentage}</p>}
                 </div>

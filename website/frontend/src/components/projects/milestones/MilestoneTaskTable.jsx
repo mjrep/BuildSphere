@@ -46,7 +46,7 @@ export default function MilestoneTaskTable({ phase, id }) {
                     <tbody className="divide-y divide-[#F0F0F8]">
                         {tasks.length > 0 ? (
                             tasks.map((task, idx) => (
-                                <tr key={task.id || idx} className="hover:bg-gray-50 transition-colors">
+                                <tr key={task.id || idx} className="hover:bg-bg-secondary transition-colors">
                                     <td className="px-6 py-6 text-[15px] font-medium text-text-primary">{task.title}</td>
                                     <td className="px-6 py-6 text-[14px] font-medium text-accent max-w-[150px] truncate">{task.milestone_name}</td>
                                     <td className="px-6 py-6 text-[14px] text-[#6B6B6B]">{task.assigned_to_name}</td>

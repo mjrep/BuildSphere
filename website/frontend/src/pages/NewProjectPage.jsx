@@ -204,7 +204,7 @@ export default function NewProjectPage() {
             <div className="flex items-center gap-3">
                 <button 
                     onClick={() => navigate('/projects')} 
-                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-gray-100 transition-colors"
+                    className="p-2 -ml-2 rounded-lg text-text-primary hover:bg-bg-tertiary transition-colors"
                 >
                     <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -286,7 +286,7 @@ export default function NewProjectPage() {
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-text-secondary ml-1">Contract Price</label>
                                         <div className="relative group">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                             <input type="text" name="contract_price" value={formatNumber(form.contract_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_price') + " pl-8"} />
                                         </div>
@@ -295,7 +295,7 @@ export default function NewProjectPage() {
                                     <div className="space-y-1.5">
                                         <label className="block text-sm font-semibold text-text-secondary ml-1">Unit Price</label>
                                         <div className="relative group">
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                             <input type="text" name="contract_unit_price" value={formatNumber(form.contract_unit_price)} onChange={handleChange}
                                                    placeholder="0.00" className={inputClass('contract_unit_price') + " pl-8"} />
                                         </div>
@@ -305,7 +305,7 @@ export default function NewProjectPage() {
                                 <div className="space-y-1.5">
                                     <label className="block text-sm font-semibold text-text-secondary ml-1">Budget for Materials</label>
                                     <div className="relative group">
-                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
+                                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted font-bold pointer-events-none group-focus-within:text-accent transition-colors">₱</span>
                                         <input type="text" name="budget_for_materials" value={formatNumber(form.budget_for_materials)} onChange={handleChange}
                                                placeholder="0.00" className={inputClass('budget_for_materials') + " pl-8"} />
                                     </div>
@@ -390,7 +390,7 @@ export default function NewProjectPage() {
                                                     <span className="text-xs text-text-muted font-medium">{(files.contract.size / 1024 / 1024).toFixed(2)} MB</span>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={() => setFiles(p => ({ ...p, contract: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, contract: null }))} className="p-2 rounded-full hover:bg-card text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
                                                 <X className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -423,7 +423,7 @@ export default function NewProjectPage() {
                                                     <span className="text-xs text-text-muted font-medium">{(files.billing_format.size / 1024 / 1024).toFixed(2)} MB</span>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={() => setFiles(p => ({ ...p, billing_format: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, billing_format: null }))} className="p-2 rounded-full hover:bg-card text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
                                                 <X className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -456,7 +456,7 @@ export default function NewProjectPage() {
                                                     <span className="text-xs text-text-muted font-medium">{(files.shop_drawing.size / 1024 / 1024).toFixed(2)} MB</span>
                                                 </div>
                                             </div>
-                                            <button type="button" onClick={() => setFiles(p => ({ ...p, shop_drawing: null }))} className="p-2 rounded-full hover:bg-white text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
+                                            <button type="button" onClick={() => setFiles(p => ({ ...p, shop_drawing: null }))} className="p-2 rounded-full hover:bg-card text-text-muted hover:text-red-500 shadow-sm border border-transparent hover:border-border-primary transition-all flex-shrink-0">
                                                 <X className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -541,7 +541,7 @@ export default function NewProjectPage() {
                             <div className="flex justify-end gap-3">
                                 <button
                                     onClick={() => setShowConfirmModal(false)}
-                                    className="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-primary hover:bg-gray-100 rounded-xl transition-all"
+                                    className="px-5 py-2.5 text-sm font-bold text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-xl transition-all"
                                 >
                                     Cancel
                                 </button>
